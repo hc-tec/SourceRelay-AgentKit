@@ -4,14 +4,14 @@
   "product": {
     "id": "collector-ai-integration",
     "version": "0.0.0-mcp-foundation",
-    "phase": "capability_parity",
+    "phase": "skills_canary",
     "architectureVersion": "v1",
     "license": "Apache-2.0"
   },
   "checkpoint": {
     "completed": [0, 1, 2, 3, 4],
-    "current": null,
-    "next": 5
+    "current": 5,
+    "next": 6
   },
   "core": {
     "supportedApiSchemaRange": "=3",
@@ -135,7 +135,28 @@
     ]
   },
   "skills": {
-    "official": []
+    "official": [
+      {
+        "skillId": "use-collector-mcp",
+        "skillVersion": "0.1.0",
+        "digest": "sha256:138aa97b0c588538f25daf273c27f61d5397ae9b67b86e6638926bfa0fd49563"
+      },
+      {
+        "skillId": "collect-bilibili",
+        "skillVersion": "0.1.0",
+        "digest": "sha256:9ed4641eb0cda7f5844cec27fe9896e754e93d914361f97dc03d3abc37e66796"
+      },
+      {
+        "skillId": "collect-xiaohongshu",
+        "skillVersion": "0.1.0",
+        "digest": "sha256:c24f403fb96d43c318d06ecef50e5f3812b9fa58568e7e4e6ca85d8101bd879a"
+      },
+      {
+        "skillId": "research-search-then-detail",
+        "skillVersion": "0.1.0",
+        "digest": "sha256:8de11793b87a80858f455bc78e425a4bd9068de2371892c30d887f83318847d4"
+      }
+    ]
   },
   "support": {
     "operatingSystems": ["windows"],
@@ -173,6 +194,14 @@
       {
         "kind": "mcp_l1_contract_gate",
         "command": "npm run test:l1"
+      },
+      {
+        "kind": "skill_creator_quick_validation",
+        "command": "python -X utf8 <skill-creator>/scripts/quick_validate.py <official-skill-directory>"
+      },
+      {
+        "kind": "official_skill_package_gate",
+        "command": "npm run verify:skills"
       },
       {
         "kind": "core_javascript_python_sdk_capability_matrix",

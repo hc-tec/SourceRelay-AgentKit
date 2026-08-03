@@ -1,0 +1,4 @@
+interface:
+  display_name: "Search Then Detail Research"
+  short_description: "Research broadly, then deepen selected results"
+  default_prompt: "Use $research-search-then-detail to search broadly and collect detail only for selected relevant results."

@@ -1,0 +1,61 @@
+{
+  "schemaVersion": "collector.ai-integration.skill/v1alpha1",
+  "skillId": "collect-xiaohongshu",
+  "skillVersion": "0.1.0",
+  "layer": "platform",
+  "publisher": "collector-ai-integration",
+  "source": "collector-ai-integration/skills/collect-xiaohongshu",
+  "digest": "sha256:c24f403fb96d43c318d06ecef50e5f3812b9fa58568e7e4e6ca85d8101bd879a",
+  "license": "Apache-2.0",
+  "official": true,
+  "requirements": {
+    "tools": [
+      "collector_xiaohongshu_public_notes_search",
+      "collector_xiaohongshu_account_public_notes",
+      "collector_xiaohongshu_note_public_detail",
+      "collector_xiaohongshu_note_public_comments",
+      "collector_xiaohongshu_note_public_comment_replies"
+    ],
+    "resources": [
+      "collector://release",
+      "collector://capabilities",
+      "collector://bindings",
+      "collector://operations/{operationId}",
+      "collector://artifacts/{artifactId}",
+      "collector://artifacts/{artifactId}/chunks/{cursor}"
+    ],
+    "capabilities": [
+      "xiaohongshu.search.public_notes.v1",
+      "xiaohongshu.account.public_notes.v1",
+      "xiaohongshu.note.public_detail.v1",
+      "xiaohongshu.note.public_comments.v1",
+      "xiaohongshu.note.public_comment_replies.v1"
+    ],
+    "minimumOutputSchemas": {
+      "collector://release": "collector.mcp.release/v1",
+      "collector://capabilities": "collector.mcp.capabilities/v1",
+      "collector://bindings": "collector.mcp.bindings/v1",
+      "collector://operations/{operationId}": "collector.mcp.operation/v1",
+      "collector://artifacts/{artifactId}": "collector.mcp.artifact-metadata/v1",
+      "collector://artifacts/{artifactId}/chunks/{cursor}": "collector.mcp.artifact-chunk/v1"
+    }
+  },
+  "compatibility": {
+    "mcpToolCatalogRange": "=collector.mcp.tools/v1",
+    "testedConfigurations": [
+      {
+        "level": "l1",
+        "mcpProtocolVersion": "2025-11-25",
+        "toolCatalogVersion": "collector.mcp.tools/v1",
+        "coreRelease": "0.7.17",
+        "coreServiceSchema": 3
+      }
+    ]
+  },
+  "externalEffects": {
+    "platformReads": true,
+    "platformWrites": false,
+    "localWrites": [],
+    "networkDestinations": ["xiaohongshu.com via Collector Core"]
+  }
+}

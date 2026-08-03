@@ -536,6 +536,7 @@ LICENSE、SECURITY、CONTRIBUTING、SBOM/依赖许可证、release hash、边界
 
 ### Checkpoint 4 — Full Capability Parity
 
+- 状态：`Completed — 2026-08-03`；
 - 全部 direct-ready Tool；
 - Operation/Artifact Resources；
 - schema digest；
@@ -543,9 +544,10 @@ LICENSE、SECURITY、CONTRIBUTING、SBOM/依赖许可证、release hash、边界
 
 ### Checkpoint 5 — Skills + Real AI Canary
 
-- Foundation/Bilibili/Xiaohongshu/Intent Skills；
-- L3 MCP canary；
-- L4 pinned-Skill Agent canary。
+- 状态：`In progress — 2026-08-03`；
+- 已实现并 L1 固定 Foundation/Bilibili/Xiaohongshu/Intent Skills；
+- 待完成 L3 MCP canary；
+- 待完成 L4 pinned-Skill Agent canary。
 
 ### Checkpoint 6 — Windows User Release
 

@@ -13,8 +13,9 @@ checkpoint 1: complete
 checkpoint 2: complete — repository foundation only
 checkpoint 3: complete — thin stdio MCP foundation + L1/L2
 checkpoint 4: complete — 15 typed capability Tools + exact parity gates
+checkpoint 5: in progress — 4 official Skills implemented; L3/L4 canaries pending
 runtime MCP: implemented — asynchronous Tools + read-only Operation/Artifact Resources
-official Skills: not published
+official Skills: 4 pinned version 0.1.0 packages, L1 validated
 platform capability claim: none from this repository yet
 ```
 
@@ -81,7 +82,7 @@ manifests/                 truthful machine-readable product compatibility
 packages/mcp-server/       thin stdio MCP runtime、Core client、typed Tools、Resources 与 L1 tests
 packages/windows-configurator/
                             reserved installer/configurer boundary; no source yet
-skills/                     future official Skills; none published in Checkpoint 2
+skills/                     Foundation、Bilibili、Xiaohongshu、search-then-detail official Skills
 tests/                      repository gate 与 real-Core stdio L2
 scripts/                    verification entrypoints
 ```
@@ -97,6 +98,7 @@ TypeScript/Node ESM 与官方 `@modelcontextprotocol/sdk@1.30.0`；默认 transp
 Set-Location D:\AIProject\collector-ai-integration
 npm install
 python .\scripts\verify_repository.py
+python -X utf8 .\scripts\skill_package.py verify .\skills
 npm run test:l1
 ```
 
@@ -126,13 +128,13 @@ L2 只验证 stdio、真实 auth/preflight、15 项 Tool schema/Core parity、Re
 manifests/compatibility.json
 ```
 
-Checkpoint 4 的 manifest 必须诚实声明：
+Checkpoint 5 当前的 manifest 必须诚实声明：
 
-- phase 为 `capability_parity`；
+- phase 为 `skills_canary`，Checkpoint 5 仍为 current 而非 completed；
 - Core release `0.7.17`、Service schema 3、feature 与 catalog digest 已绑定；
 - MCP protocol `2025-11-25`、stdio、15 项 typed Tool 与 6 类只读 Resource 已实现；
 - Tool catalog 为 `collector.mcp.tools/v1`，每项记录 AI-visible input schema digest；
-- 官方 Skills 为空；
+- 4 个官方 Skill 均固定 `0.1.0`、package digest、Tool/Resource/capability 要求和外部影响；
 - Windows real-process L2 已记录，但 browser 支持与平台 claim 仍为空；
 - Workflow、模型、浏览器控制和旧原型依赖均为禁止状态。
 
@@ -159,9 +161,11 @@ Checkpoint 4 的 manifest 必须诚实声明：
 
 ### Checkpoint 5 — Skills + Real AI Canary
 
-- Foundation、Bilibili、Xiaohongshu 和最小 Intent Skills；
-- 真实 L3 MCP canary；
-- pinned-Skill L4 Agent canary。
+- 已完成：使用官方 `$skill-creator` 初始化并校验 Foundation、Bilibili、Xiaohongshu 和最小
+  search-then-detail Intent Skills；
+- 已完成：Skill manifest、MCP Tool/Capability/Resource parity 与 package SHA-256 门禁；
+- 待完成：真实 L3 MCP canary；
+- 待完成：pinned-Skill L4 Agent canary。
 
 ### Checkpoint 6 — Windows User Release
 

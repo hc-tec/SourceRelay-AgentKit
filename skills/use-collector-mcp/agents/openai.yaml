@@ -1,0 +1,4 @@
+interface:
+  display_name: "Collector MCP Foundation"
+  short_description: "Use Collector MCP safely and asynchronously"
+  default_prompt: "Use $use-collector-mcp to inspect Collector availability and safely run one asynchronous collection."

@@ -1,0 +1,71 @@
+{
+  "schemaVersion": "collector.ai-integration.skill/v1alpha1",
+  "skillId": "collect-bilibili",
+  "skillVersion": "0.1.0",
+  "layer": "platform",
+  "publisher": "collector-ai-integration",
+  "source": "collector-ai-integration/skills/collect-bilibili",
+  "digest": "sha256:9ed4641eb0cda7f5844cec27fe9896e754e93d914361f97dc03d3abc37e66796",
+  "license": "Apache-2.0",
+  "official": true,
+  "requirements": {
+    "tools": [
+      "collector_bilibili_video_detail",
+      "collector_bilibili_native_search",
+      "collector_bilibili_native_search_batch",
+      "collector_bilibili_account_profile",
+      "collector_bilibili_account_inventory",
+      "collector_bilibili_dynamic",
+      "collector_bilibili_collection_series_overview",
+      "collector_bilibili_collection_series_detail",
+      "collector_bilibili_danmaku",
+      "collector_bilibili_discussion"
+    ],
+    "resources": [
+      "collector://release",
+      "collector://capabilities",
+      "collector://bindings",
+      "collector://operations/{operationId}",
+      "collector://artifacts/{artifactId}",
+      "collector://artifacts/{artifactId}/chunks/{cursor}"
+    ],
+    "capabilities": [
+      "bilibili.video_detail",
+      "bilibili.native_search",
+      "bilibili.native_search_batch",
+      "bilibili.account_profile",
+      "bilibili.account_inventory",
+      "bilibili.dynamic",
+      "bilibili.collection_series.overview",
+      "bilibili.collection_series.detail",
+      "bilibili.danmaku",
+      "bilibili.discussion"
+    ],
+    "minimumOutputSchemas": {
+      "collector://release": "collector.mcp.release/v1",
+      "collector://capabilities": "collector.mcp.capabilities/v1",
+      "collector://bindings": "collector.mcp.bindings/v1",
+      "collector://operations/{operationId}": "collector.mcp.operation/v1",
+      "collector://artifacts/{artifactId}": "collector.mcp.artifact-metadata/v1",
+      "collector://artifacts/{artifactId}/chunks/{cursor}": "collector.mcp.artifact-chunk/v1"
+    }
+  },
+  "compatibility": {
+    "mcpToolCatalogRange": "=collector.mcp.tools/v1",
+    "testedConfigurations": [
+      {
+        "level": "l1",
+        "mcpProtocolVersion": "2025-11-25",
+        "toolCatalogVersion": "collector.mcp.tools/v1",
+        "coreRelease": "0.7.17",
+        "coreServiceSchema": 3
+      }
+    ]
+  },
+  "externalEffects": {
+    "platformReads": true,
+    "platformWrites": false,
+    "localWrites": [],
+    "networkDestinations": ["bilibili.com via Collector Core"]
+  }
+}

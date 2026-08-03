@@ -1,0 +1,64 @@
+{
+  "schemaVersion": "collector.ai-integration.skill/v1alpha1",
+  "skillId": "research-search-then-detail",
+  "skillVersion": "0.1.0",
+  "layer": "intent",
+  "publisher": "collector-ai-integration",
+  "source": "collector-ai-integration/skills/research-search-then-detail",
+  "digest": "sha256:8de11793b87a80858f455bc78e425a4bd9068de2371892c30d887f83318847d4",
+  "license": "Apache-2.0",
+  "official": true,
+  "requirements": {
+    "tools": [
+      "collector_bilibili_native_search",
+      "collector_bilibili_native_search_batch",
+      "collector_bilibili_video_detail",
+      "collector_xiaohongshu_public_notes_search",
+      "collector_xiaohongshu_note_public_detail"
+    ],
+    "resources": [
+      "collector://release",
+      "collector://capabilities",
+      "collector://bindings",
+      "collector://operations/{operationId}",
+      "collector://artifacts/{artifactId}",
+      "collector://artifacts/{artifactId}/chunks/{cursor}"
+    ],
+    "capabilities": [
+      "bilibili.native_search",
+      "bilibili.native_search_batch",
+      "bilibili.video_detail",
+      "xiaohongshu.search.public_notes.v1",
+      "xiaohongshu.note.public_detail.v1"
+    ],
+    "minimumOutputSchemas": {
+      "collector://release": "collector.mcp.release/v1",
+      "collector://capabilities": "collector.mcp.capabilities/v1",
+      "collector://bindings": "collector.mcp.bindings/v1",
+      "collector://operations/{operationId}": "collector.mcp.operation/v1",
+      "collector://artifacts/{artifactId}": "collector.mcp.artifact-metadata/v1",
+      "collector://artifacts/{artifactId}/chunks/{cursor}": "collector.mcp.artifact-chunk/v1"
+    }
+  },
+  "compatibility": {
+    "mcpToolCatalogRange": "=collector.mcp.tools/v1",
+    "testedConfigurations": [
+      {
+        "level": "l1",
+        "mcpProtocolVersion": "2025-11-25",
+        "toolCatalogVersion": "collector.mcp.tools/v1",
+        "coreRelease": "0.7.17",
+        "coreServiceSchema": 3
+      }
+    ]
+  },
+  "externalEffects": {
+    "platformReads": true,
+    "platformWrites": false,
+    "localWrites": [],
+    "networkDestinations": [
+      "bilibili.com via Collector Core",
+      "xiaohongshu.com via Collector Core"
+    ]
+  }
+}

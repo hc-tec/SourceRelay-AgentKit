@@ -12,7 +12,8 @@
     "test:l1": "npm run build && node --test packages/mcp-server/dist/test/*.test.js",
     "test:l2": "npm run build && node tests/l2/real-core-stdio.mjs",
     "typecheck": "tsc --noEmit -p packages/mcp-server/tsconfig.json",
-    "verify": "python scripts/verify_repository.py && npm run test:l1"
+    "verify:skills": "python -X utf8 scripts/skill_package.py verify skills",
+    "verify": "python -X utf8 scripts/verify_repository.py && npm run verify:skills && npm run test:l1"
   },
   "engines": {
     "node": ">=22"

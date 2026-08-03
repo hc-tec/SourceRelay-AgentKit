@@ -1,0 +1,4 @@
+interface:
+  display_name: "Bilibili Public Collection"
+  short_description: "Collect public Bilibili data through typed Tools"
+  default_prompt: "Use $collect-bilibili to choose the right typed Tool for this public Bilibili collection request."

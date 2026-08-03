@@ -1,0 +1,4 @@
+interface:
+  display_name: "Xiaohongshu Public Collection"
+  short_description: "Collect Xiaohongshu data with page-safe methods"
+  default_prompt: "Use $collect-xiaohongshu to collect the requested public Xiaohongshu data with page-safe methods."

@@ -171,7 +171,7 @@ class RepositoryFoundationTests(unittest.TestCase):
             self.assertEqual(parsed.get("type"), "object")
             self.assertFalse(parsed.get("additionalProperties"))
 
-    def test_checkpoint4_manifest_is_truthful_and_bounded(self) -> None:
+    def test_checkpoint5_manifest_is_truthful_and_bounded(self) -> None:
         manifest_path = ROOT / "manifests" / "compatibility.json"
         manifest = load_json_without_duplicate_keys(manifest_path)
         schema_path = (manifest_path.parent / str(manifest["$schema"])).resolve()
@@ -195,11 +195,11 @@ class RepositoryFoundationTests(unittest.TestCase):
         )
         self.assertEqual(manifest["schemaVersion"], "collector.ai-integration.compatibility/v1alpha1")
         self.assertEqual(manifest["product"]["version"], "0.0.0-mcp-foundation")
-        self.assertEqual(manifest["product"]["phase"], "capability_parity")
+        self.assertEqual(manifest["product"]["phase"], "skills_canary")
         self.assertEqual(manifest["product"]["license"], "Apache-2.0")
         self.assertEqual(
             manifest["checkpoint"],
-            {"completed": [0, 1, 2, 3, 4], "current": None, "next": 5},
+            {"completed": [0, 1, 2, 3, 4], "current": 5, "next": 6},
         )
 
         core = manifest["core"]
@@ -234,7 +234,7 @@ class RepositoryFoundationTests(unittest.TestCase):
         ))
         self.assertEqual(set(mcp["resources"]), MCP_FOUNDATION_RESOURCES)
 
-        self.assertEqual(manifest["skills"]["official"], [])
+        self.assertEqual(len(manifest["skills"]["official"]), 4)
         self.assertEqual(manifest["support"]["operatingSystems"], ["windows"])
         self.assertEqual(manifest["support"]["browsers"], [])
         self.assertEqual(len(manifest["support"]["verifiedConfigurations"]), 1)
@@ -249,6 +249,8 @@ class RepositoryFoundationTests(unittest.TestCase):
             {
                 "repository_boundary_gate",
                 "mcp_l1_contract_gate",
+                "skill_creator_quick_validation",
+                "official_skill_package_gate",
                 "core_javascript_python_sdk_capability_matrix",
                 "packaged_mcp_real_core_stdio_l2",
             },
@@ -287,10 +289,10 @@ class RepositoryFoundationTests(unittest.TestCase):
         ):
             self.assertNotIn(forbidden, source)
 
-    def test_no_official_skill_or_executable_example_exists_yet(self) -> None:
-        for boundary in (ROOT / "skills", ROOT / "examples"):
-            files = {path.relative_to(boundary).as_posix() for path in boundary.rglob("*") if path.is_file()}
-            self.assertEqual(files, {"README.md"}, boundary)
+    def test_no_executable_example_exists_yet(self) -> None:
+        boundary = ROOT / "examples"
+        files = {path.relative_to(boundary).as_posix() for path in boundary.rglob("*") if path.is_file()}
+        self.assertEqual(files, {"README.md"})
 
     def test_repository_contains_no_symlinks(self) -> None:
         symlinks = [path for path in ROOT.rglob("*") if not ignored(path) and path.is_symlink()]
