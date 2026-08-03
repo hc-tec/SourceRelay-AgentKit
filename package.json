@@ -1,0 +1,24 @@
+{
+  "name": "collector-ai-integration-workspace",
+  "version": "0.0.0-mcp-foundation",
+  "private": true,
+  "type": "module",
+  "workspaces": [
+    "packages/mcp-server"
+  ],
+  "scripts": {
+    "build": "npm run build --workspace @collector-ai-integration/mcp-server",
+    "test": "npm run test:l1",
+    "test:l1": "npm run build && node --test packages/mcp-server/dist/test/*.test.js",
+    "test:l2": "npm run build && node tests/l2/real-core-stdio.mjs",
+    "typecheck": "tsc --noEmit -p packages/mcp-server/tsconfig.json",
+    "verify": "python scripts/verify_repository.py && npm run test:l1"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "devDependencies": {
+    "@types/node": "24.10.2",
+    "typescript": "5.9.3"
+  }
+}

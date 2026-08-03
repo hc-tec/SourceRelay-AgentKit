@@ -11,14 +11,16 @@ architecture: approved
 checkpoint 0: complete
 checkpoint 1: complete
 checkpoint 2: complete — repository foundation only
-runtime MCP: not implemented
+checkpoint 3: complete — thin stdio MCP foundation + L1/L2
+runtime MCP: implemented — read-only Resources, no platform Tools yet
 official Skills: not published
 platform capability claim: none from this repository yet
 ```
 
-当前仓库只有产品边界、治理文件、机器可读 manifest、合同 schema、占位包和架构门禁测试。
-它还不是可安装或可运行的 MCP Server。README、manifest 或 Skill 说明永远不能替代实时
-Collector Core capability catalog。
+当前仓库已经提供可打包的 TypeScript/Node stdio MCP 进程。它在启动时用真实 Core
+`release + capabilities + OpenAPI + bindings` 完成 SHA-256 compatibility preflight，并只公开
+Operation 与 Artifact 等只读 Resources。15 项平台 Tool 尚未进入 Checkpoint 4，因此当前
+进程不能创建任何平台 Operation。README、manifest 或 Skill 说明永远不能替代实时 Core catalog。
 
 ## 产品位置
 
@@ -74,29 +76,45 @@ contracts/                 versioned manifest schemas
 docs/architecture/         canonical approved architecture and decision record
 examples/                  future AI-native examples; currently empty by contract
 manifests/                 truthful machine-readable product compatibility
-packages/mcp-server/       reserved runtime package boundary; no source in Checkpoint 2
+packages/mcp-server/       thin stdio MCP runtime、Core client、Resources 与 L1 tests
 packages/windows-configurator/
                             reserved installer/configurer boundary; no source yet
 skills/                     future official Skills; none published in Checkpoint 2
-tests/                      repository and contract architecture gates
-scripts/                    dependency-free verification entrypoints
+tests/                      repository gate 与 real-Core stdio L2
+scripts/                    verification entrypoints
 ```
 
-不存在根级 `src/`、通用 workflow 包或旧原型 adapter。选择 TypeScript/Python 和具体 MCP SDK
-属于 Checkpoint 3 的小型技术调研，不在仓库基础阶段提前锁定。
+不存在根级 `src/`、通用 workflow 包或旧原型 adapter。Checkpoint 3 已通过 ADR-0001 选择
+TypeScript/Node ESM 与官方 `@modelcontextprotocol/sdk@1.30.0`；默认 transport 只有 stdio。
 
-## 验证当前基础
+## 运行与验证
 
-只需要 Python 3.11+ 标准库：
+安装依赖并运行 L1：
 
 ```powershell
 Set-Location D:\AIProject\collector-ai-integration
+npm install
 python .\scripts\verify_repository.py
+npm run test:l1
 ```
 
-该命令验证 UTF-8、Apache-2.0、目录边界、canonical 文档、manifest 的保守声明，以及
-Checkpoint 2 期间没有出现 MCP runtime、Tool、Resource 或官方 Skill 实现。通过这些测试
-不能宣称任何真实平台能力。
+开发/L2 进程从子进程环境读取专用 Core token；Agent/MCP client 看不到它：
+
+```powershell
+$env:COLLECTOR_CORE_ORIGIN = 'http://127.0.0.1:43127'
+$env:COLLECTOR_CORE_TOKEN = 'cst_...'
+node .\packages\mcp-server\dist\src\cli.js
+```
+
+真实 L2 由发布形态 MCP 包连接真实本地 Core 进程：
+
+```powershell
+$env:COLLECTOR_L2_CORE_ENTRYPOINT = '<released Core user-browser-server.js>'
+npm run test:l2
+```
+
+L2 只验证 stdio、真实 auth/preflight/Resource/error/log 映射，并硬检查创建了 0 个平台
+Operation；它不能宣称任何网站能力。
 
 ## Compatibility 原则
 
@@ -106,13 +124,14 @@ Checkpoint 2 期间没有出现 MCP runtime、Tool、Resource 或官方 Skill �
 manifests/compatibility.json
 ```
 
-Checkpoint 2 的 manifest 必须诚实声明：
+Checkpoint 3 的 manifest 必须诚实声明：
 
-- phase 为 `repository_foundation`；
-- Core release/API schema range 尚未绑定；
-- MCP protocol、transport、Tool 和 Resource 均尚未实现；
+- phase 为 `mcp_foundation`；
+- Core release `0.7.17`、Service schema 3、feature 与 catalog digest 已绑定；
+- MCP protocol `2025-11-25`、stdio 与 6 类只读 Resource 已实现；
+- 平台 Tools 仍为空；
 - 官方 Skills 为空；
-- 支持的 OS/browser 与真实验证配置为空；
+- Windows real-process L2 已记录，但 browser 支持与平台 claim 仍为空；
 - Workflow、模型、浏览器控制和旧原型依赖均为禁止状态。
 
 后续只有在实现和对应验证 checkpoint 同时通过后，manifest 才能扩大声明。
@@ -121,11 +140,11 @@ Checkpoint 2 的 manifest 必须诚实声明：
 
 ### Checkpoint 3 — MCP Foundation
 
-- 小型技术调研后选择语言和官方 MCP SDK；
-- stdio、Core auth、live discovery；
-- Tool/Resource/error/log 合同；
-- Core 前置增强：幂等、schema identity、Artifact metadata/window；
-- L1 与真实进程 L2。
+- 已完成：TypeScript/Node + 官方 MCP SDK；
+- 已完成：stdio、Core auth、live discovery；
+- 已完成：Resource/error/content-minimized log 合同；
+- 已完成：Core 幂等、schema identity、Artifact metadata/window 前置合同；
+- 已完成：13 项 L1 与 packaged MCP + real Core L2（0 platform action）。
 
 ### Checkpoint 4 — Full Capability Parity
 

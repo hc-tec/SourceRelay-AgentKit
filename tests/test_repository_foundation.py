@@ -15,6 +15,8 @@ REQUIRED_ROOT_FILES = {
     "AGENTS.md",
     "CONTRIBUTING.md",
     "LICENSE",
+    "package-lock.json",
+    "package.json",
     "README.md",
     "SECURITY.md",
 }
@@ -23,15 +25,6 @@ CANONICAL_ARCHITECTURE = {
     "collector-ai-native-target-architecture.md",
     "overall-system-consistency-audit.md",
     "overall-system-grilling-decision-log.md",
-}
-
-FORBIDDEN_FOUNDATION_MANIFESTS = {
-    "Cargo.toml",
-    "go.mod",
-    "package.json",
-    "pnpm-workspace.yaml",
-    "pyproject.toml",
-    "requirements.txt",
 }
 
 FORBIDDEN_RUNTIME_FEATURES = {
@@ -49,12 +42,42 @@ TEXT_SUFFIXES = {
     ".ini",
     ".json",
     ".md",
+    ".mjs",
     ".ps1",
     ".py",
     ".toml",
     ".txt",
+    ".ts",
     ".yaml",
     ".yml",
+}
+
+IGNORED_DIRECTORY_NAMES = {
+    ".git",
+    ".pytest_cache",
+    "__pycache__",
+    "build",
+    "coverage",
+    "dist",
+    "node_modules",
+    "runtime",
+}
+
+MCP_FOUNDATION_RESOURCES = {
+    "collector://release",
+    "collector://capabilities",
+    "collector://bindings",
+    "collector://operations/{operationId}",
+    "collector://artifacts/{artifactId}",
+    "collector://artifacts/{artifactId}/chunks/{cursor}",
+}
+
+REQUIRED_CORE_FEATURES = {
+    "artifacts.canonical_json_utf8_window.v1",
+    "artifacts.metadata.v1",
+    "capabilities.direct_contracts.v1",
+    "collect.client_request_id.v1",
+    "operations.exact_core_state.v1",
 }
 
 
@@ -70,6 +93,10 @@ def load_json_without_duplicate_keys(path: Path) -> dict[str, object]:
     return json.loads(path.read_text(encoding="utf-8"), object_pairs_hook=reject_duplicates)
 
 
+def ignored(path: Path) -> bool:
+    return any(part in IGNORED_DIRECTORY_NAMES for part in path.parts)
+
+
 class RepositoryFoundationTests(unittest.TestCase):
     maxDiff = None
 
@@ -79,7 +106,7 @@ class RepositoryFoundationTests(unittest.TestCase):
 
     def test_all_repository_text_is_strict_utf8_without_bom_or_replacement(self) -> None:
         for path in ROOT.rglob("*"):
-            if not path.is_file() or ".git" in path.parts:
+            if not path.is_file() or ignored(path):
                 continue
             if path.name not in REQUIRED_ROOT_FILES and path.suffix.lower() not in TEXT_SUFFIXES:
                 continue
@@ -109,7 +136,7 @@ class RepositoryFoundationTests(unittest.TestCase):
     def test_relative_markdown_links_resolve_inside_the_repository(self) -> None:
         link_pattern = re.compile(r"\[[^\]]+\]\(([^)]+)\)")
         for path in ROOT.rglob("*.md"):
-            if ".git" in path.parts:
+            if ignored(path):
                 continue
             text = path.read_text(encoding="utf-8")
             for raw_target in link_pattern.findall(text):
@@ -126,7 +153,7 @@ class RepositoryFoundationTests(unittest.TestCase):
             self.assertEqual(parsed.get("type"), "object")
             self.assertFalse(parsed.get("additionalProperties"))
 
-    def test_foundation_manifest_is_truthful_and_empty(self) -> None:
+    def test_checkpoint3_manifest_is_truthful_and_bounded(self) -> None:
         manifest_path = ROOT / "manifests" / "compatibility.json"
         manifest = load_json_without_duplicate_keys(manifest_path)
         schema_path = (manifest_path.parent / str(manifest["$schema"])).resolve()
@@ -149,44 +176,82 @@ class RepositoryFoundationTests(unittest.TestCase):
             },
         )
         self.assertEqual(manifest["schemaVersion"], "collector.ai-integration.compatibility/v1alpha1")
-        self.assertEqual(manifest["product"]["phase"], "repository_foundation")
+        self.assertEqual(manifest["product"]["version"], "0.0.0-mcp-foundation")
+        self.assertEqual(manifest["product"]["phase"], "mcp_foundation")
         self.assertEqual(manifest["product"]["license"], "Apache-2.0")
-        self.assertEqual(manifest["checkpoint"], {"completed": [0, 1, 2], "current": None, "next": 3})
+        self.assertEqual(manifest["checkpoint"], {"completed": [0, 1, 2, 3], "current": None, "next": 4})
 
         core = manifest["core"]
-        self.assertIsNone(core["supportedApiSchemaRange"])
-        self.assertIsNone(core["supportedReleaseRange"])
-        self.assertIsNone(core["capabilityCatalogDigest"])
-        self.assertEqual(core["requiredFeatures"], [])
-        self.assertEqual(core["directCapabilityIds"], [])
+        self.assertEqual(core["supportedApiSchemaRange"], "=3")
+        self.assertEqual(core["supportedReleaseRange"], "=0.7.17")
+        self.assertEqual(set(core["requiredFeatures"]), REQUIRED_CORE_FEATURES)
+        self.assertEqual(
+            core["openApiSchemaDigest"],
+            "sha256:a82b2f45302998544ddd1a82c06398ede00ce7f706c8f071c77241ef93f46566",
+        )
+        self.assertRegex(core["capabilityCatalogDigest"], r"^sha256:[0-9a-f]{64}$")
+        self.assertEqual(len(core["directCapabilityIds"]), 15)
+        self.assertEqual(len(set(core["directCapabilityIds"])), 15)
 
         mcp = manifest["mcp"]
-        self.assertFalse(mcp["implemented"])
-        self.assertIsNone(mcp["protocolVersion"])
-        self.assertIsNone(mcp["defaultTransport"])
+        self.assertTrue(mcp["implemented"])
+        self.assertEqual(mcp["protocolVersion"], "2025-11-25")
+        self.assertEqual(mcp["defaultTransport"], "stdio")
         self.assertIsNone(mcp["toolCatalogVersion"])
         self.assertEqual(mcp["tools"], [])
-        self.assertEqual(mcp["resources"], [])
+        self.assertEqual(set(mcp["resources"]), MCP_FOUNDATION_RESOURCES)
 
         self.assertEqual(manifest["skills"]["official"], [])
-        self.assertEqual(manifest["support"]["operatingSystems"], [])
+        self.assertEqual(manifest["support"]["operatingSystems"], ["windows"])
         self.assertEqual(manifest["support"]["browsers"], [])
-        self.assertEqual(manifest["support"]["verifiedConfigurations"], [])
+        self.assertEqual(len(manifest["support"]["verifiedConfigurations"]), 1)
         self.assertEqual(
             set(manifest["guardrails"]["forbiddenRuntimeFeatures"]),
             FORBIDDEN_RUNTIME_FEATURES,
         )
-        self.assertEqual(manifest["verification"]["highestCompletedLevel"], "repository_foundation")
+        self.assertEqual(manifest["verification"]["highestCompletedLevel"], "l2")
+        evidence = {item["kind"] for item in manifest["verification"]["evidence"]}
+        self.assertEqual(
+            evidence,
+            {
+                "repository_boundary_gate",
+                "mcp_l1_contract_gate",
+                "packaged_mcp_real_core_stdio_l2",
+            },
+        )
 
-    def test_runtime_language_and_framework_are_not_selected_early(self) -> None:
-        actual = {path.name for path in ROOT.rglob("*") if path.is_file()}
-        self.assertTrue(FORBIDDEN_FOUNDATION_MANIFESTS.isdisjoint(actual))
+    def test_checkpoint3_runtime_is_only_the_pinned_thin_mcp_package(self) -> None:
+        root_package = load_json_without_duplicate_keys(ROOT / "package.json")
+        mcp_package = load_json_without_duplicate_keys(ROOT / "packages" / "mcp-server" / "package.json")
+        self.assertEqual(root_package["workspaces"], ["packages/mcp-server"])
+        self.assertEqual(mcp_package["version"], "0.0.0-mcp-foundation")
+        self.assertEqual(
+            mcp_package["dependencies"],
+            {"@modelcontextprotocol/sdk": "1.30.0", "zod": "4.4.3"},
+        )
+        self.assertEqual(mcp_package["bin"], {"collector-mcp": "./dist/src/cli.js"})
+        self.assertTrue((ROOT / "packages" / "mcp-server" / "src" / "cli.ts").is_file())
+        self.assertTrue((ROOT / "packages" / "mcp-server" / "src" / "server.ts").is_file())
+        windows_files = {
+            path.relative_to(ROOT / "packages" / "windows-configurator").as_posix()
+            for path in (ROOT / "packages" / "windows-configurator").rglob("*")
+            if path.is_file()
+        }
+        self.assertEqual(windows_files, {"README.md"})
 
-        runtime_suffixes = {".cjs", ".go", ".js", ".mjs", ".py", ".rs", ".ts", ".tsx"}
-        for package in (ROOT / "packages").iterdir():
-            files = {path.relative_to(package).as_posix() for path in package.rglob("*") if path.is_file()}
-            self.assertEqual(files, {"README.md"}, package)
-            self.assertFalse(any(path.suffix in runtime_suffixes for path in package.rglob("*")))
+        source = "\n".join(
+            path.read_text(encoding="utf-8")
+            for path in (ROOT / "packages" / "mcp-server" / "src").glob("*.ts")
+        ).lower()
+        for forbidden in (
+            "inteligence-apps",
+            "playwright",
+            "puppeteer",
+            "langgraph",
+            "deepseek",
+            "registertool(",
+        ):
+            self.assertNotIn(forbidden, source)
 
     def test_no_official_skill_or_executable_example_exists_yet(self) -> None:
         for boundary in (ROOT / "skills", ROOT / "examples"):
@@ -194,7 +259,7 @@ class RepositoryFoundationTests(unittest.TestCase):
             self.assertEqual(files, {"README.md"}, boundary)
 
     def test_repository_contains_no_symlinks(self) -> None:
-        symlinks = [path for path in ROOT.rglob("*") if ".git" not in path.parts and path.is_symlink()]
+        symlinks = [path for path in ROOT.rglob("*") if not ignored(path) and path.is_symlink()]
         self.assertEqual(symlinks, [])
 
 

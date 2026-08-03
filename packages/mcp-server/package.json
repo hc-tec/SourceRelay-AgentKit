@@ -1,0 +1,28 @@
+{
+  "name": "@collector-ai-integration/mcp-server",
+  "version": "0.0.0-mcp-foundation",
+  "description": "Thin stdio MCP adapter for the released Collector Core API.",
+  "license": "Apache-2.0",
+  "type": "module",
+  "bin": {
+    "collector-mcp": "./dist/src/cli.js"
+  },
+  "exports": {
+    ".": "./dist/src/index.js"
+  },
+  "files": [
+    "dist/src",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "prepack": "npm run build"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "1.30.0",
+    "zod": "4.4.3"
+  }
+}

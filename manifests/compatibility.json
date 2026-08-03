@@ -3,38 +3,78 @@
   "schemaVersion": "collector.ai-integration.compatibility/v1alpha1",
   "product": {
     "id": "collector-ai-integration",
-    "version": "0.0.0-foundation",
-    "phase": "repository_foundation",
+    "version": "0.0.0-mcp-foundation",
+    "phase": "mcp_foundation",
     "architectureVersion": "v1",
     "license": "Apache-2.0"
   },
   "checkpoint": {
-    "completed": [0, 1, 2],
+    "completed": [0, 1, 2, 3],
     "current": null,
-    "next": 3
+    "next": 4
   },
   "core": {
-    "supportedApiSchemaRange": null,
-    "supportedReleaseRange": null,
-    "requiredFeatures": [],
-    "capabilityCatalogDigest": null,
-    "directCapabilityIds": []
+    "supportedApiSchemaRange": "=3",
+    "supportedReleaseRange": "=0.7.17",
+    "requiredFeatures": [
+      "artifacts.canonical_json_utf8_window.v1",
+      "artifacts.metadata.v1",
+      "capabilities.direct_contracts.v1",
+      "collect.client_request_id.v1",
+      "operations.exact_core_state.v1"
+    ],
+    "openApiSchemaDigest": "sha256:a82b2f45302998544ddd1a82c06398ede00ce7f706c8f071c77241ef93f46566",
+    "capabilityCatalogDigest": "sha256:448bc31aed31ead46fd453c09776266711668213bdd5b9a3d4a2acddf086e473",
+    "directCapabilityIds": [
+      "bilibili.video_detail",
+      "bilibili.native_search",
+      "bilibili.native_search_batch",
+      "bilibili.account_profile",
+      "bilibili.account_inventory",
+      "bilibili.dynamic",
+      "bilibili.collection_series.overview",
+      "bilibili.collection_series.detail",
+      "bilibili.danmaku",
+      "bilibili.discussion",
+      "xiaohongshu.search.public_notes.v1",
+      "xiaohongshu.account.public_notes.v1",
+      "xiaohongshu.note.public_detail.v1",
+      "xiaohongshu.note.public_comments.v1",
+      "xiaohongshu.note.public_comment_replies.v1"
+    ]
   },
   "mcp": {
-    "implemented": false,
-    "protocolVersion": null,
-    "defaultTransport": null,
+    "implemented": true,
+    "protocolVersion": "2025-11-25",
+    "defaultTransport": "stdio",
     "toolCatalogVersion": null,
     "tools": [],
-    "resources": []
+    "resources": [
+      "collector://release",
+      "collector://capabilities",
+      "collector://bindings",
+      "collector://operations/{operationId}",
+      "collector://artifacts/{artifactId}",
+      "collector://artifacts/{artifactId}/chunks/{cursor}"
+    ]
   },
   "skills": {
     "official": []
   },
   "support": {
-    "operatingSystems": [],
+    "operatingSystems": ["windows"],
     "browsers": [],
-    "verifiedConfigurations": []
+    "verifiedConfigurations": [
+      {
+        "level": "l2",
+        "operatingSystem": "windows",
+        "nodeVersion": "24.13.0",
+        "transport": "stdio",
+        "coreRelease": "0.7.17",
+        "coreServiceSchema": 3,
+        "platformOperationsCreated": 0
+      }
+    ]
   },
   "guardrails": {
     "forbiddenRuntimeFeatures": [
@@ -48,11 +88,19 @@
     ]
   },
   "verification": {
-    "highestCompletedLevel": "repository_foundation",
+    "highestCompletedLevel": "l2",
     "evidence": [
       {
         "kind": "repository_boundary_gate",
         "command": "python scripts/verify_repository.py"
+      },
+      {
+        "kind": "mcp_l1_contract_gate",
+        "command": "npm run test:l1"
+      },
+      {
+        "kind": "packaged_mcp_real_core_stdio_l2",
+        "command": "$env:COLLECTOR_L2_CORE_ENTRYPOINT='<released Core user-browser-server.js>'; npm run test:l2"
       }
     ]
   }

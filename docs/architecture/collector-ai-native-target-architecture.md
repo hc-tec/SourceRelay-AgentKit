@@ -528,10 +528,11 @@ LICENSE、SECURITY、CONTRIBUTING、SBOM/依赖许可证、release hash、边界
 
 ### Checkpoint 3 — MCP Foundation
 
+- 状态：`Completed — 2026-08-03`；
 - stdio、Core auth、live discovery；
-- Tool/Resource/error/log contracts；
+- read-only Resource/error/content-minimized log contracts，平台 Tools 仍为 0；
 - Core prerequisites：idempotency、schema identity、Artifact metadata/window；
-- L1/L2。
+- 13 项 L1 + packaged MCP / real Core L2，0 platform Operation。
 
 ### Checkpoint 4 — Full Capability Parity
 

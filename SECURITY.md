@@ -2,9 +2,9 @@
 
 ## Support status
 
-Collector AI Integration is currently at repository-foundation stage. There is no released MCP
-runtime, installer, Tool, Resource, or official Skill yet. No production version is currently
-supported.
+Collector AI Integration is currently at MCP-foundation stage. A read-only stdio MCP runtime and six
+Resource shapes have L1/L2 evidence; there is still no platform Tool, installer, official Skill,
+L3/L4 canary, or supported production release.
 
 After public release, supported versions and security-fix windows will be listed here. Until then,
 do not deploy this repository as a service or infer capability from its manifests.

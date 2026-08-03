@@ -1,19 +1,36 @@
 # Checkpoint 3 Core prerequisite audit
 
-- Status: `Implementation contract accepted`
+- Status: `Completed — Core prerequisite and thin MCP foundation verified`
 - Date: 2026-08-03
-- Core evidence: `D:\AIProject\inteligence`, `feat/browser-extension-system@5948d44`
+- Core pre-implementation evidence: `D:\AIProject\inteligence`, `feat/browser-extension-system@5948d44`
+- Core implementation checkpoint: `feat/browser-extension-system@3562b48`
 - Runtime decision: [ADR-0001](../adr/0001-typescript-node-stdio-mcp.md)
 
 ## Outcome
 
-The current Core already has the correct product boundary and fifteen direct-ready capabilities, but
-its public API does not yet provide enough restart-safe identity and bounded Artifact semantics for a
-thin MCP adapter. These are Core contract gaps, not reasons to add a workflow layer to MCP.
+Core now publishes the restart-safe identity, compatibility digest and bounded Artifact primitives
+required by the thin MCP adapter. No Workflow/Planner layer was added.
 
-Checkpoint 3 will add the following public primitives before any platform Tool catalog is implemented.
+Implemented Core result:
 
-## Verified current facts
+- Service schema 3 with required `clientRequestId` and Core-backed persistent reservation;
+- preallocated Operation ID, same-request replay, conflict, rejection recovery and explicit
+  outcome-unknown;
+- release/OpenAPI/catalog SHA-256 identity and five required feature flags;
+- 15 generated direct contracts with request schema digest, target mode and budget policy;
+- global Artifact metadata and canonical UTF-8 window routes bounded to 64 KiB;
+- JavaScript/Python SDK parity and packaged-install verification.
+
+Implemented MCP foundation result:
+
+- TypeScript/Node ESM with `@modelcontextprotocol/sdk@1.30.0` and stdio only;
+- startup preflight against real release/catalog/OpenAPI/bindings;
+- 3 static + 3 templated read-only Resources, 0 platform Tools;
+- binding aliases, exact Operation state, metadata-first Artifact reads and fixed 16 KiB cursors;
+- stable protocol errors and content-minimized JSON stderr;
+- 13 L1 tests and packaged MCP + real Core L2 with 0 platform Operations.
+
+## Pre-implementation verified facts
 
 ### Collection submission
 
@@ -153,3 +170,12 @@ verbatim. Derived convenience classification is optional and cannot replace the 
 - JavaScript and Python SDK request/response parity;
 - existing Core boundary and fifteen-capability matrix gates;
 - real-process L2 from packaged MCP to a real local Core process after the MCP foundation exists.
+
+All listed evidence is now complete. The real-process L2 command is:
+
+```powershell
+$env:COLLECTOR_L2_CORE_ENTRYPOINT = '<released Core user-browser-server.js>'
+npm run test:l2
+```
+
+L2 is not platform evidence; L3/L4 remain unstarted.

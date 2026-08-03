@@ -72,6 +72,25 @@ at protocol boundaries; the live Core catalog remains capability truth.
 - If the official SDK changes major protocol APIs, compatibility is handled through a versioned adapter
   inside the MCP package, not by changing Core or exposing framework-specific Tools.
 
+## Implementation evidence
+
+Checkpoint 3 implemented this ADR with:
+
+```text
+Node 24.13.0
+TypeScript 5.9.3
+@modelcontextprotocol/sdk 1.30.0
+MCP protocol 2025-11-25
+default transport stdio
+platform Tools 0
+read-only Resources 6
+```
+
+`npm run test:l1` exercises the official in-memory MCP transport. `npm run test:l2` packs and installs
+the MCP package, starts a real released Core process, issues a real four-scope local token, connects over
+stdio, reads release/capability/binding Resources, verifies Operation/Artifact not-found mapping, and
+asserts zero Core platform Operations. This is L2 protocol evidence, not a platform claim.
+
 ## Rejected alternatives
 
 ### Python MCP runtime

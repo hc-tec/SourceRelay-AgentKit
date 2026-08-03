@@ -14,7 +14,7 @@ the approved boundary: thin MCP adapter + versioned Skills over the released Col
 ## Checkpoint discipline
 
 - Checkpoint 2 contains repository/contracts/tests only; no executable MCP runtime or official Skill.
-- Checkpoint 3 may add the thin protocol foundation after the runtime/SDK choice is recorded.
+- Checkpoint 3 is complete: the thin stdio protocol/Resource foundation is frozen by ADR-0001 and L1/L2.
 - Checkpoint 4 adds direct capability Tool parity, not hidden convenience capabilities.
 - Checkpoint 5 adds official Skills and real L3/L4 canaries.
 - Checkpoint 6 adds the supported Windows user release.
