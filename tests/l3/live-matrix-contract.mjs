@@ -50,6 +50,12 @@ export function parseLiveMatrixArguments(argumentsList) {
   return { mode: reconcile ? 'reconcile' : 'execute', caseId };
 }
 
+export function expectedNewCoreOperations(mode) {
+  if (mode === 'execute') return 1;
+  if (mode === 'reconcile') return 0;
+  throw new LiveMatrixError('collector_l3_live_mode_invalid');
+}
+
 export function selectUniqueOnlineBinding(document, requestedAlias) {
   if (document?.schemaVersion !== 'collector.mcp.bindings/v1' || !Array.isArray(document.bindings)) {
     throw new LiveMatrixError('collector_l3_bindings_resource_invalid');

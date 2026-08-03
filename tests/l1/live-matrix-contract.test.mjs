@@ -5,6 +5,7 @@ import { listLiveMatrixCases, resolveLiveMatrixCase } from '../l3/live-matrix-ca
 import {
   LiveMatrixError,
   OneShotToolSubmission,
+  expectedNewCoreOperations,
   inputEvidence,
   parseLiveMatrixArguments,
   protocolCoreErrorCode,
@@ -59,6 +60,13 @@ test('live invocation requires one explicit case and exactly one live mode', () 
   ]) {
     assert.throws(() => parseLiveMatrixArguments(invalid), LiveMatrixError);
   }
+});
+
+test('live result describes Core Operation creation rather than internal platform action count', () => {
+  assert.equal(expectedNewCoreOperations('execute'), 1);
+  assert.equal(expectedNewCoreOperations('reconcile'), 0);
+  assert.throws(() => expectedNewCoreOperations('unknown'),
+    /collector_l3_live_mode_invalid/);
 });
 
 test('one-shot Tool gate blocks a second submission in the same process', async () => {

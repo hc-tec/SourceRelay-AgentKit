@@ -15,6 +15,7 @@ import {
   OneShotToolSubmission,
   TERMINAL_STATES,
   inputEvidence,
+  expectedNewCoreOperations,
   parseLiveMatrixArguments,
   parseResource,
   parseSubmission,
@@ -190,7 +191,7 @@ try {
       toolCallAttempts: 1,
       acceptedOperations: 1,
       idempotentReplay: submission.idempotentReplay,
-      newPlatformActionsExpected: invocation.mode === 'reconcile' ? 0 : 1,
+      newCoreOperationsExpected: expectedNewCoreOperations(invocation.mode),
       automaticSubmissionRetries: 0,
       observedCoreStates,
       browserAndGatewayRetained: true
