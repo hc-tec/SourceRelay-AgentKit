@@ -59,4 +59,19 @@ test('protocol errors expose stable codes and never an upstream exception messag
 
   const invalid = toProtocolError(new CollectorMcpError('resource_uri_invalid'));
   assert.match(invalid.message, /resource_uri_invalid$/);
+
+  const conflict = toProtocolError(new CollectorMcpError(
+    'submission_conflict',
+    409,
+    'collector_service_idempotency_conflict'
+  ));
+  assert.deepEqual(conflict.data, {
+    coreErrorCode: 'collector_service_idempotency_conflict'
+  });
+  const unsafe = toProtocolError(new CollectorMcpError('submission_conflict', 409, token));
+  assert.equal(unsafe.data, undefined);
+  const modelCredential = toProtocolError(new CollectorMcpError(
+    'submission_conflict', 409, 'sk-must-not-escape'
+  ));
+  assert.equal(modelCredential.data, undefined);
 });

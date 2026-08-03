@@ -1,4 +1,4 @@
-import type { CollectorCoreReader } from '../../src/core-client.js';
+import type { CollectorCoreApi } from '../../src/core-client.js';
 import { CollectorMcpError } from '../../src/errors.js';
 import { coreContractFixture } from './core-contract-fixture.js';
 
@@ -6,8 +6,11 @@ export const OPERATION_ID = '11111111-1111-4111-8111-111111111111';
 export const ARTIFACT_ID = '22222222-2222-4222-8222-222222222222';
 export const ARTIFACT_DIGEST = `sha256:${'a'.repeat(64)}`;
 
-export class StubCoreReader implements CollectorCoreReader {
+export class StubCoreReader implements CollectorCoreApi {
   readonly fixture = coreContractFixture();
+  readonly submissions: Array<Record<string, unknown>> = [];
+  submissionError: unknown = null;
+  submissionResponse: unknown = null;
 
   async readRelease(): Promise<unknown> {
     return structuredClone(this.fixture.release);
@@ -107,5 +110,31 @@ export class StubCoreReader implements CollectorCoreReader {
       };
     }
     throw new CollectorMcpError('artifact_read_out_of_bounds', 416);
+  }
+
+  async submitCollection(request: Record<string, unknown>): Promise<unknown> {
+    this.submissions.push(structuredClone(request));
+    if (this.submissionError !== null) throw this.submissionError;
+    if (this.submissionResponse !== null) return structuredClone(this.submissionResponse);
+    return {
+      schemaVersion: 3,
+      clientRequestId: request.clientRequestId,
+      idempotentReplay: false,
+      result: {
+        schemaVersion: 1,
+        operationId: OPERATION_ID,
+        browserBindingId: request.browserBindingId,
+        platform: request.platform,
+        capability: request.capability,
+        executionTarget: request.executionTarget,
+        state: 'queued',
+        queuedAt: '2026-08-03T00:00:00.000Z',
+        claimedAt: null,
+        completedAt: null,
+        errorCode: null,
+        terminalReason: null,
+        artifact: null
+      }
+    };
   }
 }

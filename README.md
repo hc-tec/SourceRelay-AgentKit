@@ -12,15 +12,17 @@ checkpoint 0: complete
 checkpoint 1: complete
 checkpoint 2: complete — repository foundation only
 checkpoint 3: complete — thin stdio MCP foundation + L1/L2
-runtime MCP: implemented — read-only Resources, no platform Tools yet
+checkpoint 4: complete — 15 typed capability Tools + exact parity gates
+runtime MCP: implemented — asynchronous Tools + read-only Operation/Artifact Resources
 official Skills: not published
 platform capability claim: none from this repository yet
 ```
 
 当前仓库已经提供可打包的 TypeScript/Node stdio MCP 进程。它在启动时用真实 Core
 `release + capabilities + OpenAPI + bindings` 完成 SHA-256 compatibility preflight，并只公开
-Operation 与 Artifact 等只读 Resources。15 项平台 Tool 尚未进入 Checkpoint 4，因此当前
-进程不能创建任何平台 Operation。README、manifest 或 Skill 说明永远不能替代实时 Core catalog。
+Operation 与 Artifact 等只读 Resources。当前 15 项 direct-ready Core capability 均以独立强类型
+Tool 发布；每次调用最多提交一个 Core Operation，并立即返回 Operation Resource URI。README、
+manifest 或 Skill 说明永远不能替代实时 Core catalog。
 
 ## 产品位置
 
@@ -76,7 +78,7 @@ contracts/                 versioned manifest schemas
 docs/architecture/         canonical approved architecture and decision record
 examples/                  future AI-native examples; currently empty by contract
 manifests/                 truthful machine-readable product compatibility
-packages/mcp-server/       thin stdio MCP runtime、Core client、Resources 与 L1 tests
+packages/mcp-server/       thin stdio MCP runtime、Core client、typed Tools、Resources 与 L1 tests
 packages/windows-configurator/
                             reserved installer/configurer boundary; no source yet
 skills/                     future official Skills; none published in Checkpoint 2
@@ -113,8 +115,8 @@ $env:COLLECTOR_L2_CORE_ENTRYPOINT = '<released Core user-browser-server.js>'
 npm run test:l2
 ```
 
-L2 只验证 stdio、真实 auth/preflight/Resource/error/log 映射，并硬检查创建了 0 个平台
-Operation；它不能宣称任何网站能力。
+L2 只验证 stdio、真实 auth/preflight、15 项 Tool schema/Core parity、Resource/error/log 映射，
+并硬检查非法调用创建了 0 个平台 Operation；它不能宣称任何网站能力。
 
 ## Compatibility 原则
 
@@ -124,12 +126,12 @@ Operation；它不能宣称任何网站能力。
 manifests/compatibility.json
 ```
 
-Checkpoint 3 的 manifest 必须诚实声明：
+Checkpoint 4 的 manifest 必须诚实声明：
 
-- phase 为 `mcp_foundation`；
+- phase 为 `capability_parity`；
 - Core release `0.7.17`、Service schema 3、feature 与 catalog digest 已绑定；
-- MCP protocol `2025-11-25`、stdio 与 6 类只读 Resource 已实现；
-- 平台 Tools 仍为空；
+- MCP protocol `2025-11-25`、stdio、15 项 typed Tool 与 6 类只读 Resource 已实现；
+- Tool catalog 为 `collector.mcp.tools/v1`，每项记录 AI-visible input schema digest；
 - 官方 Skills 为空；
 - Windows real-process L2 已记录，但 browser 支持与平台 claim 仍为空；
 - Workflow、模型、浏览器控制和旧原型依赖均为禁止状态。
@@ -148,9 +150,12 @@ Checkpoint 3 的 manifest 必须诚实声明：
 
 ### Checkpoint 4 — Full Capability Parity
 
-- 当前全部 direct-ready capability 的强类型 Tools；
-- Operation/Artifact Resources；
-- schema digest 与 Core/Python SDK/JavaScript SDK/MCP parity gate。
+- 已完成：当前全部 15 项 direct-ready capability 的强类型 Tools；
+- 已完成：单 POST、caller-controlled `clientRequestId`、session binding alias 与异步 Operation 返回；
+- 已完成：Tool schema digest、Core capability 与 manifest parity gate；
+- 已完成：Core 的 JavaScript/Python SDK capability matrix gate 与 MCP live-catalog gate 形成传递
+  一致性；
+- 已完成：packaged MCP + real Core L2（0 accepted platform Operation）。
 
 ### Checkpoint 5 — Skills + Real AI Canary
 

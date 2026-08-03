@@ -1,21 +1,26 @@
 import { randomUUID } from 'node:crypto';
-import { DIGEST_PATTERN, SAFE_CODE_PATTERN, UUID_PATTERN } from './constants.js';
+import { DIGEST_PATTERN, SAFE_CODE_PATTERN, TOKEN_PATTERN, UUID_PATTERN } from './constants.js';
 
 export type CollectorLogLevel = 'info' | 'warn' | 'error';
 
 const ALLOWED_FIELDS = new Set([
   'artifactId',
   'bindingCount',
+  'bindingAlias',
   'capabilityCount',
   'capabilityId',
   'catalogDigest',
   'coreOperationId',
   'coreState',
+  'clientRequestId',
   'durationMs',
   'errorCode',
+  'idempotentReplay',
   'openApiDigest',
   'outcome',
-  'resourceKind'
+  'resourceKind',
+  'toolCount',
+  'toolId'
 ]);
 
 export class SafeLogger {
@@ -49,12 +54,20 @@ function safeEventType(value: string): string {
 }
 
 function safeField(key: string, value: unknown): unknown {
-  if (key === 'durationMs' || key === 'bindingCount' || key === 'capabilityCount') {
+  if (typeof value === 'string' && (TOKEN_PATTERN.test(value) || /^(?:sk[-_]|cst_)/i.test(value))) {
+    return undefined;
+  }
+  if (key === 'durationMs' || key === 'bindingCount' || key === 'capabilityCount' ||
+    key === 'toolCount') {
     return Number.isSafeInteger(value) && (value as number) >= 0 ? value : undefined;
   }
-  if (key === 'artifactId' || key === 'coreOperationId') {
+  if (key === 'artifactId' || key === 'coreOperationId' || key === 'clientRequestId') {
     return typeof value === 'string' && UUID_PATTERN.test(value) ? value : undefined;
   }
+  if (key === 'bindingAlias') {
+    return typeof value === 'string' && /^binding-[1-9][0-9]*$/.test(value) ? value : undefined;
+  }
+  if (key === 'idempotentReplay') return typeof value === 'boolean' ? value : undefined;
   if (key === 'catalogDigest' || key === 'openApiDigest') {
     return typeof value === 'string' && DIGEST_PATTERN.test(value) ? value : undefined;
   }

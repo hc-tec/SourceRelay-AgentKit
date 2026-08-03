@@ -5,7 +5,7 @@ import {
 } from './constants.js';
 import { CollectorMcpError, safeCoreErrorCode } from './errors.js';
 
-export interface CollectorCoreReader {
+export interface CollectorCoreApi {
   readRelease(): Promise<unknown>;
   readCapabilities(): Promise<unknown>;
   readOpenApi(): Promise<unknown>;
@@ -13,6 +13,7 @@ export interface CollectorCoreReader {
   readOperation(operationId: string): Promise<unknown>;
   readArtifactMetadata(artifactId: string): Promise<unknown>;
   readArtifactWindow(artifactId: string, offset: number, maximumBytes?: number): Promise<unknown>;
+  submitCollection(request: Record<string, unknown>): Promise<unknown>;
 }
 
 export interface CollectorCoreClientOptions {
@@ -22,7 +23,7 @@ export interface CollectorCoreClientOptions {
   fetchImpl?: typeof fetch;
 }
 
-export class CollectorCoreClient implements CollectorCoreReader {
+export class CollectorCoreClient implements CollectorCoreApi {
   readonly #origin: string;
   readonly #token: string;
   readonly #requestTimeoutMs: number;
@@ -82,47 +83,100 @@ export class CollectorCoreClient implements CollectorCoreReader {
     return record(payload).window;
   }
 
-  async #request(path: string, authenticated: boolean, maximumBytes: number): Promise<unknown> {
+  async submitCollection(request: Record<string, unknown>): Promise<unknown> {
+    return await this.#request('/v2/collect', true, 512 * 1024, {
+      method: 'POST',
+      body: request,
+      submission: true
+    });
+  }
+
+  async #request(
+    path: string,
+    authenticated: boolean,
+    maximumBytes: number,
+    options: {
+      method?: 'GET' | 'POST';
+      body?: Record<string, unknown>;
+      submission?: boolean;
+    } = {}
+  ): Promise<unknown> {
+    const method = options.method ?? 'GET';
+    let body: string | undefined;
+    if (options.body !== undefined) {
+      try {
+        body = JSON.stringify(options.body);
+      } catch {
+        throw new CollectorMcpError('core_response_invalid');
+      }
+    }
     let response: Response;
     try {
       response = await this.#fetch(`${this.#origin}${path}`, {
-        method: 'GET',
+        method,
         headers: {
           accept: 'application/json',
+          ...(body === undefined ? {} : { 'content-type': 'application/json' }),
           ...(authenticated ? { authorization: `Bearer ${this.#token}` } : {})
         },
+        ...(body === undefined ? {} : { body }),
         redirect: 'error',
         signal: AbortSignal.timeout(this.#requestTimeoutMs)
       });
     } catch {
-      throw new CollectorMcpError('core_unavailable');
+      throw new CollectorMcpError(
+        options.submission === true ? 'submission_outcome_unknown' : 'core_unavailable'
+      );
     }
 
     const length = response.headers.get('content-length');
     if (length !== null && (!/^\d+$/.test(length) || Number(length) > maximumBytes)) {
-      throw new CollectorMcpError('core_response_too_large', response.status);
+      throw unreadableResponseError(
+        response,
+        options.submission === true,
+        'core_response_too_large'
+      );
     }
-    const bytes = new Uint8Array(await response.arrayBuffer());
+    let bytes: Uint8Array;
+    try {
+      bytes = new Uint8Array(await response.arrayBuffer());
+    } catch {
+      throw unreadableResponseError(response, options.submission === true, 'core_unavailable');
+    }
     if (bytes.byteLength > maximumBytes) {
-      throw new CollectorMcpError('core_response_too_large', response.status);
+      throw unreadableResponseError(
+        response,
+        options.submission === true,
+        'core_response_too_large'
+      );
     }
     let payload: unknown;
     try {
       const text = new TextDecoder('utf-8', { fatal: true }).decode(bytes);
       payload = JSON.parse(text);
     } catch {
-      throw new CollectorMcpError('core_response_invalid', response.status);
+      throw unreadableResponseError(response, options.submission === true, 'core_response_invalid');
     }
-    if (!response.ok) throw coreHttpError(response.status, payload);
+    if (!response.ok) throw coreHttpError(response.status, payload, options.submission === true);
     return payload;
   }
 }
 
-function coreHttpError(status: number, payload: unknown): CollectorMcpError {
-  if (status === 401) return new CollectorMcpError('authentication_failed', status);
-  if (status === 403) return new CollectorMcpError('permission_denied', status);
-  if (status === 404) return new CollectorMcpError('resource_not_found', status);
+function unreadableResponseError(
+  response: Response,
+  submission: boolean,
+  fallback: 'core_response_invalid' | 'core_response_too_large' | 'core_unavailable'
+): CollectorMcpError {
+  if (!submission) return new CollectorMcpError(fallback, response.status);
+  if (!response.ok) return coreHttpError(response.status, null, true);
+  return new CollectorMcpError('submission_outcome_unknown', response.status);
+}
+
+function coreHttpError(status: number, payload: unknown, submission: boolean): CollectorMcpError {
   const code = safeCoreErrorCode(isRecord(payload) ? payload.error : null);
+  if (status === 401) return new CollectorMcpError('authentication_failed', status, code);
+  if (status === 403) return new CollectorMcpError('permission_denied', status, code);
+  if (status === 404) return new CollectorMcpError('resource_not_found', status, code);
   if (status === 416 || code === 'collector_service_artifact_read_out_of_bounds' ||
     code === 'collector_service_artifact_offset_not_utf8_boundary') {
     return new CollectorMcpError('artifact_read_out_of_bounds', status);
@@ -131,9 +185,15 @@ function coreHttpError(status: number, payload: unknown): CollectorMcpError {
     code === 'collector_service_artifact_window_invalid')) {
     return new CollectorMcpError('resource_uri_invalid', status);
   }
+  if (submission && status === 400) {
+    return new CollectorMcpError('request_rejected', status, code);
+  }
+  if (submission && status === 409) {
+    return new CollectorMcpError('submission_conflict', status, code);
+  }
   return status >= 500
-    ? new CollectorMcpError('core_unavailable', status)
-    : new CollectorMcpError('core_response_invalid', status);
+    ? new CollectorMcpError('core_unavailable', status, code)
+    : new CollectorMcpError('core_response_invalid', status, code);
 }
 
 function requireUuid(value: string): void {

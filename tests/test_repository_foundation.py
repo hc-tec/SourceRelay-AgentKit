@@ -80,6 +80,24 @@ REQUIRED_CORE_FEATURES = {
     "operations.exact_core_state.v1",
 }
 
+TOOL_CAPABILITY_MAP = {
+    "collector_bilibili_video_detail": "bilibili.video_detail",
+    "collector_bilibili_native_search": "bilibili.native_search",
+    "collector_bilibili_native_search_batch": "bilibili.native_search_batch",
+    "collector_bilibili_account_profile": "bilibili.account_profile",
+    "collector_bilibili_account_inventory": "bilibili.account_inventory",
+    "collector_bilibili_dynamic": "bilibili.dynamic",
+    "collector_bilibili_collection_series_overview": "bilibili.collection_series.overview",
+    "collector_bilibili_collection_series_detail": "bilibili.collection_series.detail",
+    "collector_bilibili_danmaku": "bilibili.danmaku",
+    "collector_bilibili_discussion": "bilibili.discussion",
+    "collector_xiaohongshu_public_notes_search": "xiaohongshu.search.public_notes.v1",
+    "collector_xiaohongshu_account_public_notes": "xiaohongshu.account.public_notes.v1",
+    "collector_xiaohongshu_note_public_detail": "xiaohongshu.note.public_detail.v1",
+    "collector_xiaohongshu_note_public_comments": "xiaohongshu.note.public_comments.v1",
+    "collector_xiaohongshu_note_public_comment_replies": "xiaohongshu.note.public_comment_replies.v1",
+}
+
 
 def load_json_without_duplicate_keys(path: Path) -> dict[str, object]:
     def reject_duplicates(pairs: list[tuple[str, object]]) -> dict[str, object]:
@@ -153,7 +171,7 @@ class RepositoryFoundationTests(unittest.TestCase):
             self.assertEqual(parsed.get("type"), "object")
             self.assertFalse(parsed.get("additionalProperties"))
 
-    def test_checkpoint3_manifest_is_truthful_and_bounded(self) -> None:
+    def test_checkpoint4_manifest_is_truthful_and_bounded(self) -> None:
         manifest_path = ROOT / "manifests" / "compatibility.json"
         manifest = load_json_without_duplicate_keys(manifest_path)
         schema_path = (manifest_path.parent / str(manifest["$schema"])).resolve()
@@ -177,9 +195,12 @@ class RepositoryFoundationTests(unittest.TestCase):
         )
         self.assertEqual(manifest["schemaVersion"], "collector.ai-integration.compatibility/v1alpha1")
         self.assertEqual(manifest["product"]["version"], "0.0.0-mcp-foundation")
-        self.assertEqual(manifest["product"]["phase"], "mcp_foundation")
+        self.assertEqual(manifest["product"]["phase"], "capability_parity")
         self.assertEqual(manifest["product"]["license"], "Apache-2.0")
-        self.assertEqual(manifest["checkpoint"], {"completed": [0, 1, 2, 3], "current": None, "next": 4})
+        self.assertEqual(
+            manifest["checkpoint"],
+            {"completed": [0, 1, 2, 3, 4], "current": None, "next": 5},
+        )
 
         core = manifest["core"]
         self.assertEqual(core["supportedApiSchemaRange"], "=3")
@@ -197,8 +218,20 @@ class RepositoryFoundationTests(unittest.TestCase):
         self.assertTrue(mcp["implemented"])
         self.assertEqual(mcp["protocolVersion"], "2025-11-25")
         self.assertEqual(mcp["defaultTransport"], "stdio")
-        self.assertIsNone(mcp["toolCatalogVersion"])
-        self.assertEqual(mcp["tools"], [])
+        self.assertEqual(mcp["toolCatalogVersion"], "collector.mcp.tools/v1")
+        self.assertEqual(len(mcp["tools"]), 15)
+        self.assertEqual(
+            {item["toolId"]: item["capabilityId"] for item in mcp["tools"]},
+            TOOL_CAPABILITY_MAP,
+        )
+        self.assertEqual(
+            {item["capabilityId"] for item in mcp["tools"]},
+            set(core["directCapabilityIds"]),
+        )
+        self.assertTrue(all(
+            re.fullmatch(r"sha256:[0-9a-f]{64}", item["inputSchemaDigest"])
+            for item in mcp["tools"]
+        ))
         self.assertEqual(set(mcp["resources"]), MCP_FOUNDATION_RESOURCES)
 
         self.assertEqual(manifest["skills"]["official"], [])
@@ -216,18 +249,19 @@ class RepositoryFoundationTests(unittest.TestCase):
             {
                 "repository_boundary_gate",
                 "mcp_l1_contract_gate",
+                "core_javascript_python_sdk_capability_matrix",
                 "packaged_mcp_real_core_stdio_l2",
             },
         )
 
-    def test_checkpoint3_runtime_is_only_the_pinned_thin_mcp_package(self) -> None:
+    def test_checkpoint4_runtime_is_only_the_pinned_thin_mcp_package(self) -> None:
         root_package = load_json_without_duplicate_keys(ROOT / "package.json")
         mcp_package = load_json_without_duplicate_keys(ROOT / "packages" / "mcp-server" / "package.json")
         self.assertEqual(root_package["workspaces"], ["packages/mcp-server"])
         self.assertEqual(mcp_package["version"], "0.0.0-mcp-foundation")
         self.assertEqual(
             mcp_package["dependencies"],
-            {"@modelcontextprotocol/sdk": "1.30.0", "zod": "4.4.3"},
+            {"@modelcontextprotocol/sdk": "1.30.0", "ajv": "8.17.1", "zod": "4.4.3"},
         )
         self.assertEqual(mcp_package["bin"], {"collector-mcp": "./dist/src/cli.js"})
         self.assertTrue((ROOT / "packages" / "mcp-server" / "src" / "cli.ts").is_file())

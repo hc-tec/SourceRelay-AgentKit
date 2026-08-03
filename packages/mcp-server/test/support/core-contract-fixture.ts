@@ -27,25 +27,22 @@ export function coreContractFixture() {
   const directContracts: Array<Record<string, unknown>> = [];
   DIRECT_CAPABILITY_IDS.forEach((capability, index) => {
     const schemaName = `Request${index + 1}`;
-    const schema = {
-      type: 'object',
-      additionalProperties: false,
-      required: ['schemaVersion', 'clientRequestId'],
-      properties: {
-        schemaVersion: { type: 'integer', const: 3 },
-        clientRequestId: { type: 'string', format: 'uuid' }
-      }
-    };
+    const targets = executionTargets(capability);
+    const schema = requestSchema(capability, targets);
     schemas[schemaName] = schema;
     capabilities.push({ capability, dispatchState: 'direct_ready' });
     directContracts.push({
       capability,
       requestSchemaRef: `#/components/schemas/${schemaName}`,
       requestSchemaDigest: sha256Digest(schema),
-      executionTargets: ['collector_work_tab'],
-      defaultExecutionTarget: 'collector_work_tab',
-      executionTargetMode: 'fixed',
-      budgetPolicy: 'fixed_queue_budget'
+      executionTargets: targets,
+      defaultExecutionTarget: targets[0],
+      executionTargetMode: targets.length === 1 ? 'fixed' : 'enum',
+      budgetPolicy: capability === 'bilibili.account_inventory'
+        ? 'fixed_observation_budget'
+        : capability.endsWith('public_comments.v1') || capability.endsWith('public_comment_replies.v1')
+          ? 'input_bounded_queue_budget'
+          : 'fixed_queue_budget'
     });
   });
   capabilities.push(
@@ -110,4 +107,120 @@ export function fixtureCompatibilityPolicy(
     requiredFeatures: REQUIRED_CORE_FEATURES,
     directCapabilityCount: 15
   };
+}
+
+function requestSchema(capability: string, targets: string[]): Record<string, unknown> {
+  const platform = capability.startsWith('bilibili.') ? 'bilibili' : 'xiaohongshu';
+  const schema: Record<string, unknown> = {
+    type: 'object',
+    additionalProperties: false,
+    required: [
+      'schemaVersion', 'clientRequestId', 'browserBindingId', 'platform', 'capability',
+      'executionTarget', 'input'
+    ],
+    properties: {
+      schemaVersion: { type: 'integer', const: 3 },
+      clientRequestId: { type: 'string', format: 'uuid' },
+      browserBindingId: { type: 'string', format: 'uuid' },
+      platform: { type: 'string', const: platform },
+      capability: { type: 'string', const: capability },
+      executionTarget: targets.length === 1
+        ? { type: 'string', const: targets[0] }
+        : { type: 'string', enum: targets },
+      input: capabilityInputSchema(capability)
+    }
+  };
+  if (capability === 'xiaohongshu.account.public_notes.v1') {
+    schema.allOf = [
+      {
+        if: { required: ['executionTarget'], properties: { executionTarget: { const: 'existing_public_profile_tab' } } },
+        then: {
+          properties: {
+            input: {
+              properties: { maximumScrolls: { type: 'integer', enum: [1, 2, 3] } },
+              not: { required: ['profileUrl'] }
+            }
+          }
+        }
+      },
+      {
+        if: { required: ['executionTarget'], properties: { executionTarget: { const: 'ephemeral_public_profile_url' } } },
+        then: { properties: { input: { required: ['maximumScrolls', 'profileUrl'] } } }
+      },
+      {
+        if: { required: ['executionTarget'], properties: { executionTarget: { const: 'discover_public_profile_from_note' } } },
+        then: { properties: { input: { not: { required: ['profileUrl'] } } } }
+      }
+    ];
+  }
+  return schema;
+}
+
+function capabilityInputSchema(capability: string): Record<string, unknown> {
+  const object = (required: string[], properties: Record<string, unknown>) => ({
+    type: 'object', additionalProperties: false, required, properties
+  });
+  if (capability === 'bilibili.native_search' || capability === 'bilibili.native_search_batch') {
+    return object(['query'], { query: { type: 'string', minLength: 1, maxLength: 160 } });
+  }
+  if (capability === 'bilibili.collection_series.detail') {
+    return object(['canonicalProfileUrl', 'stableSeriesId', 'listType'], {
+      canonicalProfileUrl: { type: 'string', format: 'uri' },
+      stableSeriesId: { type: 'string', pattern: '^[1-9]\\d{0,19}$' },
+      listType: { type: 'string', enum: ['series', 'season'] }
+    });
+  }
+  if (capability === 'xiaohongshu.search.public_notes.v1') {
+    return object(['query'], {
+      query: { type: 'string', minLength: 1, maxLength: 80 },
+      maximumDetails: { type: 'integer', minimum: 0, maximum: 20 },
+      comments: object(['maximumScrolls'], {
+        maximumScrolls: { type: 'integer', enum: [1, 2, 3] },
+        replies: object(['maximumThreads'], {
+          maximumThreads: { type: 'integer', enum: [1, 2, 3] }
+        })
+      })
+    });
+  }
+  if (capability === 'xiaohongshu.account.public_notes.v1') {
+    return object(['maximumScrolls'], {
+      maximumScrolls: { type: 'integer', enum: Array.from({ length: 20 }, (_, index) => index + 1) },
+      profileUrl: { type: 'string', minLength: 1, maxLength: 4096, format: 'uri' }
+    });
+  }
+  if (capability === 'xiaohongshu.note.public_detail.v1') {
+    return object(['resultRank'], { resultRank: { type: 'integer', minimum: 1, maximum: 20 } });
+  }
+  if (capability === 'xiaohongshu.note.public_comments.v1') {
+    return object(['maximumScrolls'], { maximumScrolls: { type: 'integer', enum: [1, 2, 3] } });
+  }
+  if (capability === 'xiaohongshu.note.public_comment_replies.v1') {
+    return object(['maximumThreads'], { maximumThreads: { type: 'integer', enum: [1, 2, 3] } });
+  }
+  if (capability === 'bilibili.video_detail' || capability === 'bilibili.danmaku' ||
+    capability === 'bilibili.discussion') {
+    return object(['canonicalVideoUrl'], { canonicalVideoUrl: { type: 'string', format: 'uri' } });
+  }
+  return object(['canonicalProfileUrl'], {
+    canonicalProfileUrl: { type: 'string', format: 'uri' }
+  });
+}
+
+function executionTargets(capability: string): string[] {
+  if (capability === 'bilibili.account_inventory') {
+    return ['collector_work_tab', 'user_selected_tab'];
+  }
+  if (capability === 'xiaohongshu.account.public_notes.v1') {
+    return [
+      'existing_public_profile_tab',
+      'ephemeral_public_profile_url',
+      'discover_public_profile_from_note'
+    ];
+  }
+  if (capability === 'xiaohongshu.note.public_detail.v1') {
+    return ['existing_public_search_tab', 'existing_public_profile_tab'];
+  }
+  if (capability === 'xiaohongshu.search.public_notes.v1') return ['existing_public_explore_tab'];
+  if (capability.startsWith('xiaohongshu.note.')) return ['existing_public_note_overlay'];
+  return ['collector_work_tab'];
 }

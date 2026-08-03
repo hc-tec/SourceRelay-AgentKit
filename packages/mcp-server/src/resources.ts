@@ -1,12 +1,13 @@
 import {
   ARTIFACT_RESOURCE_WINDOW_BYTES,
+  BINDING_ALIAS_PATTERN,
   DIGEST_PATTERN,
   SAFE_CODE_PATTERN,
   UUID_PATTERN
 } from './constants.js';
 import type { VerifiedCoreCompatibility, RawBrowserBinding } from './compatibility.js';
 import { verifyBindings } from './compatibility.js';
-import type { CollectorCoreReader } from './core-client.js';
+import type { CollectorCoreApi } from './core-client.js';
 import { CollectorMcpError, stableErrorCode } from './errors.js';
 import type { SafeLogger } from './logger.js';
 import {
@@ -31,13 +32,16 @@ export interface SafeBrowserBinding {
 
 export class BindingAliasRegistry {
   readonly #aliases = new Map<string, string>();
+  readonly #bindingIds = new Map<string, string>();
   #next = 1;
 
   project(bindings: RawBrowserBinding[]): SafeBrowserBinding[] {
     for (const binding of [...bindings].sort((left, right) =>
       left.browserBindingId.localeCompare(right.browserBindingId))) {
       if (!this.#aliases.has(binding.browserBindingId)) {
-        this.#aliases.set(binding.browserBindingId, `binding-${this.#next}`);
+        const alias = `binding-${this.#next}`;
+        this.#aliases.set(binding.browserBindingId, alias);
+        this.#bindingIds.set(alias, binding.browserBindingId);
         this.#next += 1;
       }
     }
@@ -48,16 +52,25 @@ export class BindingAliasRegistry {
       lastSeenAt: binding.lastSeenAt
     }));
   }
+
+  resolve(bindingAlias: string): string {
+    if (!BINDING_ALIAS_PATTERN.test(bindingAlias)) {
+      throw new CollectorMcpError('binding_alias_not_found');
+    }
+    const browserBindingId = this.#bindingIds.get(bindingAlias);
+    if (browserBindingId === undefined) throw new CollectorMcpError('binding_alias_not_found');
+    return browserBindingId;
+  }
 }
 
 export class CollectorResourceService {
-  readonly #core: CollectorCoreReader;
+  readonly #core: CollectorCoreApi;
   readonly #compatibility: VerifiedCoreCompatibility;
   readonly #aliases: BindingAliasRegistry;
   readonly #logger: SafeLogger;
 
   constructor(input: {
-    core: CollectorCoreReader;
+    core: CollectorCoreApi;
     compatibility: VerifiedCoreCompatibility;
     aliases: BindingAliasRegistry;
     logger: SafeLogger;

@@ -26,6 +26,8 @@ export const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-
 export const DIGEST_PATTERN = /^sha256:[a-f0-9]{64}$/;
 export const TOKEN_PATTERN = /^cst_[A-Za-z0-9_-]{43}$/;
 export const SAFE_CODE_PATTERN = /^[a-z0-9_.-]{1,120}$/i;
+export const BINDING_ALIAS_PATTERN = /^binding-[1-9][0-9]*$/;
+export const BINDING_ALIAS_JSON_PATTERN = '^binding-[1-9][0-9]*$';
 
 export const RESOURCE_URIS = Object.freeze({
   release: 'collector://release',

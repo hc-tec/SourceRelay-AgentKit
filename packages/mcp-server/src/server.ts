@@ -13,12 +13,13 @@ import {
 } from './compatibility.js';
 import {
   CollectorCoreClient,
-  type CollectorCoreReader
+  type CollectorCoreApi
 } from './core-client.js';
 import type { CollectorCoreRuntimeConfig } from './credential.js';
 import { stableErrorCode, toProtocolError } from './errors.js';
 import { SafeLogger } from './logger.js';
 import { BindingAliasRegistry, CollectorResourceService } from './resources.js';
+import { CollectorToolService, registerCollectorTools } from './tools.js';
 
 export interface CollectorMcpRuntime {
   server: McpServer;
@@ -27,7 +28,7 @@ export interface CollectorMcpRuntime {
 }
 
 export async function preflightCollectorCore(
-  core: CollectorCoreReader,
+  core: CollectorCoreApi,
   now = new Date()
 ): Promise<VerifiedCoreCompatibility> {
   const [release, catalog, openApi, bindings] = await Promise.all([
@@ -39,7 +40,10 @@ export async function preflightCollectorCore(
   return verifyCollectorCoreCompatibility({ release, catalog, openApi, bindings }, now);
 }
 
-export function buildCollectorMcpServer(resources: CollectorResourceService): McpServer {
+export function buildCollectorMcpServer(
+  resources: CollectorResourceService,
+  tools: CollectorToolService
+): McpServer {
   const server = new McpServer({
     name: COLLECTOR_MCP_NAME,
     version: COLLECTOR_MCP_VERSION
@@ -73,6 +77,7 @@ export function buildCollectorMcpServer(resources: CollectorResourceService): Mc
     'Bounded canonical UTF-8 Artifact content window with hashes and next cursor.',
     resources
   );
+  registerCollectorTools(server, tools);
   return server;
 }
 
@@ -80,7 +85,7 @@ export async function startCollectorMcpServer(
   config: CollectorCoreRuntimeConfig,
   options: {
     logger?: SafeLogger;
-    core?: CollectorCoreReader;
+    core?: CollectorCoreApi;
     transport?: StdioServerTransport;
   } = {}
 ): Promise<CollectorMcpRuntime> {
@@ -110,12 +115,14 @@ export async function startCollectorMcpServer(
   const aliases = new BindingAliasRegistry();
   aliases.project(compatibility.rawBindings);
   const resources = new CollectorResourceService({ core, compatibility, aliases, logger });
-  const server = buildCollectorMcpServer(resources);
+  const tools = new CollectorToolService({ core, compatibility, aliases, logger });
+  const server = buildCollectorMcpServer(resources, tools);
   const transport = options.transport ?? new StdioServerTransport();
   await server.connect(transport);
   logger.record('info', 'collector.mcp.started', {
     outcome: 'completed',
-    capabilityCount: compatibility.directCapabilityIds.length
+    capabilityCount: compatibility.directCapabilityIds.length,
+    toolCount: tools.definitions.length
   });
   return {
     server,

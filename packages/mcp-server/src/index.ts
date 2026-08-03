@@ -13,6 +13,7 @@ export {
   DEFAULT_CORE_COMPATIBILITY_POLICY,
   type CollectorCoreCompatibilityPolicy,
   type RawBrowserBinding,
+  type VerifiedDirectCapabilityContract,
   type VerifiedCoreCompatibility
 } from './compatibility.js';
 export {
@@ -22,7 +23,7 @@ export {
 } from './credential.js';
 export {
   CollectorCoreClient,
-  type CollectorCoreReader
+  type CollectorCoreApi
 } from './core-client.js';
 export {
   CollectorMcpError,
@@ -44,6 +45,18 @@ export {
   type CollectorResourceDocument,
   type SafeBrowserBinding
 } from './resources.js';
+export {
+  buildCollectorToolCatalog,
+  collectorToolMappings,
+  deriveToolInputSchema,
+  TOOL_CATALOG_VERSION,
+  type CollectorToolDefinition
+} from './tool-catalog.js';
+export {
+  CollectorToolService,
+  registerCollectorTools,
+  type CollectorToolSubmissionResult
+} from './tools.js';
 export {
   buildCollectorMcpServer,
   collectorMcpProtocolVersion,

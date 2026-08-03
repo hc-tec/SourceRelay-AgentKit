@@ -4,14 +4,14 @@
   "product": {
     "id": "collector-ai-integration",
     "version": "0.0.0-mcp-foundation",
-    "phase": "mcp_foundation",
+    "phase": "capability_parity",
     "architectureVersion": "v1",
     "license": "Apache-2.0"
   },
   "checkpoint": {
-    "completed": [0, 1, 2, 3],
+    "completed": [0, 1, 2, 3, 4],
     "current": null,
-    "next": 4
+    "next": 5
   },
   "core": {
     "supportedApiSchemaRange": "=3",
@@ -47,8 +47,84 @@
     "implemented": true,
     "protocolVersion": "2025-11-25",
     "defaultTransport": "stdio",
-    "toolCatalogVersion": null,
-    "tools": [],
+    "toolCatalogVersion": "collector.mcp.tools/v1",
+    "tools": [
+      {
+        "toolId": "collector_bilibili_video_detail",
+        "capabilityId": "bilibili.video_detail",
+        "inputSchemaDigest": "sha256:f3a28feaba29e563e6821ea1827bfab0ed1bc29d612b716dde0f9e0dfc3e831e"
+      },
+      {
+        "toolId": "collector_bilibili_native_search",
+        "capabilityId": "bilibili.native_search",
+        "inputSchemaDigest": "sha256:4df1134a927c11dc7b456a9ef7f9c5f80f844b470a80bd728b7115bd231e6c2e"
+      },
+      {
+        "toolId": "collector_bilibili_native_search_batch",
+        "capabilityId": "bilibili.native_search_batch",
+        "inputSchemaDigest": "sha256:4df1134a927c11dc7b456a9ef7f9c5f80f844b470a80bd728b7115bd231e6c2e"
+      },
+      {
+        "toolId": "collector_bilibili_account_profile",
+        "capabilityId": "bilibili.account_profile",
+        "inputSchemaDigest": "sha256:a45a182389e2aa52aaffafea172588433a3ad2ed2d0173368b88557f29af57c1"
+      },
+      {
+        "toolId": "collector_bilibili_account_inventory",
+        "capabilityId": "bilibili.account_inventory",
+        "inputSchemaDigest": "sha256:cace6fe7c36fd0c505aea440e6e6862b92e5a3fff37a6bc465ee54103c43e7e1"
+      },
+      {
+        "toolId": "collector_bilibili_dynamic",
+        "capabilityId": "bilibili.dynamic",
+        "inputSchemaDigest": "sha256:a45a182389e2aa52aaffafea172588433a3ad2ed2d0173368b88557f29af57c1"
+      },
+      {
+        "toolId": "collector_bilibili_collection_series_overview",
+        "capabilityId": "bilibili.collection_series.overview",
+        "inputSchemaDigest": "sha256:a45a182389e2aa52aaffafea172588433a3ad2ed2d0173368b88557f29af57c1"
+      },
+      {
+        "toolId": "collector_bilibili_collection_series_detail",
+        "capabilityId": "bilibili.collection_series.detail",
+        "inputSchemaDigest": "sha256:c26dd0cb6ffdff6a383c320b474cdf320041fecd8b85c898ba48e414a5642579"
+      },
+      {
+        "toolId": "collector_bilibili_danmaku",
+        "capabilityId": "bilibili.danmaku",
+        "inputSchemaDigest": "sha256:f3a28feaba29e563e6821ea1827bfab0ed1bc29d612b716dde0f9e0dfc3e831e"
+      },
+      {
+        "toolId": "collector_bilibili_discussion",
+        "capabilityId": "bilibili.discussion",
+        "inputSchemaDigest": "sha256:0079014824b77886e9ca8052835e95056759076def396006c820ffdf20cf3b06"
+      },
+      {
+        "toolId": "collector_xiaohongshu_public_notes_search",
+        "capabilityId": "xiaohongshu.search.public_notes.v1",
+        "inputSchemaDigest": "sha256:289dde1a870ce97877c1183dba1270c784746bdc13b64a7dedcc092e8777560c"
+      },
+      {
+        "toolId": "collector_xiaohongshu_account_public_notes",
+        "capabilityId": "xiaohongshu.account.public_notes.v1",
+        "inputSchemaDigest": "sha256:b99b32064e1b908830e3c7439ee02c0fed3071d1f241d8f5bf48c5b935aa5bef"
+      },
+      {
+        "toolId": "collector_xiaohongshu_note_public_detail",
+        "capabilityId": "xiaohongshu.note.public_detail.v1",
+        "inputSchemaDigest": "sha256:2e85c98f51ec8df9fc4c51bc1935e004ee9881488a9d8726dce6a6101a2267d2"
+      },
+      {
+        "toolId": "collector_xiaohongshu_note_public_comments",
+        "capabilityId": "xiaohongshu.note.public_comments.v1",
+        "inputSchemaDigest": "sha256:0e02dc933be49be4c25c53a4caf98853e63bc844f9d8329c34b91b0f192d473d"
+      },
+      {
+        "toolId": "collector_xiaohongshu_note_public_comment_replies",
+        "capabilityId": "xiaohongshu.note.public_comment_replies.v1",
+        "inputSchemaDigest": "sha256:c0602cf30568ee01d3db058be4230f3af62eb24f57fbeecf9a053e77a9e69e21"
+      }
+    ],
     "resources": [
       "collector://release",
       "collector://capabilities",
@@ -97,6 +173,10 @@
       {
         "kind": "mcp_l1_contract_gate",
         "command": "npm run test:l1"
+      },
+      {
+        "kind": "core_javascript_python_sdk_capability_matrix",
+        "command": "In released Core 0.7.17 checkout: npm run verify:core-capability-matrix"
       },
       {
         "kind": "packaged_mcp_real_core_stdio_l2",

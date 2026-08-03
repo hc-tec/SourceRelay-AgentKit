@@ -6,6 +6,7 @@ import {
   SUPPORTED_CORE_OPENAPI_DIGEST,
   SUPPORTED_CORE_RELEASE,
   SUPPORTED_CORE_SERVICE_SCHEMA,
+  SAFE_CODE_PATTERN,
   UUID_PATTERN
 } from './constants.js';
 import { sha256Digest } from './canonical-json.js';
@@ -22,6 +23,25 @@ export interface VerifiedCoreCompatibility {
   catalogDigest: string;
   features: string[];
   directCapabilityIds: string[];
+  directContracts: VerifiedDirectCapabilityContract[];
+}
+
+export type VerifiedExecutionTargetMode = 'fixed' | 'enum';
+export type VerifiedBudgetPolicy =
+  | 'fixed_queue_budget'
+  | 'input_bounded_queue_budget'
+  | 'fixed_observation_budget';
+
+export interface VerifiedDirectCapabilityContract {
+  capabilityId: string;
+  platform: 'bilibili' | 'xiaohongshu';
+  requestSchemaName: string;
+  requestSchemaDigest: string;
+  requestSchema: Record<string, unknown>;
+  executionTargets: string[];
+  defaultExecutionTarget: string;
+  executionTargetMode: VerifiedExecutionTargetMode;
+  budgetPolicy: VerifiedBudgetPolicy;
 }
 
 export interface RawBrowserBinding {
@@ -102,26 +122,45 @@ export function verifyCollectorCoreCompatibility(
 
   const schemas = requiredRecord(requiredRecord(openApi.components).schemas);
   const contractIds: string[] = [];
+  const verifiedDirectContracts: VerifiedDirectCapabilityContract[] = [];
   for (const contract of directContracts) {
     const capability = requiredString(contract.capability);
+    requireValue(SAFE_CODE_PATTERN.test(capability));
     contractIds.push(capability);
     const schemaName = requestSchemaName(requiredString(contract.requestSchemaRef));
     const schema = requiredRecord(schemas[schemaName]);
-    requireValue(digestString(contract.requestSchemaDigest) === sha256Digest(schema));
+    const requestSchemaDigest = digestString(contract.requestSchemaDigest);
+    requireValue(requestSchemaDigest === sha256Digest(schema));
     const targets = uniqueStrings(contract.executionTargets);
     requireValue(targets.length > 0);
+    requireValue(targets.every((target) => SAFE_CODE_PATTERN.test(target)));
     const defaultTarget = requiredString(contract.defaultExecutionTarget);
     requireValue(targets.includes(defaultTarget));
-    requireValue(contract.executionTargetMode === (targets.length === 1 ? 'fixed' : 'enum'));
+    const executionTargetMode = verifiedExecutionTargetMode(contract.executionTargetMode);
+    requireValue(executionTargetMode === (targets.length === 1 ? 'fixed' : 'enum'));
     requireValue(
       contract.budgetPolicy === 'fixed_queue_budget' ||
       contract.budgetPolicy === 'input_bounded_queue_budget' ||
       contract.budgetPolicy === 'fixed_observation_budget'
     );
-    const required = requiredArray(schema.required);
-    const properties = requiredRecord(schema.properties);
-    requireValue(required.includes('clientRequestId'));
-    requireValue(requiredRecord(properties.clientRequestId).format === 'uuid');
+    const platform = verifyDirectRequestEnvelope(
+      schema,
+      capability,
+      targets,
+      executionTargetMode,
+      policy.serviceSchemaVersion
+    );
+    verifiedDirectContracts.push({
+      capabilityId: capability,
+      platform,
+      requestSchemaName: schemaName,
+      requestSchemaDigest,
+      requestSchema: structuredClone(schema),
+      executionTargets: [...targets],
+      defaultExecutionTarget: defaultTarget,
+      executionTargetMode,
+      budgetPolicy: contract.budgetPolicy
+    });
   }
   requireValue(new Set(contractIds).size === contractIds.length);
   requireValue(sameSet(contractIds, directReadyIds));
@@ -137,8 +176,47 @@ export function verifyCollectorCoreCompatibility(
     openApiDigest,
     catalogDigest,
     features: [...features],
-    directCapabilityIds: [...contractIds]
+    directCapabilityIds: [...contractIds],
+    directContracts: verifiedDirectContracts
   };
+}
+
+function verifyDirectRequestEnvelope(
+  schema: Record<string, unknown>,
+  capability: string,
+  executionTargets: string[],
+  executionTargetMode: VerifiedExecutionTargetMode,
+  serviceSchemaVersion: number
+): 'bilibili' | 'xiaohongshu' {
+  const envelopeFields = [
+    'schemaVersion', 'clientRequestId', 'browserBindingId', 'platform', 'capability',
+    'executionTarget', 'input'
+  ];
+  requireValue(schema.type === 'object' && schema.additionalProperties === false);
+  const required = requiredArray(schema.required).map(requiredString);
+  const properties = requiredRecord(schema.properties);
+  requireValue(sameSet(required, envelopeFields));
+  requireValue(sameSet(Object.keys(properties), envelopeFields));
+  requireValue(requiredRecord(properties.schemaVersion).const === serviceSchemaVersion);
+  requireValue(requiredRecord(properties.clientRequestId).format === 'uuid');
+  requireValue(requiredRecord(properties.browserBindingId).format === 'uuid');
+  requireValue(requiredRecord(properties.capability).const === capability);
+
+  const platform = requiredRecord(properties.platform).const;
+  requireValue(platform === 'bilibili' || platform === 'xiaohongshu');
+
+  const targetSchema = requiredRecord(properties.executionTarget);
+  if (executionTargetMode === 'fixed') {
+    requireValue(targetSchema.const === executionTargets[0]);
+  } else {
+    requireValue(sameSet(uniqueStrings(targetSchema.enum), executionTargets));
+  }
+
+  const input = requiredRecord(properties.input);
+  requireValue(input.type === 'object' && input.additionalProperties === false);
+  requiredRecord(input.properties);
+  requiredArray(input.required).map(requiredString);
+  return platform;
 }
 
 export function verifyBindings(value: unknown): RawBrowserBinding[] {
@@ -170,6 +248,13 @@ function requestSchemaName(reference: string): string {
   const match = /^#\/components\/schemas\/([A-Za-z0-9_-]+)$/.exec(reference);
   if (!match) throw new CollectorMcpError('compatibility_unmet');
   return match[1]!;
+}
+
+function verifiedExecutionTargetMode(value: unknown): VerifiedExecutionTargetMode {
+  if (value !== 'fixed' && value !== 'enum') {
+    throw new CollectorMcpError('compatibility_unmet');
+  }
+  return value;
 }
 
 function sameSet(left: string[], right: string[]): boolean {

@@ -15,7 +15,7 @@ def main() -> int:
     )
     result = unittest.TextTestRunner(verbosity=2).run(suite)
     if result.wasSuccessful():
-        print("collector AI integration checkpoint 3 repository boundary: ok")
+        print("collector AI integration checkpoint 4 repository boundary: ok")
         return 0
     return 1
 

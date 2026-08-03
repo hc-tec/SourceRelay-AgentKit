@@ -10,6 +10,8 @@ These are the canonical AI Integration architecture records from Checkpoint 2 on
   record including the explicit pivot from Workflow/Planner to MCP + Skills.
 - [Checkpoint 3 Core prerequisite audit](checkpoint-3-core-prerequisite-audit.md) — accepted wire and
   persistence changes required before the thin MCP foundation.
+- [Checkpoint 4 capability Tool contract](checkpoint-4-capability-tool-contract.md) — stable mapping,
+  schema transformation, one-POST semantics, and the L1/L2 verification boundary for all 15 Tools.
 
 The pre-migration documents remain recoverable at the `final-prototype` tag in `inteligence-apps`.
 Pointer files at the old paths direct readers here; do not maintain duplicate bodies.
