@@ -1,0 +1,199 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:collector-ai-integration:schema:compatibility:v1alpha1",
+  "title": "Collector AI Integration compatibility manifest",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "$schema",
+    "schemaVersion",
+    "product",
+    "checkpoint",
+    "core",
+    "mcp",
+    "skills",
+    "support",
+    "guardrails",
+    "verification"
+  ],
+  "properties": {
+    "$schema": { "type": "string", "minLength": 1 },
+    "schemaVersion": {
+      "const": "collector.ai-integration.compatibility/v1alpha1"
+    },
+    "product": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "version", "phase", "architectureVersion", "license"],
+      "properties": {
+        "id": { "const": "collector-ai-integration" },
+        "version": { "type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+(?:-[0-9A-Za-z.-]+)?$" },
+        "phase": {
+          "enum": [
+            "repository_foundation",
+            "mcp_foundation",
+            "capability_parity",
+            "skills_canary",
+            "windows_release"
+          ]
+        },
+        "architectureVersion": { "const": "v1" },
+        "license": { "const": "Apache-2.0" }
+      }
+    },
+    "checkpoint": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["completed", "current", "next"],
+      "properties": {
+        "completed": {
+          "type": "array",
+          "items": { "type": "integer", "minimum": 0, "maximum": 6 },
+          "uniqueItems": true
+        },
+        "current": { "type": ["integer", "null"], "minimum": 0, "maximum": 6 },
+        "next": { "type": ["integer", "null"], "minimum": 0, "maximum": 6 }
+      }
+    },
+    "core": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "supportedApiSchemaRange",
+        "supportedReleaseRange",
+        "requiredFeatures",
+        "capabilityCatalogDigest",
+        "directCapabilityIds"
+      ],
+      "properties": {
+        "supportedApiSchemaRange": { "type": ["string", "null"] },
+        "supportedReleaseRange": { "type": ["string", "null"] },
+        "requiredFeatures": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 },
+          "uniqueItems": true
+        },
+        "capabilityCatalogDigest": {
+          "type": ["string", "null"],
+          "pattern": "^sha256:[0-9a-f]{64}$"
+        },
+        "directCapabilityIds": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 },
+          "uniqueItems": true
+        }
+      }
+    },
+    "mcp": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "implemented",
+        "protocolVersion",
+        "defaultTransport",
+        "toolCatalogVersion",
+        "tools",
+        "resources"
+      ],
+      "properties": {
+        "implemented": { "type": "boolean" },
+        "protocolVersion": { "type": ["string", "null"] },
+        "defaultTransport": { "type": ["string", "null"], "enum": ["stdio", null] },
+        "toolCatalogVersion": { "type": ["string", "null"] },
+        "tools": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["toolId", "capabilityId", "inputSchemaDigest"],
+            "properties": {
+              "toolId": { "type": "string", "minLength": 1 },
+              "capabilityId": { "type": "string", "minLength": 1 },
+              "inputSchemaDigest": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" }
+            }
+          }
+        },
+        "resources": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 },
+          "uniqueItems": true
+        }
+      }
+    },
+    "skills": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["official"],
+      "properties": {
+        "official": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["skillId", "skillVersion", "digest"],
+            "properties": {
+              "skillId": { "type": "string", "minLength": 1 },
+              "skillVersion": { "type": "string", "minLength": 1 },
+              "digest": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" }
+            }
+          }
+        }
+      }
+    },
+    "support": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["operatingSystems", "browsers", "verifiedConfigurations"],
+      "properties": {
+        "operatingSystems": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 },
+          "uniqueItems": true
+        },
+        "browsers": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 },
+          "uniqueItems": true
+        },
+        "verifiedConfigurations": {
+          "type": "array",
+          "items": { "type": "object" }
+        }
+      }
+    },
+    "guardrails": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["forbiddenRuntimeFeatures"],
+      "properties": {
+        "forbiddenRuntimeFeatures": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 },
+          "uniqueItems": true
+        }
+      }
+    },
+    "verification": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["highestCompletedLevel", "evidence"],
+      "properties": {
+        "highestCompletedLevel": {
+          "enum": ["repository_foundation", "l1", "l2", "l3", "l4"]
+        },
+        "evidence": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["kind", "command"],
+            "properties": {
+              "kind": { "type": "string", "minLength": 1 },
+              "command": { "type": "string", "minLength": 1 }
+            }
+          }
+        }
+      }
+    }
+  }
+}

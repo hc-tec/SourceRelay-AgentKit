@@ -1,0 +1,59 @@
+{
+  "$schema": "../contracts/compatibility-manifest.schema.json",
+  "schemaVersion": "collector.ai-integration.compatibility/v1alpha1",
+  "product": {
+    "id": "collector-ai-integration",
+    "version": "0.0.0-foundation",
+    "phase": "repository_foundation",
+    "architectureVersion": "v1",
+    "license": "Apache-2.0"
+  },
+  "checkpoint": {
+    "completed": [0, 1, 2],
+    "current": null,
+    "next": 3
+  },
+  "core": {
+    "supportedApiSchemaRange": null,
+    "supportedReleaseRange": null,
+    "requiredFeatures": [],
+    "capabilityCatalogDigest": null,
+    "directCapabilityIds": []
+  },
+  "mcp": {
+    "implemented": false,
+    "protocolVersion": null,
+    "defaultTransport": null,
+    "toolCatalogVersion": null,
+    "tools": [],
+    "resources": []
+  },
+  "skills": {
+    "official": []
+  },
+  "support": {
+    "operatingSystems": [],
+    "browsers": [],
+    "verifiedConfigurations": []
+  },
+  "guardrails": {
+    "forbiddenRuntimeFeatures": [
+      "arbitrary_browser_control",
+      "browser_profile_lifecycle",
+      "deepresearch_or_model_provider",
+      "inteligence_apps_runtime_dependency",
+      "knowledge_pack_or_analysis_service",
+      "unbounded_artifact_access",
+      "workflow_planner_task_run_service"
+    ]
+  },
+  "verification": {
+    "highestCompletedLevel": "repository_foundation",
+    "evidence": [
+      {
+        "kind": "repository_boundary_gate",
+        "command": "python scripts/verify_repository.py"
+      }
+    ]
+  }
+}

@@ -1,0 +1,63 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:collector-ai-integration:schema:skill:v1alpha1",
+  "title": "Collector AI Integration Skill manifest",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "skillId",
+    "skillVersion",
+    "layer",
+    "publisher",
+    "source",
+    "digest",
+    "license",
+    "official",
+    "requirements",
+    "compatibility",
+    "externalEffects"
+  ],
+  "properties": {
+    "schemaVersion": { "const": "collector.ai-integration.skill/v1alpha1" },
+    "skillId": { "type": "string", "pattern": "^[a-z0-9]+(?:[._-][a-z0-9]+)*$" },
+    "skillVersion": { "type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+(?:-[0-9A-Za-z.-]+)?$" },
+    "layer": { "enum": ["foundation", "platform", "intent"] },
+    "publisher": { "type": "string", "minLength": 1 },
+    "source": { "type": "string", "minLength": 1 },
+    "digest": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" },
+    "license": { "type": "string", "minLength": 1 },
+    "official": { "type": "boolean" },
+    "requirements": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["tools", "resources", "capabilities", "minimumOutputSchemas"],
+      "properties": {
+        "tools": { "type": "array", "items": { "type": "string", "minLength": 1 }, "uniqueItems": true },
+        "resources": { "type": "array", "items": { "type": "string", "minLength": 1 }, "uniqueItems": true },
+        "capabilities": { "type": "array", "items": { "type": "string", "minLength": 1 }, "uniqueItems": true },
+        "minimumOutputSchemas": { "type": "object", "additionalProperties": { "type": "string", "minLength": 1 } }
+      }
+    },
+    "compatibility": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["mcpToolCatalogRange", "testedConfigurations"],
+      "properties": {
+        "mcpToolCatalogRange": { "type": "string", "minLength": 1 },
+        "testedConfigurations": { "type": "array", "items": { "type": "object" } }
+      }
+    },
+    "externalEffects": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["platformReads", "platformWrites", "localWrites", "networkDestinations"],
+      "properties": {
+        "platformReads": { "type": "boolean" },
+        "platformWrites": { "const": false },
+        "localWrites": { "type": "array", "items": { "type": "string" }, "uniqueItems": true },
+        "networkDestinations": { "type": "array", "items": { "type": "string" }, "uniqueItems": true }
+      }
+    }
+  }
+}

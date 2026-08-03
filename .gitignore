@@ -1,0 +1,33 @@
+# Runtime secrets and local configuration
+.env
+.env.*
+!.env.example
+*.token
+*.secret
+
+# Python verification artifacts
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.venv/
+venv/
+
+# JavaScript tooling artifacts (future runtime choice)
+node_modules/
+coverage/
+dist/
+build/
+
+# Local runtime and platform evidence
+runtime/
+artifacts/
+logs/
+*.log
+.playwright-cli/
+
+# Editors and operating systems
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+Desktop.ini

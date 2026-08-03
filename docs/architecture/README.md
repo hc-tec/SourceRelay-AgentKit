@@ -1,0 +1,13 @@
+# Architecture index
+
+These are the canonical AI Integration architecture records from Checkpoint 2 onward:
+
+- [Collector AI-Native target architecture](collector-ai-native-target-architecture.md) — approved
+  product map, boundaries, MVP, checkpoints, non-goals, and acceptance criteria;
+- [Overall consistency audit](overall-system-consistency-audit.md) — reconciliation with Collector Core
+  facts and the frozen upper-layer prototype;
+- [Overall Grill decision log](overall-system-grilling-decision-log.md) — the complete 1–40 decision
+  record including the explicit pivot from Workflow/Planner to MCP + Skills.
+
+The pre-migration documents remain recoverable at the `final-prototype` tag in `inteligence-apps`.
+Pointer files at the old paths direct readers here; do not maintain duplicate bodies.
