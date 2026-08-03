@@ -18,6 +18,7 @@ import {
   parseLiveMatrixArguments,
   parseResource,
   parseSubmission,
+  protocolCoreErrorCode,
   projectOperationEvidence,
   readAndVerifyArtifact,
   requiredUuid,
@@ -203,11 +204,13 @@ try {
   if (!passed) process.exitCode = 1;
 } catch (error) {
   run.finishedAt = new Date().toISOString();
+  const coreErrorCode = protocolCoreErrorCode(error);
   process.stderr.write(`${JSON.stringify({
     ok: false,
     evidenceCaptured: run.operationAccepted,
     gate: 'collector-mcp-live-capability-matrix',
     error: safeErrorCode(error),
+    ...(coreErrorCode === null ? {} : { coreErrorCode }),
     run: {
       ...run,
       outcome: run.operationAccepted ? 'inconclusive' : 'blocked',

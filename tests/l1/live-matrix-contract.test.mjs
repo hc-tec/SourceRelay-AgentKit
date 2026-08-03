@@ -7,6 +7,7 @@ import {
   OneShotToolSubmission,
   inputEvidence,
   parseLiveMatrixArguments,
+  protocolCoreErrorCode,
   readAndVerifyArtifact,
   selectUniqueOnlineBinding,
   sha256,
@@ -197,6 +198,15 @@ test('developer-visible input evidence hashes content while preserving only safe
   assert.equal(evidence.executionTarget, 'collector_work_tab');
   assert.match(evidence.canonicalProfileUrl, /^sha256:[a-f0-9]{64}$/);
   assert.equal(JSON.stringify(evidence).includes('space.bilibili.com'), false);
+});
+
+test('live matrix preserves a safe Core rejection code without exposing credentials', () => {
+  assert.equal(protocolCoreErrorCode({
+    data: { coreErrorCode: 'browser_binding_safety_manual_unlock_required' }
+  }), 'browser_binding_safety_manual_unlock_required');
+  assert.equal(protocolCoreErrorCode({ data: { coreErrorCode: 'cst_' + 'x'.repeat(43) } }), null);
+  assert.equal(protocolCoreErrorCode({ data: { coreErrorCode: 'unsafe code' } }), null);
+  assert.equal(protocolCoreErrorCode(new Error('submission_conflict')), null);
 });
 
 function resource(value) {
