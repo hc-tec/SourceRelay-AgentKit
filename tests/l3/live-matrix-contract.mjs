@@ -85,6 +85,17 @@ export function verifyCaseAgainstLiveCatalog(caseDefinition, capabilities, tools
   }
   const ajv = new Ajv2020({ allErrors: true, strict: false });
   ajv.addFormat('uuid', /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i);
+  ajv.addFormat('uri', {
+    type: 'string',
+    validate(value) {
+      try {
+        const parsed = new URL(value);
+        return parsed.protocol.length > 1;
+      } catch {
+        return false;
+      }
+    }
+  });
   const validate = ajv.compile(tool.inputSchema);
   if (!validate(argumentsRecord)) {
     throw new LiveMatrixError('collector_l3_case_does_not_match_live_tool_schema', {

@@ -128,6 +128,13 @@ test('case arguments are validated against the discovered live Tool schema', () 
     }),
     /collector_l3_case_does_not_match_live_tool_schema/
   );
+  assert.throws(
+    () => verifyCaseAgainstLiveCatalog(caseDefinition, capabilities, tools, {
+      ...argumentsRecord,
+      canonicalVideoUrl: 'not-a-uri'
+    }),
+    /collector_l3_case_does_not_match_live_tool_schema/
+  );
 });
 
 test('Artifact protocol verifier follows every advertised cursor and proves the full hash', async () => {
