@@ -337,20 +337,26 @@ class RepositoryFoundationTests(unittest.TestCase):
         ):
             self.assertNotIn(forbidden, source)
 
-    def test_l3_canary_is_explicit_at_most_once_and_outside_default_verification(self) -> None:
+    def test_l3_matrix_is_explicit_at_most_once_and_outside_default_verification(self) -> None:
         root_package = load_json_without_duplicate_keys(ROOT / "package.json")
         scripts = root_package["scripts"]
         self.assertEqual(
             scripts["test:l3"],
-            "npm run build && node tests/l3/real-bilibili-mcp-canary.mjs",
+            "npm run build && node tests/l3/live-capability-matrix.mjs",
         )
         self.assertNotIn("test:l3", scripts["test"])
         self.assertNotIn("test:l3", scripts["verify"])
 
-        source = (ROOT / "tests" / "l3" / "real-bilibili-mcp-canary.mjs").read_text(
-            encoding="utf-8"
+        source = "\n".join(
+            (ROOT / "tests" / "l3" / name).read_text(encoding="utf-8")
+            for name in (
+                "live-capability-matrix.mjs",
+                "live-matrix-cases.mjs",
+                "live-matrix-contract.mjs",
+            )
         )
         self.assertIn("--execute-live", source)
+        self.assertIn("--case", source)
         self.assertEqual(source.count("client.callTool("), 1)
         self.assertNotIn("fetch(", source)
         for forbidden in ("playwright", "puppeteer", "chrome.debugger", "chrome.tabs"):

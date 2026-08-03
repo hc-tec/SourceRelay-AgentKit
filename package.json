@@ -9,9 +9,9 @@
   "scripts": {
     "build": "npm run build --workspace @collector-ai-integration/mcp-server",
     "test": "npm run test:l1",
-    "test:l1": "npm run build && node --test packages/mcp-server/dist/test/*.test.js",
+    "test:l1": "npm run build && node --test packages/mcp-server/dist/test/*.test.js tests/l1/*.test.mjs",
     "test:l2": "npm run build && node tests/l2/real-core-stdio.mjs",
-    "test:l3": "npm run build && node tests/l3/real-bilibili-mcp-canary.mjs",
+    "test:l3": "npm run build && node tests/l3/live-capability-matrix.mjs",
     "test:l4": "npm run build && node tests/l4/real-codex-pinned-skill-canary.mjs",
     "typecheck": "tsc --noEmit -p packages/mcp-server/tsconfig.json",
     "verify:skills": "python -X utf8 scripts/skill_package.py verify skills",
