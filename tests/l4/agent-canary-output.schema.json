@@ -1,0 +1,122 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "outcome",
+    "skills",
+    "release",
+    "binding",
+    "tool",
+    "operation",
+    "artifact",
+    "contentExposed"
+  ],
+  "properties": {
+    "schemaVersion": { "type": "string", "const": "collector.agent-canary/v1" },
+    "outcome": { "type": "string", "const": "proved" },
+    "skills": {
+      "type": "array",
+      "minItems": 2,
+      "maxItems": 2,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["skillId", "skillVersion", "digest"],
+        "properties": {
+          "skillId": { "type": "string" },
+          "skillVersion": { "type": "string" },
+          "digest": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" }
+        }
+      }
+    },
+    "release": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["coreRelease", "serviceSchemaVersion", "toolCatalogVersion"],
+      "properties": {
+        "coreRelease": { "type": "string", "const": "0.7.17" },
+        "serviceSchemaVersion": { "type": "integer", "const": 3 },
+        "toolCatalogVersion": { "type": "string", "const": "collector.mcp.tools/v1" }
+      }
+    },
+    "binding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["selectedAlias", "onlineBindingCount"],
+      "properties": {
+        "selectedAlias": { "type": "string", "pattern": "^binding-[1-9][0-9]*$" },
+        "onlineBindingCount": { "type": "integer", "minimum": 1 }
+      }
+    },
+    "tool": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "toolId",
+        "capabilityId",
+        "clientRequestId",
+        "idempotentReplay",
+        "operationId"
+      ],
+      "properties": {
+        "toolId": { "type": "string" },
+        "capabilityId": { "type": "string" },
+        "clientRequestId": { "type": "string", "format": "uuid" },
+        "idempotentReplay": { "type": "boolean", "const": true },
+        "operationId": { "type": "string", "format": "uuid" }
+      }
+    },
+    "operation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["coreState", "terminalReason", "errorCode"],
+      "properties": {
+        "coreState": { "type": "string" },
+        "terminalReason": { "type": ["string", "null"] },
+        "errorCode": { "type": ["string", "null"] }
+      }
+    },
+    "artifact": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "artifactId",
+        "byteLength",
+        "sha256",
+        "capturedAt",
+        "terminalStatus",
+        "chunk"
+      ],
+      "properties": {
+        "artifactId": { "type": "string", "format": "uuid" },
+        "byteLength": { "type": "integer", "minimum": 1 },
+        "sha256": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" },
+        "capturedAt": { "type": "string" },
+        "terminalStatus": { "type": ["string", "null"] },
+        "chunk": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "start",
+            "endExclusive",
+            "totalBytes",
+            "chunkSha256",
+            "truncated",
+            "nextCursor"
+          ],
+          "properties": {
+            "start": { "type": "integer", "minimum": 0 },
+            "endExclusive": { "type": "integer", "minimum": 1 },
+            "totalBytes": { "type": "integer", "minimum": 1 },
+            "chunkSha256": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" },
+            "truncated": { "type": "boolean" },
+            "nextCursor": { "type": ["integer", "null"], "minimum": 0 }
+          }
+        }
+      }
+    },
+    "contentExposed": { "type": "boolean", "const": false }
+  }
+}

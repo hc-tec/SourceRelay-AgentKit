@@ -544,10 +544,10 @@ LICENSE、SECURITY、CONTRIBUTING、SBOM/依赖许可证、release hash、边界
 
 ### Checkpoint 5 — Skills + Real AI Canary
 
-- 状态：`In progress — 2026-08-03`；
+- 状态：`Completed — 2026-08-03`；
 - 已实现并 L1 固定 Foundation/Bilibili/Xiaohongshu/Intent Skills；
 - 已完成 production MV3 + real Core + packaged MCP 的 B站原生搜索 L3 canary；
-- 待完成 L4 pinned-Skill Agent canary。
+- 已完成 real Codex Agent Host + exact pinned Skill snapshot + packaged MCP 的 L4 canary。
 
 ### Checkpoint 6 — Windows User Release
 
@@ -603,5 +603,5 @@ dependency。
 - 不实现任何 Tool/Skill/installer。
 
 批准后已经严格完成 Checkpoint 1，没有跳过原型冻结，也没有把旧代码先搬入新仓库。
-Checkpoint 2 已建立干净仓库、治理文件、compatibility manifest 和测试骨架；下一步进入
-Checkpoint 3 的 Core 前置合同与 thin MCP Foundation。
+Checkpoint 2–5 已依次完成 repository foundation、thin MCP、typed capability parity、官方
+Skills，以及真实 L3/L4 canary；下一步进入 Checkpoint 6 Windows User Release。

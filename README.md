@@ -13,10 +13,10 @@ checkpoint 1: complete
 checkpoint 2: complete — repository foundation only
 checkpoint 3: complete — thin stdio MCP foundation + L1/L2
 checkpoint 4: complete — 15 typed capability Tools + exact parity gates
-checkpoint 5: in progress — 4 official Skills + Bilibili L3 complete; L4 pending
+checkpoint 5: complete — 4 official Skills + Bilibili L3 + pinned-Skill Agent L4
 runtime MCP: implemented — asynchronous Tools + read-only Operation/Artifact Resources
-official Skills: 4 pinned version 0.1.0 packages, L1 validated
-platform capability claim: Bilibili native search L3 on one Windows production-MV3 configuration
+official Skills: 4 pinned version 0.1.0 packages; Foundation + Bilibili L4 validated
+platform capability claim: Bilibili native search L3/L4 on one Windows production-MV3 configuration
 ```
 
 当前仓库已经提供可打包的 TypeScript/Node stdio MCP 进程。它在启动时用真实 Core
@@ -128,13 +128,14 @@ L2 只验证 stdio、真实 auth/preflight、15 项 Tool schema/Core parity、Re
 manifests/compatibility.json
 ```
 
-Checkpoint 5 当前的 manifest 必须诚实声明：
+Checkpoint 5 完成后的 manifest 必须诚实声明：
 
-- phase 为 `skills_canary`，Checkpoint 5 仍为 current 而非 completed；
+- phase 保持 `skills_canary`，Checkpoint 5 已进入 completed，current 为空，next 为 6；
 - Core release `0.7.17`、Service schema 3、feature 与 catalog digest 已绑定；
 - MCP protocol `2025-11-25`、stdio、15 项 typed Tool 与 6 类只读 Resource 已实现；
 - Tool catalog 为 `collector.mcp.tools/v1`，每项记录 AI-visible input schema digest；
 - 4 个官方 Skill 均固定 `0.1.0`、package digest、Tool/Resource/capability 要求和外部影响；
+- `highestCompletedLevel` 为 `l4`，且只声明一个 B站原生搜索 L3/L4 实证配置；
 - Windows real-process L2 已记录，但 browser 支持与平台 claim 仍为空；
 - Workflow、模型、浏览器控制和旧原型依赖均为禁止状态。
 
@@ -166,7 +167,8 @@ Checkpoint 5 当前的 manifest 必须诚实声明：
 - 已完成：Skill manifest、MCP Tool/Capability/Resource parity 与 package SHA-256 门禁；
 - 已完成：production MV3 + real Core + packaged stdio MCP 的 B站原生搜索 L3 canary，证据见
   [Checkpoint 5 L3 B站 canary](docs/validation/checkpoint-5-l3-bilibili-canary.md)；
-- 待完成：pinned-Skill L4 Agent canary。
+- 已完成：真实 Codex Agent Host + 精确 Skill version/digest + packaged MCP 的 L4 canary，证据见
+  [Checkpoint 5 L4 pinned-Skill Agent canary](docs/validation/checkpoint-5-l4-codex-pinned-skill-canary.md)。
 
 ### Checkpoint 6 — Windows User Release
 

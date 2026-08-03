@@ -245,7 +245,8 @@ function verifyToolCatalog(tools, directContracts) {
 }
 
 function verifyCompatibilityManifest(tools, manifest) {
-  if (manifest.product?.phase !== 'skills_canary' || manifest.checkpoint?.current !== 5 ||
+  if (manifest.product?.phase !== 'skills_canary' || manifest.checkpoint?.current !== null ||
+      manifest.checkpoint?.next !== 6 || !manifest.checkpoint?.completed?.includes(5) ||
       manifest.mcp?.toolCatalogVersion !== 'collector.mcp.tools/v1' ||
       !Array.isArray(manifest.mcp?.tools) || manifest.mcp.tools.length !== tools.length) {
     throw new Error('collector_l2_compatibility_manifest_invalid');

@@ -50,3 +50,28 @@ L3 不启动、附着或关闭浏览器与 Core，不刷新页面，不重试 To
 Artifact 正文。它保留 Gateway 和用户浏览器会话，只关闭自己的 stdio MCP 子进程并清理临时
 package consumer。已通过的去敏证据见
 [Checkpoint 5 L3 B站 canary](../docs/validation/checkpoint-5-l3-bilibili-canary.md)。
+
+运行 L4 必须复用一个已经完成的 L3 request identity，不得生成新 ID。harness 会把两个官方
+Skill 复制到临时快照、重新校验 package digest，用 `skills.config` 固定快照路径，再启动真实
+`codex exec --ephemeral` Agent。Agent 只看到一个 Collector Tool，工作目录为空，shell、web
+search 与 multi-agent 均关闭；Artifact 的预期 hash/大小只属于外层 harness，不进入 Agent
+prompt：
+
+```powershell
+$env:COLLECTOR_CORE_TOKEN = '<scoped Core token>'
+$env:COLLECTOR_L4_CLIENT_REQUEST_ID = '<completed L3 clientRequestId>'
+$env:COLLECTOR_L4_EXPECTED_OPERATION_ID = '<completed L3 operationId>'
+$env:COLLECTOR_L4_EXPECTED_ARTIFACT_ID = '<completed L3 artifactId>'
+$env:COLLECTOR_L4_EXPECTED_ARTIFACT_SHA256 = '<completed L3 Artifact SHA-256>'
+$env:COLLECTOR_L4_EXPECTED_ARTIFACT_BYTES = '<completed L3 Artifact byte length>'
+npm run test:l4 -- --reconcile-live
+```
+
+L4 Agent 必须显式使用 `$use-collector-mcp` 与 `$collect-bilibili`，读取实时 release、capabilities
+和 bindings，恰好调用一次 typed Tool，并取得 `idempotentReplay=true`。随后它要解释 exact
+Operation terminal state、metadata-first 读取 Artifact 与一个 bounded chunk，并只返回去敏
+provenance JSON。外层 harness 会独立校验 Skill pins、Agent Tool trace 和未提供给 Agent 的
+Artifact hash/大小；失败不会自动重启 Agent 或换新 request ID。
+
+已通过的去敏证据见
+[Checkpoint 5 L4 pinned-Skill Agent canary](../docs/validation/checkpoint-5-l4-codex-pinned-skill-canary.md)。

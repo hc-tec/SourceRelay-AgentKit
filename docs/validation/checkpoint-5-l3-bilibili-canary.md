@@ -13,8 +13,9 @@ collector_bilibili_native_search
   -> one bounded canonical UTF-8 chunk
 ```
 
-这只证明 `bilibili.native_search` 在这一项真实配置中的 L3 闭环，不外推为全部平台、全部
-B站 Tool 或 L4 Agent 能力。Checkpoint 5 仍在进行中。
+这只证明 `bilibili.native_search` 在这一项真实配置中的 L3 闭环，不外推为全部平台或全部
+B站 Tool。后续 L4 已完成，见
+[Checkpoint 5 L4 pinned-Skill Agent canary](checkpoint-5-l4-codex-pinned-skill-canary.md)。
 
 ## 环境与边界
 
@@ -85,8 +86,9 @@ reconciliation：
 - 没有遇到登录、验证码、限流、风控或平台安全终态；
 - 没有执行点赞、关注、收藏、评论、私信、发布或删除等平台写操作。
 
-## 下一门禁
+## 后续门禁（已完成）
 
 L4 必须由真实 Agent runtime 加载精确固定版本与 digest 的官方 Skill，自主发现 capability、选择
 Tool、保留 `clientRequestId`、解释 exact terminal state、metadata-first 读取有界 Artifact，并在
 caller-owned 输出中保留 provenance。L4 不得把 workflow、模型 provider 或浏览器控制加入 MCP。
+该门禁已由上述 L4 证据完成。

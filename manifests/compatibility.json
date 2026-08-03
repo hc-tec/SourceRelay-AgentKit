@@ -9,8 +9,8 @@
     "license": "Apache-2.0"
   },
   "checkpoint": {
-    "completed": [0, 1, 2, 3, 4],
-    "current": 5,
+    "completed": [0, 1, 2, 3, 4, 5],
+    "current": null,
     "next": 6
   },
   "core": {
@@ -188,6 +188,25 @@
         "platformOperationsCreated": 1,
         "idempotentReconciliationVerified": true,
         "verifiedAt": "2026-08-03"
+      },
+      {
+        "level": "l4",
+        "operatingSystem": "windows",
+        "agentHost": "codex-cli",
+        "agentHostVersion": "0.144.4",
+        "transport": "stdio",
+        "coreRelease": "0.7.17",
+        "coreServiceSchema": 3,
+        "browserMode": "user_owned_browser_production_mv3",
+        "platform": "bilibili",
+        "toolId": "collector_bilibili_native_search",
+        "capabilityId": "bilibili.native_search",
+        "pinnedSkillIds": ["use-collector-mcp", "collect-bilibili"],
+        "targetToolCallCount": 1,
+        "idempotentReplay": true,
+        "newPlatformOperationsCreated": 0,
+        "artifactByteLength": 12816,
+        "verifiedAt": "2026-08-03"
       }
     ]
   },
@@ -203,7 +222,7 @@
     ]
   },
   "verification": {
-    "highestCompletedLevel": "l3",
+    "highestCompletedLevel": "l4",
     "evidence": [
       {
         "kind": "repository_boundary_gate",
@@ -232,6 +251,10 @@
       {
         "kind": "packaged_mcp_real_bilibili_l3",
         "command": "$env:COLLECTOR_CORE_TOKEN='<scoped Core token>'; npm run test:l3 -- --execute-live"
+      },
+      {
+        "kind": "real_codex_pinned_skill_l4",
+        "command": "Set scoped Core token and completed L3 provenance env; npm run test:l4 -- --reconcile-live"
       }
     ]
   }

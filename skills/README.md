@@ -1,6 +1,6 @@
 # Official Skills
 
-Checkpoint 5 is in progress. Four official versioned Skills are implemented and L1-validated:
+Checkpoint 5 is complete. Four official versioned Skills are implemented and L1-validated:
 
 | Skill | Layer | Version | Purpose |
 | --- | --- | --- | --- |
@@ -14,5 +14,6 @@ single-level reference. Package digests and exact MCP requirements are pinned in
 and `../manifests/compatibility.json`.
 
 A Skill teaches method. It does not grant permission, execute a Tool by itself, own runtime state,
-receive a secret, or prove that a live capability is currently available. L3 real-platform and L4
-pinned-Skill Agent canaries remain required before Checkpoint 5 is complete.
+receive a secret, or prove that a live capability is currently available. The narrow Bilibili native
+search L3 canary and the pinned Foundation + Bilibili L4 Agent canary are recorded under
+`../docs/validation/`; they do not promote every Skill or capability to the same live validation level.

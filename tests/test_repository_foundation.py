@@ -199,7 +199,7 @@ class RepositoryFoundationTests(unittest.TestCase):
         self.assertEqual(manifest["product"]["license"], "Apache-2.0")
         self.assertEqual(
             manifest["checkpoint"],
-            {"completed": [0, 1, 2, 3, 4], "current": 5, "next": 6},
+            {"completed": [0, 1, 2, 3, 4, 5], "current": None, "next": 6},
         )
 
         core = manifest["core"]
@@ -238,7 +238,7 @@ class RepositoryFoundationTests(unittest.TestCase):
         self.assertEqual(manifest["support"]["operatingSystems"], ["windows"])
         self.assertEqual(manifest["support"]["browsers"], [])
         configurations = manifest["support"]["verifiedConfigurations"]
-        self.assertEqual(len(configurations), 2)
+        self.assertEqual(len(configurations), 3)
         self.assertEqual(configurations[0]["level"], "l2")
         self.assertEqual(configurations[0]["platformOperationsCreated"], 0)
         self.assertEqual(
@@ -263,10 +263,32 @@ class RepositoryFoundationTests(unittest.TestCase):
             },
         )
         self.assertEqual(
+            configurations[2],
+            {
+                "level": "l4",
+                "operatingSystem": "windows",
+                "agentHost": "codex-cli",
+                "agentHostVersion": "0.144.4",
+                "transport": "stdio",
+                "coreRelease": "0.7.17",
+                "coreServiceSchema": 3,
+                "browserMode": "user_owned_browser_production_mv3",
+                "platform": "bilibili",
+                "toolId": "collector_bilibili_native_search",
+                "capabilityId": "bilibili.native_search",
+                "pinnedSkillIds": ["use-collector-mcp", "collect-bilibili"],
+                "targetToolCallCount": 1,
+                "idempotentReplay": True,
+                "newPlatformOperationsCreated": 0,
+                "artifactByteLength": 12816,
+                "verifiedAt": "2026-08-03",
+            },
+        )
+        self.assertEqual(
             set(manifest["guardrails"]["forbiddenRuntimeFeatures"]),
             FORBIDDEN_RUNTIME_FEATURES,
         )
-        self.assertEqual(manifest["verification"]["highestCompletedLevel"], "l3")
+        self.assertEqual(manifest["verification"]["highestCompletedLevel"], "l4")
         evidence = {item["kind"] for item in manifest["verification"]["evidence"]}
         self.assertEqual(
             evidence,
@@ -278,6 +300,7 @@ class RepositoryFoundationTests(unittest.TestCase):
                 "core_javascript_python_sdk_capability_matrix",
                 "packaged_mcp_real_core_stdio_l2",
                 "packaged_mcp_real_bilibili_l3",
+                "real_codex_pinned_skill_l4",
             },
         )
 
@@ -332,6 +355,38 @@ class RepositoryFoundationTests(unittest.TestCase):
         self.assertNotIn("fetch(", source)
         for forbidden in ("playwright", "puppeteer", "chrome.debugger", "chrome.tabs"):
             self.assertNotIn(forbidden, source.lower())
+
+    def test_l4_canary_pins_skills_and_reconciles_without_owning_an_agent_runtime(self) -> None:
+        root_package = load_json_without_duplicate_keys(ROOT / "package.json")
+        scripts = root_package["scripts"]
+        self.assertEqual(
+            scripts["test:l4"],
+            "npm run build && node tests/l4/real-codex-pinned-skill-canary.mjs",
+        )
+        self.assertNotIn("test:l4", scripts["test"])
+        self.assertNotIn("test:l4", scripts["verify"])
+
+        source = (ROOT / "tests" / "l4" / "real-codex-pinned-skill-canary.mjs").read_text(
+            encoding="utf-8"
+        )
+        runtime = (ROOT / "tests" / "l4" / "canary-runtime.mjs").read_text(encoding="utf-8")
+        self.assertIn("--reconcile-live", source)
+        self.assertIn("discoverUserMcpServerNames", source)
+        self.assertIn("mcp_servers.${serverName}.enabled=false", source)
+        self.assertIn("features.apps=false", source)
+        self.assertIn("skills.config", source)
+        self.assertIn("mcp_servers.collector.enabled_tools", source)
+        self.assertIn("expectedNewPlatformActions: 0", source)
+        self.assertNotIn("randomUUID()", source.split("const clientRequestId", 1)[1].split(";", 1)[0])
+        for forbidden in (
+            "fetch(",
+            "playwright",
+            "puppeteer",
+            "deepseek",
+            "model_provider",
+            "openai_api_key",
+        ):
+            self.assertNotIn(forbidden, (source + runtime).lower())
 
     def test_no_executable_example_exists_yet(self) -> None:
         boundary = ROOT / "examples"
