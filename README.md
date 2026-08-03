@@ -13,10 +13,10 @@ checkpoint 1: complete
 checkpoint 2: complete — repository foundation only
 checkpoint 3: complete — thin stdio MCP foundation + L1/L2
 checkpoint 4: complete — 15 typed capability Tools + exact parity gates
-checkpoint 5: in progress — 4 official Skills implemented; L3/L4 canaries pending
+checkpoint 5: in progress — 4 official Skills + Bilibili L3 complete; L4 pending
 runtime MCP: implemented — asynchronous Tools + read-only Operation/Artifact Resources
 official Skills: 4 pinned version 0.1.0 packages, L1 validated
-platform capability claim: none from this repository yet
+platform capability claim: Bilibili native search L3 on one Windows production-MV3 configuration
 ```
 
 当前仓库已经提供可打包的 TypeScript/Node stdio MCP 进程。它在启动时用真实 Core
@@ -164,7 +164,8 @@ Checkpoint 5 当前的 manifest 必须诚实声明：
 - 已完成：使用官方 `$skill-creator` 初始化并校验 Foundation、Bilibili、Xiaohongshu 和最小
   search-then-detail Intent Skills；
 - 已完成：Skill manifest、MCP Tool/Capability/Resource parity 与 package SHA-256 门禁；
-- 待完成：真实 L3 MCP canary；
+- 已完成：production MV3 + real Core + packaged stdio MCP 的 B站原生搜索 L3 canary，证据见
+  [Checkpoint 5 L3 B站 canary](docs/validation/checkpoint-5-l3-bilibili-canary.md)；
 - 待完成：pinned-Skill L4 Agent canary。
 
 ### Checkpoint 6 — Windows User Release

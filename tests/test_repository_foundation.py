@@ -237,12 +237,36 @@ class RepositoryFoundationTests(unittest.TestCase):
         self.assertEqual(len(manifest["skills"]["official"]), 4)
         self.assertEqual(manifest["support"]["operatingSystems"], ["windows"])
         self.assertEqual(manifest["support"]["browsers"], [])
-        self.assertEqual(len(manifest["support"]["verifiedConfigurations"]), 1)
+        configurations = manifest["support"]["verifiedConfigurations"]
+        self.assertEqual(len(configurations), 2)
+        self.assertEqual(configurations[0]["level"], "l2")
+        self.assertEqual(configurations[0]["platformOperationsCreated"], 0)
+        self.assertEqual(
+            configurations[1],
+            {
+                "level": "l3",
+                "operatingSystem": "windows",
+                "nodeVersion": "24.13.0",
+                "transport": "stdio",
+                "coreRelease": "0.7.17",
+                "coreServiceSchema": 3,
+                "browserMode": "user_owned_browser_production_mv3",
+                "platform": "bilibili",
+                "toolId": "collector_bilibili_native_search",
+                "capabilityId": "bilibili.native_search",
+                "terminalCoreState": "completed",
+                "artifactRepresentation": "canonical_json_utf8",
+                "artifactByteLength": 12816,
+                "platformOperationsCreated": 1,
+                "idempotentReconciliationVerified": True,
+                "verifiedAt": "2026-08-03",
+            },
+        )
         self.assertEqual(
             set(manifest["guardrails"]["forbiddenRuntimeFeatures"]),
             FORBIDDEN_RUNTIME_FEATURES,
         )
-        self.assertEqual(manifest["verification"]["highestCompletedLevel"], "l2")
+        self.assertEqual(manifest["verification"]["highestCompletedLevel"], "l3")
         evidence = {item["kind"] for item in manifest["verification"]["evidence"]}
         self.assertEqual(
             evidence,
@@ -253,6 +277,7 @@ class RepositoryFoundationTests(unittest.TestCase):
                 "official_skill_package_gate",
                 "core_javascript_python_sdk_capability_matrix",
                 "packaged_mcp_real_core_stdio_l2",
+                "packaged_mcp_real_bilibili_l3",
             },
         )
 
@@ -288,6 +313,25 @@ class RepositoryFoundationTests(unittest.TestCase):
             "registertool(",
         ):
             self.assertNotIn(forbidden, source)
+
+    def test_l3_canary_is_explicit_at_most_once_and_outside_default_verification(self) -> None:
+        root_package = load_json_without_duplicate_keys(ROOT / "package.json")
+        scripts = root_package["scripts"]
+        self.assertEqual(
+            scripts["test:l3"],
+            "npm run build && node tests/l3/real-bilibili-mcp-canary.mjs",
+        )
+        self.assertNotIn("test:l3", scripts["test"])
+        self.assertNotIn("test:l3", scripts["verify"])
+
+        source = (ROOT / "tests" / "l3" / "real-bilibili-mcp-canary.mjs").read_text(
+            encoding="utf-8"
+        )
+        self.assertIn("--execute-live", source)
+        self.assertEqual(source.count("client.callTool("), 1)
+        self.assertNotIn("fetch(", source)
+        for forbidden in ("playwright", "puppeteer", "chrome.debugger", "chrome.tabs"):
+            self.assertNotIn(forbidden, source.lower())
 
     def test_no_executable_example_exists_yet(self) -> None:
         boundary = ROOT / "examples"

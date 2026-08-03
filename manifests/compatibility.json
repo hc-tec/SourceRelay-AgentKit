@@ -170,6 +170,24 @@
         "coreRelease": "0.7.17",
         "coreServiceSchema": 3,
         "platformOperationsCreated": 0
+      },
+      {
+        "level": "l3",
+        "operatingSystem": "windows",
+        "nodeVersion": "24.13.0",
+        "transport": "stdio",
+        "coreRelease": "0.7.17",
+        "coreServiceSchema": 3,
+        "browserMode": "user_owned_browser_production_mv3",
+        "platform": "bilibili",
+        "toolId": "collector_bilibili_native_search",
+        "capabilityId": "bilibili.native_search",
+        "terminalCoreState": "completed",
+        "artifactRepresentation": "canonical_json_utf8",
+        "artifactByteLength": 12816,
+        "platformOperationsCreated": 1,
+        "idempotentReconciliationVerified": true,
+        "verifiedAt": "2026-08-03"
       }
     ]
   },
@@ -185,7 +203,7 @@
     ]
   },
   "verification": {
-    "highestCompletedLevel": "l2",
+    "highestCompletedLevel": "l3",
     "evidence": [
       {
         "kind": "repository_boundary_gate",
@@ -210,6 +228,10 @@
       {
         "kind": "packaged_mcp_real_core_stdio_l2",
         "command": "$env:COLLECTOR_L2_CORE_ENTRYPOINT='<released Core user-browser-server.js>'; npm run test:l2"
+      },
+      {
+        "kind": "packaged_mcp_real_bilibili_l3",
+        "command": "$env:COLLECTOR_CORE_TOKEN='<scoped Core token>'; npm run test:l3 -- --execute-live"
       }
     ]
   }

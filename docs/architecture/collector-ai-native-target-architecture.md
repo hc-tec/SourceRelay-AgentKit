@@ -546,7 +546,7 @@ LICENSE、SECURITY、CONTRIBUTING、SBOM/依赖许可证、release hash、边界
 
 - 状态：`In progress — 2026-08-03`；
 - 已实现并 L1 固定 Foundation/Bilibili/Xiaohongshu/Intent Skills；
-- 待完成 L3 MCP canary；
+- 已完成 production MV3 + real Core + packaged MCP 的 B站原生搜索 L3 canary；
 - 待完成 L4 pinned-Skill Agent canary。
 
 ### Checkpoint 6 — Windows User Release
