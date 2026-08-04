@@ -66,6 +66,6 @@ npm run build
 node .\packages\mcp-server\dist\src\cli.js
 ```
 
-Core token 仅从 MCP 子进程环境进入内存，不进入 stdout、Resource 或结构化 stderr。Windows
-Credential Manager 与普通用户安装配置属于 Checkpoint 6，当前不得把环境变量 L2 当成最终
-安装体验。
+Core token 仅从 MCP 子进程环境进入内存，不进入 stdout、Resource 或结构化 stderr。凭据签发
+与 stdio 子进程环境注入属于 Core/Agent Host 的部署边界；本仓库不实现 Windows Credential
+Manager configurator，也不把开发时的 L2 环境变量示例扩张为 secret-management 产品。

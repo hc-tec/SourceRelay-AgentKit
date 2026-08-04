@@ -1,8 +1,8 @@
 # Bilibili developer-readiness L3 matrix
 
-Date: 2026-08-03  
-Status: 9 of 10 typed Bilibili Tools have a real `completed` L3 path; the authenticated discussion
-completion path remains pending. This document records evidence, not a blanket availability claim.
+Date: 2026-08-04
+Status: all 10 typed Bilibili Tools have a real `completed` L3 path. This document records exact
+evidence and retained safety boundaries, not a blanket availability claim for every browser state.
 
 ## Scope and execution contract
 
@@ -31,7 +31,7 @@ version was bumped for this work.
 | `bilibili.collection-series-overview` | `completed` | `collection_series_overview_ready` | 3343 | 1 | `sha256:407e07f34923f733654f1b4e69506da1de9a107880aced8ae53160cc1c12593b` | Passed on isolated validation binding |
 | `bilibili.collection-series-detail` | `completed` | `collection_series_detail_ready` | 2423 | 1 | `sha256:7ed3eb5b6ec11775c6e5c292b6ac07d6be611c7ff6c32e7e75fbce475f99a306` | Passed with an overview-derived season ID |
 | `bilibili.danmaku` | `completed` | `danmaku_ready` | 1560 | 1 | `sha256:d4cf4e89cd37086d5bb1cfe4a2352d04e4253b63428ea9224d884eed6efdf359` | Passed on isolated validation binding |
-| `bilibili.discussion` | `stopped` | `login_required` | 2344 | 1 | `sha256:09b89b01492b9906f7057e62727becc0bb861d6f7c98a490084ff0040144c07b` | Safe terminal passed; authenticated completion pending |
+| `bilibili.discussion` | `completed` | `discussion_ready` | 2324 | 1 | `sha256:3b924b488d25ec3d2fe99ef1795e81863f2be97289a94264e689b42ad1aa1cd5` | Passed for publicly rendered root comments without a new login |
 
 ## Exact completed provenance
 
@@ -45,6 +45,7 @@ version was bumped for this work.
 | `bilibili.collection-series-detail` | `dbd62f32-c908-47ef-9faa-508158625e16` | `6b05a05a-8281-47df-8002-62c730b34642` | `9295244c-2582-4360-8ea2-e537e5483057` |
 | `bilibili.native-search-batch` | `da33f884-bdc9-4d74-8e0c-3cbeec528038` | `f4c57e73-6110-4f63-928f-2b8897bb354f` | `4b76f0b3-5ce0-4852-90df-cfa3e54ff49a` |
 | `bilibili.danmaku` | `1cd0a400-de13-437d-b2aa-7e715ed0b6ea` | `c421ecef-d94d-4cf7-b63a-d53fe58b46f6` | `32d90838-bd54-4b8d-9f86-3ff7addf0104` |
+| `bilibili.discussion` | `a061d619-2faf-4ca0-9976-9098d8e01d69` | `af5efc59-5c75-4488-aabe-3ff0208b9e39` | `833539a4-5ac6-4ac1-b269-1e9304823e25` |
 
 The inventory Artifact proved the real 16 KiB Resource window:
 
@@ -105,9 +106,9 @@ coreErrorCode: browser_binding_safety_manual_unlock_required
 clientRequestId: a3e89333-90eb-4427-a204-1641625176a1
 ```
 
-### Discussion login boundary
+### Discussion login-prompt classification
 
-The unauthenticated discussion run terminated once as a truthful safety stop:
+An earlier discussion run terminated as `login_required`:
 
 ```text
 clientRequestId: cdd2ee76-13c0-435f-bc6e-56e0cf8b12ba
@@ -120,17 +121,52 @@ byteLength:      2344
 sha256:          sha256:09b89b01492b9906f7057e62727becc0bb861d6f7c98a490084ff0040144c07b
 ```
 
-The Operation, metadata-first Artifact path, chunk verification, whole hash, and no-retry behavior all
-passed. This does not count as a completed discussion capability. A new request may be run once only
-after the user authenticates the isolated validation browser.
+Metadata inspection then proved that this was not a blocking authentication boundary. The same
+Artifact already contained two public root comments with `commentContentState=ready`, a present,
+visible, in-viewport comment host, and no verification, rate-limit, or source-unavailable signal. The
+only conflicting fact was a broad login prompt detected inside the discussion component.
 
-## Remaining acceptance work
+Collector Core commit `401e449` separated a prompt to log in for posting or secondary interaction
+from a login gate that actually prevents the requested public root-comment read. A completed or empty
+public root-comment outcome now takes precedence; verification, rate-limit, and source-unavailable
+signals retain their existing stop behavior.
 
-1. Complete one authenticated `bilibili.discussion` run in the already-running isolated validation
-   browser. Preserve any `completed`, `partial`, `stopped`, or `failed` terminal exactly.
-2. Run repository verification and secret scanning, then commit this coherent L3 checkpoint.
-3. Replace stale Bilibili-readiness wording elsewhere only after discussion has a truthful terminal.
-4. Start the Xiaohongshu typed Tool matrix only after reading and applying its stricter no-refresh,
+The first post-fix run exposed a second contract defect without being retried:
+
+```text
+clientRequestId: 1fdbb497-8764-4beb-904d-de4e127d99ee
+operationId:     36204e6c-35d4-497a-bf64-861cfe0b30f3
+extension result: completed / discussion_ready
+delivery result:  extension_work_result_invalid
+Core terminal:    stopped / run_deadline_exceeded
+Artifact:         none
+```
+
+The remaining broad DOM flag made the completed result self-contradictory, so Gateway correctly
+rejected it. The projection was then normalized so `loginGateVisible` means that the requested read is
+actually blocked, rather than that any login phrase exists anywhere in the component. After local
+tests and an automatic rebuild of the same persistent validation Profile, one new request completed:
+
+```text
+clientRequestId: a061d619-2faf-4ca0-9976-9098d8e01d69
+operationId:     af5efc59-5c75-4488-aabe-3ff0208b9e39
+artifactId:      833539a4-5ac6-4ac1-b269-1e9304823e25
+coreState:       completed
+terminalReason:  discussion_ready
+byteLength:      2324
+sha256:          sha256:3b924b488d25ec3d2fe99ef1795e81863f2be97289a94264e689b42ad1aa1cd5
+```
+
+The completed Artifact contained two bounded public root comments, `loginGateVisible=false`, no risk
+signals, one registered navigation, one bounded scroll, and `responseBodies=not_read`. No new human
+login was performed. This proves that public root-comment collection must not require authentication
+when its read postconditions are already satisfied.
+
+## Next work
+
+1. Keep the daily-browser foreground-takeover safety rule intact; do not use validation-browser
+   success to auto-unlock an unrelated daily binding.
+2. Start the Xiaohongshu typed Tool matrix only after reading and applying its stricter no-refresh,
    no-arbitrary-new-document, overlay, and Network-first constraints.
 
 Raw Artifact content, screenshots, browser Profiles, service credentials, and tab identities are not

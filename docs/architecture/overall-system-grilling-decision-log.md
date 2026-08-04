@@ -942,6 +942,11 @@ macOS/Linux 后续分别完成原生凭据存储、进程生命周期、浏览�
 配对和真实 Core-to-MCP-to-Agent canary 后，才能进入支持矩阵。Docker/远程 Linux 不能替代
 用户日常浏览器的本地生产路径。
 
+**2026-08-04 supersession：**项目负责人随后明确收窄 AI Integration 仓库职责。上述
+Windows-first 产品发布方案不再作为本仓库 Checkpoint；本仓库不实现 installer、Credential
+Manager/DPAPI configurator、launcher 或 autostart。Core/Agent Host 可以在其自身部署边界处理
+进程和凭据，但不得把这些职责重新耦合进 thin MCP、Skills 或浏览器采集合同。
+
 ### 30. Core 与 AI Integration 分别以 Apache-2.0 独立开源
 
 采纳 **A：通用基础设施开源，具体应用和模型业务独立选择许可证**。
@@ -1132,9 +1137,9 @@ Checkpoint 5 — Skills and real AI-native canary
   Foundation/Bilibili/Xiaohongshu/Intent Skills
   L3 real MCP canary + L4 pinned-Skill Agent canary
 
-Checkpoint 6 — Windows user release
-  install/configure/uninstall / OS secret protection
-  Agent host configuration / release hash / SBOM / runbook
+Checkpoint 6 — developer readiness and full capability acceptance
+  all typed real-platform matrices / dual-SDK-MCP-Skills developer path
+  compatibility evidence / release hash / SBOM / runbook
 ```
 
 明确禁止旧 `/v1/tasks`、`/v1/analysis`、43128 server、`KnowledgePackTaskClient` 适配、新旧
@@ -1150,7 +1155,7 @@ current architecture decisions
   -> contracts and L1/L2 before platform Tools
   -> full direct capability parity
   -> Skills plus real L3/L4 canary
-  -> Windows release
+  -> developer readiness and full capability acceptance
 ```
 
 ## 批次 36–40：异步接口、终态与长期 Core 合同

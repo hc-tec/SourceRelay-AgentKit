@@ -67,8 +67,8 @@ at protocol boundaries; the live Core catalog remains capability truth.
 - Dependency installation is local to this repository; no Core or old-prototype source import is
   allowed.
 - The compatibility manifest must record the exact MCP protocol/runtime surface only after L1/L2 pass.
-- Windows executable packaging remains a Checkpoint 6 decision; this ADR chooses runtime, not the final
-  installer technology.
+- Distribution packaging remains outside this runtime ADR. The approved target architecture does not
+  add a Windows installer or credential configurator to this repository.
 - If the official SDK changes major protocol APIs, compatibility is handled through a versioned adapter
   inside the MCP package, not by changing Core or exposing framework-specific Tools.
 

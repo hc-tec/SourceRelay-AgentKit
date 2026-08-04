@@ -549,12 +549,14 @@ LICENSE、SECURITY、CONTRIBUTING、SBOM/依赖许可证、release hash、边界
 - 已完成 production MV3 + real Core + packaged MCP 的 B站原生搜索 L3 canary；
 - 已完成 real Codex Agent Host + exact pinned Skill snapshot + packaged MCP 的 L4 canary。
 
-### Checkpoint 6 — Windows User Release
+### Checkpoint 6 — Developer Readiness & Full Capability Acceptance
 
-- install/configure/uninstall；
-- OS credential protection；
-- Agent host configuration；
-- release hash/SBOM/runbook。
+- 状态：`In progress — 2026-08-04`；
+- B站全部 10 个 typed Tools 已完成 packaged MCP → real Core → production MV3 → real platform
+  的真实 L3 验收；
+- 下一门禁是小红书 typed Tools 的真实 L3 矩阵，以及双 SDK、MCP、Skills 的开发者可复制路径；
+- 完成 release hash、SBOM、兼容性说明与开发者 runbook；
+- 不实现 Windows installer、Credential Manager configurator 或普通用户安装向导。
 
 不提供旧 Task/Analysis API 兼容、43128 forwarding、dual-write、fallback 或旧仓库 runtime
 dependency。
@@ -589,7 +591,8 @@ dependency。
 10. 日志能关联 Tool→Operation→Artifact，但不包含 prompt/正文/secret；
 11. 至少一条 production MV3 + Core + MCP + pinned Skill + Agent 真实闭环通过；
 12. 新仓库不依赖旧 apps、Workflow、模型 provider 或浏览器控制库；
-13. Windows 普通用户不需开发环境、手工 token、Profile 或 testbench；
+13. 上层开发者可通过发布的双 SDK 或 packaged stdio MCP 使用 Core，不依赖 testbench、任意
+    浏览器控制接口或调用方管理的 Profile；
 14. Core 与 AI Integration 分别具备可发布的 Apache-2.0 开源材料。
 
 ## 24. 批准门禁（已通过）
@@ -604,4 +607,5 @@ dependency。
 
 批准后已经严格完成 Checkpoint 1，没有跳过原型冻结，也没有把旧代码先搬入新仓库。
 Checkpoint 2–5 已依次完成 repository foundation、thin MCP、typed capability parity、官方
-Skills，以及真实 L3/L4 canary；下一步进入 Checkpoint 6 Windows User Release。
+Skills，以及真实 L3/L4 canary；Checkpoint 6 已按项目负责人决定收敛为 Developer Readiness
+& Full Capability Acceptance，不再建设 Windows installer/configurator。

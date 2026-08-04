@@ -269,10 +269,8 @@ MCP 被定义为可重启的薄进程，不能依赖自己的中央持久数据�
 
 - MCP Server 使用 TypeScript 还是 Python；
 - 具体 MCP SDK/framework；
-- executable 打包工具；
 - 首个正式适配的 Agent host；
 - JSON chunk 与 JSON Pointer 的具体分页参数名；
-- Windows Credential Manager 与 DPAPI 包装库；
 - 日志轮转库；
 - CI provider；
 - 首次 release 的品牌名和图标。

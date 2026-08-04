@@ -14,9 +14,9 @@ export interface CollectorCoreRuntimeConfig {
 /**
  * Checkpoint 3 credential boundary.
  *
- * The Agent never receives this object. Production OS-secret installation is
- * a Checkpoint 6 adapter; L2 and developer sessions inject a dedicated Core
- * token through the child-process environment.
+ * The Agent never receives this object. Credential issuance and child-process
+ * environment injection belong to the Core/Agent Host deployment boundary;
+ * this MCP package deliberately has no OS credential-store configurator.
  */
 export function loadCollectorCoreRuntimeConfig(
   environment: NodeJS.ProcessEnv = process.env

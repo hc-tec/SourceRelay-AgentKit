@@ -1,7 +1,9 @@
 # Windows configurator package boundary
 
-Reserved for Checkpoint 6. No installer or credential-store implementation exists in Checkpoint 2.
+This placeholder is superseded by the approved Developer Readiness & Full Capability Acceptance
+architecture. No Windows installer, Credential Manager adapter, browser-Profile manager, or ordinary
+user configuration wizard will be implemented in this repository.
 
-The future package will configure the separately installed Collector Core and per-session stdio MCP
-integration without copying tokens into Agent-visible configuration. It must not install browser
-permissions silently, manage browser Profiles, or start/close the user's daily browser.
+Collector Core credential issuance and stdio child-process environment injection remain deployment
+responsibilities of the Core/Agent Host. MCP continues to accept only its dedicated process credential
+and never receives browser credentials, Profile paths, cookies, or tab identities.

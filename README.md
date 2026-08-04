@@ -81,7 +81,7 @@ examples/                  future AI-native examples; currently empty by contrac
 manifests/                 truthful machine-readable product compatibility
 packages/mcp-server/       thin stdio MCP runtime、Core client、typed Tools、Resources 与 L1 tests
 packages/windows-configurator/
-                            reserved installer/configurer boundary; no source yet
+                            superseded boundary marker; no implementation planned
 skills/                     Foundation、Bilibili、Xiaohongshu、search-then-detail official Skills
 tests/                      repository gate 与 real-Core stdio L2
 scripts/                    verification entrypoints
@@ -170,12 +170,16 @@ Checkpoint 5 完成后的 manifest 必须诚实声明：
 - 已完成：真实 Codex Agent Host + 精确 Skill version/digest + packaged MCP 的 L4 canary，证据见
   [Checkpoint 5 L4 pinned-Skill Agent canary](docs/validation/checkpoint-5-l4-codex-pinned-skill-canary.md)。
 
-### Checkpoint 6 — Windows User Release
+### Checkpoint 6 — Developer Readiness & Full Capability Acceptance
 
-- install/configure/uninstall；
-- OS credential protection；
-- Agent host configuration；
-- release hash、SBOM 与 runbook。
+- 进行中：B站 10 个 typed Tools 已完成 production MV3 + real Core + packaged MCP 的真实 L3
+  矩阵，证据见 [B站 developer-readiness L3 matrix](docs/validation/developer-readiness-bilibili-l3-matrix.md)；
+- 待完成：小红书 typed Tools 的真实 L3 矩阵及其 no-refresh、overlay、Network-first 安全边界；
+- 待完成：JavaScript/Python SDK、MCP Resources/Tools 与官方 Skills 的开发者文档和可复制验收；
+- 待完成：发布 hash、SBOM、兼容性说明与开发者 runbook。
+
+Windows installer、Credential Manager configurator 和普通用户安装向导不属于当前仓库的目标
+架构；不得为了它们向 MCP 加入浏览器生命周期、Profile 或 secret 管理。
 
 ## 权威架构
 

@@ -97,6 +97,7 @@ session 因宿主默认 `max/high` 在 300 秒 finalization 截止前未结束�
 ## Checkpoint 含义
 
 Checkpoint 5 的四个必需部分已经完成：官方 Skills、真实 L3、真实 pinned-Skill L4，以及
-Skill/Core/MCP parity 与 package digest 门禁。下一阶段是 Checkpoint 6 Windows User Release；
-它负责安装、OS credential、Agent Host 配置入口、release hash、SBOM 与 runbook，不在 MCP
-中加入 Workflow、模型 provider 或浏览器控制。
+Skill/Core/MCP parity 与 package digest 门禁。下一阶段是 Checkpoint 6 Developer Readiness &
+Full Capability Acceptance；它负责全部 typed Tool 的真实平台矩阵、双 SDK/MCP/Skills 开发者
+路径、release hash、SBOM 与 runbook，不在 MCP 中加入 Workflow、模型 provider、浏览器控制
+或 Windows installer/configurator。
