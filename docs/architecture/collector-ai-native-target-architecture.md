@@ -33,14 +33,16 @@ Thin Collector MCP Server
        v
 Collector Core API / SDK
   ├─ release / capabilities / OpenAPI
-  ├─ browser bindings
+  ├─ browser bindings when a capability requires them
+  ├─ Browser Provider (paired MV3 extension)
+  ├─ Official Provider (allowlisted Gateway source adapters)
   ├─ async operations
   ├─ raw artifacts
   ├─ safety / scopes / audit
   └─ Python + JavaScript SDK
        |
        v
-Paired MV3 Extension in the user's daily Chrome/Edge
+Provider execution: paired MV3 Extension in the user's daily Chrome/Edge or Gateway-only Official Provider
 ```
 
 ## 2. 北极星与非目标
@@ -67,6 +69,7 @@ Collector Core 是可独立成功、安装、发布和开源的产品，负责�
 ```text
 production MV3 extension
 loopback Local Collector Gateway
+allowlisted Official Provider adapters
 user-owned-browser pairing and binding
 registered capability registry
 input validation and hard budgets
@@ -123,7 +126,7 @@ D:\AIProject\inteligence
   future public repository: Apache-2.0
 
 D:\AIProject\collector-ai-integration   # 架构批准后创建
-  MCP Server / Skills / examples / tests
+  SourceRelay AgentKit: MCP Server / Skills / examples / tests
   future public repository: Apache-2.0
 
 D:\AIProject\inteligence-apps
@@ -296,6 +299,7 @@ Foundation
 Platform
   Bilibili
   Xiaohongshu
+  Zhihu Official Provider
   future platforms after real capability admission
 
 Intent
@@ -436,8 +440,8 @@ L2 real local processes
   packaged MCP + released Core + real transport/auth/resource mapping
   zero platform requests allowed; no platform claim
 
-L3 real browser platform
-  production MV3 + real Core + real MCP + real client harness
+L3 real platform/provider
+  production MV3 or Official Provider + real Core + real MCP + real client harness
   Tool -> Operation -> Artifact metadata/chunk
 
 L4 pinned-Skill Agent canary
@@ -464,7 +468,7 @@ packaging。macOS/Linux 完成自己的真实闭环后才进入支持矩阵。
 
 ## 19. 开源边界
 
-Collector Core 与 Collector AI Integration 分别使用 Apache-2.0 独立开源。各自包含
+Collector Core 与 SourceRelay AgentKit 分别使用 Apache-2.0 独立开源。各自包含
 LICENSE、SECURITY、CONTRIBUTING、SBOM/依赖许可证、release hash、边界和非目标。
 
 具体应用、Analyzer、DeepResearch、prompt 和模型业务可开源、闭源或商业化。第三方 Skill
@@ -476,7 +480,7 @@ LICENSE、SECURITY、CONTRIBUTING、SBOM/依赖许可证、release hash、边界
 
 1. Windows stdio MCP Server；
 2. Core release/capability/binding compatibility preflight；
-3. 当前全部 direct-ready capability 的 Tool catalog parity；
+3. 当前全部 18 项 direct-ready capability 的 Tool catalog parity（15 Browser Provider + 3 Official Provider）；
 4. 强类型 capability Tools；
 5. Operation Resources；
 6. Artifact metadata 与 bounded UTF-8/JSON Resources；
@@ -486,11 +490,12 @@ LICENSE、SECURITY、CONTRIBUTING、SBOM/依赖许可证、release hash、边界
 10. Foundation Skills；
 11. Bilibili Platform Skill；
 12. Xiaohongshu Platform Skill；
-13. 一个 search-then-detail Intent Skill；
-14. 一个 Agent host 配置入口；
-15. L1/L2 gates；
-16. 至少一个 B站真实 L3 canary；
-17. 至少一个 pinned-Skill L4 Agent canary。
+13. Zhihu Official Provider Platform Skill；
+14. 一个 search-then-detail Intent Skill；
+15. 一个 Agent host 配置入口；
+16. L1/L2 gates；
+17. 至少一个 B站真实 L3 canary；
+18. 至少一个 pinned-Skill L4 Agent canary。
 
 ### 20.2 明确不做
 
@@ -545,7 +550,7 @@ LICENSE、SECURITY、CONTRIBUTING、SBOM/依赖许可证、release hash、边界
 ### Checkpoint 5 — Skills + Real AI Canary
 
 - 状态：`Completed — 2026-08-03`；
-- 已实现并 L1 固定 Foundation/Bilibili/Xiaohongshu/Intent Skills；
+- 已实现并 L1 固定 Foundation/Bilibili/Xiaohongshu/Zhihu/Intent Skills；
 - 已完成 production MV3 + real Core + packaged MCP 的 B站原生搜索 L3 canary；
 - 已完成 real Codex Agent Host + exact pinned Skill snapshot + packaged MCP 的 L4 canary。
 
@@ -554,8 +559,9 @@ LICENSE、SECURITY、CONTRIBUTING、SBOM/依赖许可证、release hash、边界
 - 状态：`In progress — 2026-08-04`；
 - B站全部 10 个 typed Tools 已完成 packaged MCP → real Core → production MV3 → real platform
   的真实 L3 验收；
-- 下一门禁是小红书 typed Tools 的真实 L3 矩阵，以及双 SDK、MCP、Skills 的开发者可复制路径；
-- 完成 release hash、SBOM、兼容性说明与开发者 runbook；
+- 小红书 5 个 typed Tools 的真实 L3 矩阵已经完成；
+- 18 项 Core catalog、MCP Tools、双 SDK 与官方 Skills 的 parity 已完成；
+- 下一门禁是知乎 Official Provider 三项 MCP 真实 L3 矩阵，以及发布 hash、SBOM 和开发者 runbook；
 - 不实现 Windows installer、Credential Manager configurator 或普通用户安装向导。
 
 不提供旧 Task/Analysis API 兼容、43128 forwarding、dual-write、fallback 或旧仓库 runtime

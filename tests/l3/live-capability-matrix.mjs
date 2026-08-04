@@ -57,10 +57,13 @@ const run = {
   runId: randomUUID(),
   objective: `Verify one packaged MCP live capability case: ${caseDefinition.caseId}.`,
   platform: caseDefinition.platform,
+  executionProvider: caseDefinition.executionProvider,
   targetRole: caseDefinition.targetRole,
-  browserMode: 'production user-owned browser with paired MV3',
-  browserLifecycle: 'managed_profile_session',
-  extensionInteractionLoaded: true,
+  browserMode: caseDefinition.requiresBinding
+    ? 'production user-owned browser with paired MV3'
+    : 'not_used',
+  browserLifecycle: caseDefinition.requiresBinding ? 'managed_profile_session' : 'not_applicable',
+  extensionInteractionLoaded: caseDefinition.requiresBinding,
   existingPlatformRunnerUsed: true,
   caseId: caseDefinition.caseId,
   mode: invocation.mode,
@@ -103,9 +106,14 @@ try {
   const bindings = parseResource(await client.readResource({ uri: 'collector://bindings' }));
   const toolCatalog = await client.listTools();
   verifyRelease(release);
-  const bindingAlias = selectUniqueOnlineBinding(bindings, requestedBindingAlias);
+  const bindingAlias = caseDefinition.requiresBinding
+    ? selectUniqueOnlineBinding(bindings, requestedBindingAlias)
+    : null;
+  if (!caseDefinition.requiresBinding && requestedBindingAlias !== undefined) {
+    throw new LiveMatrixError('collector_l3_official_provider_binding_forbidden');
+  }
   const toolArguments = {
-    bindingAlias,
+    ...(bindingAlias === null ? {} : { bindingAlias }),
     clientRequestId,
     ...caseDefinition.capabilityFields
   };
@@ -122,7 +130,7 @@ try {
     caseId: caseDefinition.caseId,
     toolId: caseDefinition.toolId,
     capabilityId: caseDefinition.capabilityId,
-    bindingAlias,
+    ...(bindingAlias === null ? {} : { bindingAlias }),
     clientRequestId,
     inputEvidence: inputEvidence(toolArguments),
     liveInputSchemaDigest: liveToolContract.inputSchemaDigest,
@@ -194,7 +202,8 @@ try {
       newCoreOperationsExpected: expectedNewCoreOperations(invocation.mode),
       automaticSubmissionRetries: 0,
       observedCoreStates,
-      browserAndGatewayRetained: true
+      gatewayRetained: true,
+      browserRetained: caseDefinition.requiresBinding
     },
     operation: operationEvidence,
     artifact: artifactEvidence ?? null,
@@ -220,7 +229,8 @@ try {
       acceptedOperations: run.operationAccepted ? 1 : 0,
       automaticSubmissionRetries: 0,
       observedCoreStates,
-      browserAndGatewayRetained: true
+      gatewayRetained: true,
+      browserRetained: caseDefinition.requiresBinding
     },
     ...(operationEvidence === undefined ? {} : { operation: operationEvidence }),
     ...(artifactEvidence === undefined ? {} : { artifact: artifactEvidence }),

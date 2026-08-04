@@ -30,7 +30,7 @@ test('projects release, capabilities and session-safe binding aliases', async ()
   const bindingsText = (await resources.read('collector://bindings')).text;
   const bindings = JSON.parse(bindingsText);
   assert.equal(release.release.product, 'collector-core');
-  assert.equal(capabilities.catalog.directContracts.length, 15);
+  assert.equal(capabilities.catalog.directContracts.length, 18);
   assert.deepEqual(bindings.bindings, [{
     bindingAlias: 'binding-1',
     state: 'online',

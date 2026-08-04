@@ -1,0 +1,4 @@
+interface:
+  display_name: "Collect Zhihu"
+  short_description: "Use official Zhihu content Tools safely"
+  default_prompt: "Use $collect-zhihu to choose a bounded official Zhihu source and preserve provenance."

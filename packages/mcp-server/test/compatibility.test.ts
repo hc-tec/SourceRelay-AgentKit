@@ -18,6 +18,12 @@ test('verifies release, OpenAPI, catalog and all direct contracts as one identit
   assert.equal(verified.releaseVersion, '0.7.17');
   assert.equal(verified.serviceSchemaVersion, 3);
   assert.deepEqual(new Set(verified.directCapabilityIds), new Set(DIRECT_CAPABILITY_IDS));
+  assert.equal(verified.directContracts.filter((entry) =>
+    entry.executionProvider === 'browser_extension').length, 15);
+  assert.equal(verified.directContracts.filter((entry) =>
+    entry.executionProvider === 'official_api').length, 3);
+  assert.equal(verified.directContracts.find((entry) =>
+    entry.capabilityId === 'zhihu.search.public_content.v1')?.platform, 'zhihu');
   assert.equal(verified.rawBindings.length, 1);
   assert.equal(verified.verifiedAt, '2026-08-03T01:00:00.000Z');
 });

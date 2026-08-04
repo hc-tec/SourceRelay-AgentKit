@@ -9,6 +9,11 @@
 - 审计范围：Collector 既有 1–178 条决定、当前 Core 源码与公开合同、当前
   `inteligence-apps` 原型、整体系统第 1–40 条决定及 2026-08-03 MCP + Skills 显式纠正。
 
+> **Current catalog note (2026-08-04):** this document preserves the 2026-08-03 architecture
+> snapshot. SourceRelay Core `0.7.17` now exposes 18 direct capabilities: 15 Browser Provider
+> capabilities and 3 Zhihu Official Provider capabilities. The live MCP compatibility manifest and
+> current Checkpoint 6 documents are authoritative for that newer surface.
+
 ## 1. 审计结论
 
 整体架构已经具备唯一、内部一致的目标方向，不需要继续追加产品级 Grill：

@@ -64,6 +64,10 @@ export class CollectorToolService {
     });
     ajv.addFormat('uuid', { type: 'string', validate: (value: string) => UUID_PATTERN.test(value) });
     ajv.addFormat('uri', { type: 'string', validate: isUri });
+    ajv.addFormat('date-time', {
+      type: 'string',
+      validate: (value: string) => Number.isFinite(Date.parse(value))
+    });
     try {
       for (const definition of this.definitions) {
         const properties = record(definition.inputSchema.properties);
@@ -89,10 +93,11 @@ export class CollectorToolService {
     try {
       if (!compiled.validate(argumentsValue)) throw new CollectorMcpError('tool_input_invalid');
       const argumentsRecord = record(argumentsValue);
-      bindingAlias = requiredString(argumentsRecord.bindingAlias);
       clientRequestId = requiredUuid(argumentsRecord.clientRequestId);
-      const browserBindingId = this.#aliases.resolve(bindingAlias);
       const contract = compiled.definition.contract;
+      const browserBindingId = contract.executionProvider === 'browser_extension'
+        ? this.#aliases.resolve(bindingAlias = requiredString(argumentsRecord.bindingAlias))
+        : null;
       const executionTarget = contract.executionTargetMode === 'fixed'
         ? contract.defaultExecutionTarget
         : requiredString(argumentsRecord.executionTarget);
@@ -103,7 +108,7 @@ export class CollectorToolService {
       const request = {
         schemaVersion: this.#compatibility.serviceSchemaVersion,
         clientRequestId,
-        browserBindingId,
+        ...(browserBindingId === null ? {} : { browserBindingId }),
         platform: contract.platform,
         capability: contract.capabilityId,
         executionTarget,
@@ -112,7 +117,13 @@ export class CollectorToolService {
 
       const submission = submissionProjection(
         await this.#core.submitCollection(request),
-        request
+        {
+          clientRequestId,
+          browserBindingId,
+          platform: contract.platform,
+          capability: contract.capabilityId,
+          executionTarget
+        }
       );
       const result: CollectorToolSubmissionResult = {
         accepted: true,
@@ -193,8 +204,8 @@ function submissionProjection(
   value: unknown,
   expected: {
     clientRequestId: string;
-    browserBindingId: string;
-    platform: 'bilibili' | 'xiaohongshu';
+    browserBindingId: string | null;
+    platform: 'bilibili' | 'xiaohongshu' | 'zhihu' | 'web';
     capability: string;
     executionTarget: string;
   }

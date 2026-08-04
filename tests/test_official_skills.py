@@ -70,6 +70,20 @@ EXPECTED_SKILLS = {
             "references/capabilities.md",
         },
     },
+    "collect-zhihu": {
+        "layer": "platform",
+        "tools": {
+            "collector_zhihu_search_public_content",
+            "collector_zhihu_hot_list_public_content",
+            "collector_web_search_global_zhihu_provider",
+        },
+        "files": {
+            "SKILL.md",
+            "agents/openai.yaml",
+            "manifest.json",
+            "references/capabilities.md",
+        },
+    },
     "research-search-then-detail": {
         "layer": "intent",
         "tools": {
@@ -186,7 +200,7 @@ class OfficialSkillTests(unittest.TestCase):
                 for path in skill.rglob("*.md")
             )
             mentioned_tools = set(re.findall(
-                r"collector_(?:bilibili|xiaohongshu)_[a-z0-9_]+",
+                r"collector_(?:bilibili|xiaohongshu|zhihu|web)_[a-z0-9_]+",
                 declared_text,
             ))
             self.assertTrue(mentioned_tools <= required_tools, skill_id)

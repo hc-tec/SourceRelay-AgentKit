@@ -1,12 +1,13 @@
 # Official Skills
 
-Checkpoint 5 is complete. Four official versioned Skills are implemented and L1-validated:
+Checkpoint 6 extends the official Skill set to five versioned packages; all are L1-validated:
 
 | Skill | Layer | Version | Purpose |
 | --- | --- | --- | --- |
 | `use-collector-mcp` | Foundation | `0.1.0` | Compatibility, binding aliases, idempotent submission, Operation and Artifact use |
 | `collect-bilibili` | Platform | `0.1.0` | Safe selection and sequencing of all 10 Bilibili Tools |
 | `collect-xiaohongshu` | Platform | `0.1.0` | Page-state-safe selection and sequencing of all 5 Xiaohongshu Tools |
+| `collect-zhihu` | Platform | `0.1.0` | Bounded Official Provider search, hot-list, and global-search selection |
 | `research-search-then-detail` | Intent | `0.1.0` | Bounded breadth first, then selected detail |
 
 Each Skill contains only `SKILL.md`, `agents/openai.yaml`, its required manifest, and an optional

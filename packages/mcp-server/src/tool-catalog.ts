@@ -56,7 +56,16 @@ const TOOL_MAPPINGS = Object.freeze([
     'Queue bounded public comment collection from the already-open same-document note overlay.'),
   tool('collector_xiaohongshu_note_public_comment_replies', 'xiaohongshu.note.public_comment_replies.v1',
     'Collect Xiaohongshu public comment replies',
-    'Queue bounded public reply-thread collection from the already-open same-document note overlay.')
+    'Queue bounded public reply-thread collection from the already-open same-document note overlay.'),
+  tool('collector_zhihu_search_public_content', 'zhihu.search.public_content.v1',
+    'Search public Zhihu content',
+    'Submit one bounded public-content search through the registered Zhihu official provider.'),
+  tool('collector_zhihu_hot_list_public_content', 'zhihu.hot_list.public_content.v1',
+    'Read the public Zhihu hot list',
+    'Submit one bounded hot-list read through the registered Zhihu official provider.'),
+  tool('collector_web_search_global_zhihu_provider', 'web.search.global.zhihu_provider.v1',
+    'Search the public web through the Zhihu provider',
+    'Submit one bounded global public-web search through the registered Zhihu official provider.')
 ]);
 
 export interface CollectorToolDefinition {
@@ -119,11 +128,15 @@ export function deriveToolInputSchema(
   requireValue(Object.keys(inputProperties).every((field) => !reserved.has(field)));
 
   const properties: Record<string, unknown> = {
-    bindingAlias: {
-      type: 'string',
-      pattern: BINDING_ALIAS_JSON_PATTERN,
-      description: 'Session-local alias from collector://bindings; never a browser or extension ID.'
-    },
+    ...(contract.executionProvider === 'browser_extension'
+      ? {
+          bindingAlias: {
+            type: 'string',
+            pattern: BINDING_ALIAS_JSON_PATTERN,
+            description: 'Session-local alias from collector://bindings; never a browser or extension ID.'
+          }
+        }
+      : {}),
     clientRequestId: structuredClone(record(envelopeProperties.clientRequestId))
   };
   if (contract.executionTargetMode === 'enum') {
@@ -134,7 +147,7 @@ export function deriveToolInputSchema(
   }
 
   const required = [
-    'bindingAlias',
+    ...(contract.executionProvider === 'browser_extension' ? ['bindingAlias'] : []),
     'clientRequestId',
     ...(contract.executionTargetMode === 'enum' ? ['executionTarget'] : []),
     ...requiredStrings(capabilityInput.required)
@@ -203,6 +216,7 @@ function tool(
 }
 
 function requiredStrings(value: unknown): string[] {
+  if (value === undefined) return [];
   return array(value).map((item) => {
     requireValue(typeof item === 'string' && item.length > 0);
     return item;

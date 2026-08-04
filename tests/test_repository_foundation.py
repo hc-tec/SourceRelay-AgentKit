@@ -96,6 +96,9 @@ TOOL_CAPABILITY_MAP = {
     "collector_xiaohongshu_note_public_detail": "xiaohongshu.note.public_detail.v1",
     "collector_xiaohongshu_note_public_comments": "xiaohongshu.note.public_comments.v1",
     "collector_xiaohongshu_note_public_comment_replies": "xiaohongshu.note.public_comment_replies.v1",
+    "collector_zhihu_search_public_content": "zhihu.search.public_content.v1",
+    "collector_zhihu_hot_list_public_content": "zhihu.hot_list.public_content.v1",
+    "collector_web_search_global_zhihu_provider": "web.search.global.zhihu_provider.v1",
 }
 
 
@@ -171,7 +174,7 @@ class RepositoryFoundationTests(unittest.TestCase):
             self.assertEqual(parsed.get("type"), "object")
             self.assertFalse(parsed.get("additionalProperties"))
 
-    def test_checkpoint5_manifest_is_truthful_and_bounded(self) -> None:
+    def test_checkpoint6_manifest_is_truthful_and_bounded(self) -> None:
         manifest_path = ROOT / "manifests" / "compatibility.json"
         manifest = load_json_without_duplicate_keys(manifest_path)
         schema_path = (manifest_path.parent / str(manifest["$schema"])).resolve()
@@ -208,18 +211,18 @@ class RepositoryFoundationTests(unittest.TestCase):
         self.assertEqual(set(core["requiredFeatures"]), REQUIRED_CORE_FEATURES)
         self.assertEqual(
             core["openApiSchemaDigest"],
-            "sha256:a82b2f45302998544ddd1a82c06398ede00ce7f706c8f071c77241ef93f46566",
+            "sha256:8e7c7e712f163f3372017c591fd9a1698186ad5ca1ec2b4b98e87d190a84ab83",
         )
         self.assertRegex(core["capabilityCatalogDigest"], r"^sha256:[0-9a-f]{64}$")
-        self.assertEqual(len(core["directCapabilityIds"]), 15)
-        self.assertEqual(len(set(core["directCapabilityIds"])), 15)
+        self.assertEqual(len(core["directCapabilityIds"]), 18)
+        self.assertEqual(len(set(core["directCapabilityIds"])), 18)
 
         mcp = manifest["mcp"]
         self.assertTrue(mcp["implemented"])
         self.assertEqual(mcp["protocolVersion"], "2025-11-25")
         self.assertEqual(mcp["defaultTransport"], "stdio")
         self.assertEqual(mcp["toolCatalogVersion"], "collector.mcp.tools/v1")
-        self.assertEqual(len(mcp["tools"]), 15)
+        self.assertEqual(len(mcp["tools"]), 18)
         self.assertEqual(
             {item["toolId"]: item["capabilityId"] for item in mcp["tools"]},
             TOOL_CAPABILITY_MAP,
@@ -234,7 +237,7 @@ class RepositoryFoundationTests(unittest.TestCase):
         ))
         self.assertEqual(set(mcp["resources"]), MCP_FOUNDATION_RESOURCES)
 
-        self.assertEqual(len(manifest["skills"]["official"]), 4)
+        self.assertEqual(len(manifest["skills"]["official"]), 5)
         self.assertEqual(manifest["support"]["operatingSystems"], ["windows"])
         self.assertEqual(manifest["support"]["browsers"], [])
         configurations = manifest["support"]["verifiedConfigurations"]

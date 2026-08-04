@@ -28,10 +28,12 @@ let client;
 let stderr = '';
 
 try {
+  const coreEnvironment = { ...process.env };
+  delete coreEnvironment.ZHIHU_ACCESS_SECRET;
   coreProcess = spawn(process.execPath, [resolve(coreEntrypoint)], {
     cwd: dirname(resolve(coreEntrypoint)),
     env: {
-      ...process.env,
+      ...coreEnvironment,
       COLLECTOR_GATEWAY_PORT: String(port),
       COLLECTOR_USER_BROWSER_HOME: coreHome,
       COLLECTOR_USER_BROWSER_STATE_DIR: coreState
@@ -102,12 +104,12 @@ try {
   if (resources.resources.length !== 3 || templates.resourceTemplates.length !== 3) {
     throw new Error('collector_l2_resource_catalog_invalid');
   }
-  if (toolCatalog.tools.length !== 15) throw new Error('collector_l2_tool_catalog_invalid');
+  if (toolCatalog.tools.length !== 18) throw new Error('collector_l2_tool_catalog_invalid');
   const release = parseResource(await client.readResource({ uri: 'collector://release' }));
   const capabilities = parseResource(await client.readResource({ uri: 'collector://capabilities' }));
   const bindings = parseResource(await client.readResource({ uri: 'collector://bindings' }));
   if (release.release?.service?.schemaVersion !== 3 ||
-      capabilities.catalog?.directContracts?.length !== 15 ||
+      capabilities.catalog?.directContracts?.length !== 18 ||
       bindings.bindings?.length !== 0) {
     throw new Error('collector_l2_preflight_resource_invalid');
   }
@@ -140,6 +142,17 @@ try {
     }),
     'binding_alias_not_found'
   );
+  await expectMcpError(
+    () => client.callTool({
+      name: 'collector_zhihu_search_public_content',
+      arguments: {
+        clientRequestId: '44444444-4444-4444-8444-444444444444',
+        query: 'L2 contract probe',
+        count: 1
+      }
+    }),
+    'submission_conflict'
+  );
 
   const missingOperationId = '11111111-1111-4111-8111-111111111111';
   const missingArtifactId = '22222222-2222-4222-8222-222222222222';
@@ -166,6 +179,8 @@ try {
 
   const operationCount = await persistedOperationCount(coreState);
   if (operationCount !== 0) throw new Error('collector_l2_platform_operation_created');
+  const officialOperationCount = await persistedOfficialOperationCount(coreState);
+  if (officialOperationCount !== 0) throw new Error('collector_l2_official_operation_created');
   process.stdout.write(`${JSON.stringify({
     ok: true,
     gate: 'collector-mcp-real-core-stdio-l2',
@@ -188,6 +203,7 @@ try {
       inputSchemaDigest: tool._meta['collector/inputSchemaDigest']
     })),
     platformOperationsCreated: operationCount,
+    officialOperationsCreated: officialOperationCount,
     livePlatformRequests: 0
   }, null, 2)}\n`);
 } finally {
@@ -218,9 +234,15 @@ function verifyToolCatalog(tools, directContracts) {
     if (toolCapabilityIds.has(capabilityId)) throw new Error('collector_l2_tool_capability_duplicate');
     toolCapabilityIds.add(capabilityId);
     if (digest !== sha256Digest(tool.inputSchema)) throw new Error('collector_l2_tool_schema_digest_invalid');
+    const contract = contractsByCapability.get(capabilityId);
+    if (!contract || (contract.executionProvider !== 'browser_extension' &&
+        contract.executionProvider !== 'official_api')) {
+      throw new Error('collector_l2_tool_provider_invalid');
+    }
+    const hasBindingAlias = tool.inputSchema?.properties?.bindingAlias !== undefined;
     if (tool.inputSchema?.additionalProperties !== false ||
-        tool.inputSchema?.properties?.bindingAlias === undefined ||
-        tool.inputSchema?.properties?.clientRequestId === undefined) {
+        tool.inputSchema?.properties?.clientRequestId === undefined ||
+        hasBindingAlias !== (contract.executionProvider === 'browser_extension')) {
       throw new Error('collector_l2_tool_schema_boundary_invalid');
     }
     for (const hidden of ['schemaVersion', 'browserBindingId', 'platform', 'capability', 'input']) {
@@ -228,7 +250,6 @@ function verifyToolCatalog(tools, directContracts) {
         throw new Error('collector_l2_tool_hidden_envelope_leaked');
       }
     }
-    const contract = contractsByCapability.get(capabilityId);
     const targetSchema = tool.inputSchema.properties.executionTarget;
     if (contract.executionTargetMode === 'fixed' && targetSchema !== undefined) {
       throw new Error('collector_l2_fixed_execution_target_leaked');
@@ -300,6 +321,16 @@ async function expectMcpError(action, code) {
 async function persistedOperationCount(stateDirectory) {
   try {
     const value = JSON.parse(await readFile(join(stateDirectory, 'extension-work-operations.json'), 'utf8'));
+    return Array.isArray(value) ? value.length : -1;
+  } catch (error) {
+    if (error?.code === 'ENOENT') return 0;
+    throw error;
+  }
+}
+
+async function persistedOfficialOperationCount(stateDirectory) {
+  try {
+    const value = JSON.parse(await readFile(join(stateDirectory, 'official-source-operations.json'), 'utf8'));
     return Array.isArray(value) ? value.length : -1;
   } catch (error) {
     if (error?.code === 'ENOENT') return 0;

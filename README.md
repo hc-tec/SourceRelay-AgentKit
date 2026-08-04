@@ -1,6 +1,6 @@
-# Collector AI Integration
+# SourceRelay AgentKit
 
-Collector AI Integration 是 Collector Core 的独立 AI-native 接入产品。它用一个薄的 MCP
+SourceRelay AgentKit（内部开发目录仍为 `collector-ai-integration`）是 SourceRelay Core 的独立 AI-native 接入产品。它用一个薄的 MCP
 协议适配器公开 Core 已登记的强类型采集能力，并用版本化 Skills 教 Agent 正确发现能力、
 提交 Operation、解释终态和有界读取 raw Artifact。
 
@@ -12,16 +12,17 @@ checkpoint 0: complete
 checkpoint 1: complete
 checkpoint 2: complete — repository foundation only
 checkpoint 3: complete — thin stdio MCP foundation + L1/L2
-checkpoint 4: complete — 15 typed capability Tools + exact parity gates
-checkpoint 5: complete — 4 official Skills + Bilibili L3 + pinned-Skill Agent L4
+checkpoint 4: complete — 18 typed capability Tools + exact parity gates
+checkpoint 5: complete — 5 official Skills + Bilibili L3 + pinned-Skill Agent L4
+checkpoint 6: in progress — Bilibili/Xiaohongshu matrices complete; Official Provider MCP parity added
 runtime MCP: implemented — asynchronous Tools + read-only Operation/Artifact Resources
-official Skills: 4 pinned version 0.1.0 packages; Foundation + Bilibili L4 validated
+official Skills: 5 pinned version 0.1.0 packages; Foundation + Bilibili L4 validated
 platform capability claim: Bilibili native search L3/L4 on one Windows production-MV3 configuration
 ```
 
 当前仓库已经提供可打包的 TypeScript/Node stdio MCP 进程。它在启动时用真实 Core
 `release + capabilities + OpenAPI + bindings` 完成 SHA-256 compatibility preflight，并只公开
-Operation 与 Artifact 等只读 Resources。当前 15 项 direct-ready Core capability 均以独立强类型
+Operation 与 Artifact 等只读 Resources。当前 18 项 direct-ready Core capability 均以独立强类型
 Tool 发布；每次调用最多提交一个 Core Operation，并立即返回 Operation Resource URI。README、
 manifest 或 Skill 说明永远不能替代实时 Core catalog。
 
@@ -33,7 +34,7 @@ Agent / AI-native Application
   ├─ loads pinned versioned Skills
   └─ uses MCP Client
           ↓
-Collector AI Integration
+SourceRelay AgentKit
   ├─ thin typed MCP adapter
   ├─ Operation Resources
   ├─ bounded Artifact Resources
@@ -82,7 +83,7 @@ manifests/                 truthful machine-readable product compatibility
 packages/mcp-server/       thin stdio MCP runtime、Core client、typed Tools、Resources 与 L1 tests
 packages/windows-configurator/
                             superseded boundary marker; no implementation planned
-skills/                     Foundation、Bilibili、Xiaohongshu、search-then-detail official Skills
+skills/                     Foundation、Bilibili、Xiaohongshu、Zhihu、search-then-detail official Skills
 tests/                      repository gate 与 real-Core stdio L2
 scripts/                    verification entrypoints
 ```
@@ -117,7 +118,7 @@ $env:COLLECTOR_L2_CORE_ENTRYPOINT = '<released Core user-browser-server.js>'
 npm run test:l2
 ```
 
-L2 只验证 stdio、真实 auth/preflight、15 项 Tool schema/Core parity、Resource/error/log 映射，
+L2 只验证 stdio、真实 auth/preflight、18 项 Tool schema/Core parity、Resource/error/log 映射，
 并硬检查非法调用创建了 0 个平台 Operation；它不能宣称任何网站能力。
 
 ## Compatibility 原则
@@ -132,9 +133,9 @@ Checkpoint 5 完成后的 manifest 必须诚实声明：
 
 - phase 保持 `skills_canary`，Checkpoint 5 已进入 completed，current 为空，next 为 6；
 - Core release `0.7.17`、Service schema 3、feature 与 catalog digest 已绑定；
-- MCP protocol `2025-11-25`、stdio、15 项 typed Tool 与 6 类只读 Resource 已实现；
+- MCP protocol `2025-11-25`、stdio、18 项 typed Tool 与 6 类只读 Resource 已实现，其中 15 项来自 Browser Provider、3 项来自 Zhihu Official Provider；
 - Tool catalog 为 `collector.mcp.tools/v1`，每项记录 AI-visible input schema digest；
-- 4 个官方 Skill 均固定 `0.1.0`、package digest、Tool/Resource/capability 要求和外部影响；
+- 5 个官方 Skill 均固定 `0.1.0`、package digest、Tool/Resource/capability 要求和外部影响；
 - `highestCompletedLevel` 为 `l4`，且只声明一个 B站原生搜索 L3/L4 实证配置；
 - Windows real-process L2 已记录，但 browser 支持与平台 claim 仍为空；
 - Workflow、模型、浏览器控制和旧原型依赖均为禁止状态。
@@ -153,7 +154,7 @@ Checkpoint 5 完成后的 manifest 必须诚实声明：
 
 ### Checkpoint 4 — Full Capability Parity
 
-- 已完成：当前全部 15 项 direct-ready capability 的强类型 Tools；
+- 已完成：当前全部 18 项 direct-ready capability 的强类型 Tools；
 - 已完成：单 POST、caller-controlled `clientRequestId`、session binding alias 与异步 Operation 返回；
 - 已完成：Tool schema digest、Core capability 与 manifest parity gate；
 - 已完成：Core 的 JavaScript/Python SDK capability matrix gate 与 MCP live-catalog gate 形成传递
@@ -172,10 +173,11 @@ Checkpoint 5 完成后的 manifest 必须诚实声明：
 
 ### Checkpoint 6 — Developer Readiness & Full Capability Acceptance
 
-- 进行中：B站 10 个 typed Tools 已完成 production MV3 + real Core + packaged MCP 的真实 L3
+- 已完成：B站 10 个 typed Tools 已完成 production MV3 + real Core + packaged MCP 的真实 L3
   矩阵，证据见 [B站 developer-readiness L3 matrix](docs/validation/developer-readiness-bilibili-l3-matrix.md)；
-- 待完成：小红书 typed Tools 的真实 L3 矩阵及其 no-refresh、overlay、Network-first 安全边界；
-- 待完成：JavaScript/Python SDK、MCP Resources/Tools 与官方 Skills 的开发者文档和可复制验收；
+- 已完成：小红书 5 个 typed Tools 的真实 L3 矩阵及其 no-refresh、overlay、Network-first 安全边界，证据见 [小红书 developer-readiness L3 matrix](docs/validation/developer-readiness-xiaohongshu-l3-matrix.md)；
+- 已完成：SourceRelay 18 项 Core catalog 与 MCP Tool/Skill compatibility parity；
+- 待完成：知乎 Official Provider 的 MCP 真实 L3 三能力矩阵；
 - 待完成：发布 hash、SBOM、兼容性说明与开发者 runbook。
 
 Windows installer、Credential Manager configurator 和普通用户安装向导不属于当前仓库的目标

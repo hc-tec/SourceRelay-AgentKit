@@ -27,14 +27,17 @@ export interface VerifiedCoreCompatibility {
 }
 
 export type VerifiedExecutionTargetMode = 'fixed' | 'enum';
+export type VerifiedExecutionProvider = 'browser_extension' | 'official_api';
 export type VerifiedBudgetPolicy =
   | 'fixed_queue_budget'
   | 'input_bounded_queue_budget'
-  | 'fixed_observation_budget';
+  | 'fixed_observation_budget'
+  | 'official_api_fixed_count';
 
 export interface VerifiedDirectCapabilityContract {
   capabilityId: string;
-  platform: 'bilibili' | 'xiaohongshu';
+  platform: 'bilibili' | 'xiaohongshu' | 'zhihu' | 'web';
+  executionProvider: VerifiedExecutionProvider;
   requestSchemaName: string;
   requestSchemaDigest: string;
   requestSchema: Record<string, unknown>;
@@ -69,7 +72,7 @@ export const DEFAULT_CORE_COMPATIBILITY_POLICY: CollectorCoreCompatibilityPolicy
   openApiDigest: SUPPORTED_CORE_OPENAPI_DIGEST,
   catalogDigest: SUPPORTED_CORE_CATALOG_DIGEST,
   requiredFeatures: REQUIRED_CORE_FEATURES,
-  directCapabilityCount: 15
+  directCapabilityCount: 18
 });
 
 export function verifyCollectorCoreCompatibility(
@@ -127,6 +130,7 @@ export function verifyCollectorCoreCompatibility(
     const capability = requiredString(contract.capability);
     requireValue(SAFE_CODE_PATTERN.test(capability));
     contractIds.push(capability);
+    const executionProvider = verifiedExecutionProvider(contract.executionProvider);
     const schemaName = requestSchemaName(requiredString(contract.requestSchemaRef));
     const schema = requiredRecord(schemas[schemaName]);
     const requestSchemaDigest = digestString(contract.requestSchemaDigest);
@@ -141,18 +145,24 @@ export function verifyCollectorCoreCompatibility(
     requireValue(
       contract.budgetPolicy === 'fixed_queue_budget' ||
       contract.budgetPolicy === 'input_bounded_queue_budget' ||
-      contract.budgetPolicy === 'fixed_observation_budget'
+      contract.budgetPolicy === 'fixed_observation_budget' ||
+      contract.budgetPolicy === 'official_api_fixed_count'
     );
+    requireValue(executionProvider === 'official_api'
+      ? contract.budgetPolicy === 'official_api_fixed_count'
+      : contract.budgetPolicy !== 'official_api_fixed_count');
     const platform = verifyDirectRequestEnvelope(
       schema,
       capability,
       targets,
       executionTargetMode,
-      policy.serviceSchemaVersion
+      policy.serviceSchemaVersion,
+      executionProvider
     );
     verifiedDirectContracts.push({
       capabilityId: capability,
       platform,
+      executionProvider,
       requestSchemaName: schemaName,
       requestSchemaDigest,
       requestSchema: structuredClone(schema),
@@ -186,12 +196,15 @@ function verifyDirectRequestEnvelope(
   capability: string,
   executionTargets: string[],
   executionTargetMode: VerifiedExecutionTargetMode,
-  serviceSchemaVersion: number
-): 'bilibili' | 'xiaohongshu' {
-  const envelopeFields = [
-    'schemaVersion', 'clientRequestId', 'browserBindingId', 'platform', 'capability',
-    'executionTarget', 'input'
-  ];
+  serviceSchemaVersion: number,
+  executionProvider: VerifiedExecutionProvider
+): 'bilibili' | 'xiaohongshu' | 'zhihu' | 'web' {
+  const envelopeFields = executionProvider === 'browser_extension'
+    ? [
+        'schemaVersion', 'clientRequestId', 'browserBindingId', 'platform', 'capability',
+        'executionTarget', 'input'
+      ]
+    : ['schemaVersion', 'clientRequestId', 'platform', 'capability', 'executionTarget', 'input'];
   requireValue(schema.type === 'object' && schema.additionalProperties === false);
   const required = requiredArray(schema.required).map(requiredString);
   const properties = requiredRecord(schema.properties);
@@ -199,11 +212,17 @@ function verifyDirectRequestEnvelope(
   requireValue(sameSet(Object.keys(properties), envelopeFields));
   requireValue(requiredRecord(properties.schemaVersion).const === serviceSchemaVersion);
   requireValue(requiredRecord(properties.clientRequestId).format === 'uuid');
-  requireValue(requiredRecord(properties.browserBindingId).format === 'uuid');
+  if (executionProvider === 'browser_extension') {
+    requireValue(requiredRecord(properties.browserBindingId).format === 'uuid');
+  } else {
+    requireValue(!Object.hasOwn(properties, 'browserBindingId'));
+  }
   requireValue(requiredRecord(properties.capability).const === capability);
 
   const platform = requiredRecord(properties.platform).const;
-  requireValue(platform === 'bilibili' || platform === 'xiaohongshu');
+  requireValue(executionProvider === 'browser_extension'
+    ? platform === 'bilibili' || platform === 'xiaohongshu'
+    : platform === 'zhihu' || platform === 'web');
 
   const targetSchema = requiredRecord(properties.executionTarget);
   if (executionTargetMode === 'fixed') {
@@ -211,12 +230,22 @@ function verifyDirectRequestEnvelope(
   } else {
     requireValue(sameSet(uniqueStrings(targetSchema.enum), executionTargets));
   }
+  if (executionProvider === 'official_api') {
+    requireValue(executionTargetMode === 'fixed' && executionTargets[0] === 'official_api');
+  }
 
   const input = requiredRecord(properties.input);
   requireValue(input.type === 'object' && input.additionalProperties === false);
   requiredRecord(input.properties);
-  requiredArray(input.required).map(requiredString);
-  return platform;
+  if (input.required !== undefined) requiredArray(input.required).map(requiredString);
+  return platform as 'bilibili' | 'xiaohongshu' | 'zhihu' | 'web';
+}
+
+function verifiedExecutionProvider(value: unknown): VerifiedExecutionProvider {
+  if (value !== 'browser_extension' && value !== 'official_api') {
+    throw new CollectorMcpError('compatibility_unmet');
+  }
+  return value;
 }
 
 export function verifyBindings(value: unknown): RawBrowserBinding[] {

@@ -77,10 +77,12 @@ export function selectUniqueOnlineBinding(document, requestedAlias) {
 }
 
 export function verifyCaseAgainstLiveCatalog(caseDefinition, capabilities, tools, argumentsRecord) {
-  if (capabilities?.schemaVersion !== 'collector.mcp.capabilities/v1' ||
-    !Array.isArray(capabilities.catalog?.directContracts) ||
-    !capabilities.catalog.directContracts.some((contract) =>
-      contract.capability === caseDefinition.capabilityId)) {
+  const contracts = capabilities?.catalog?.directContracts;
+  const contract = Array.isArray(contracts)
+    ? contracts.find((candidate) => candidate?.capability === caseDefinition.capabilityId)
+    : undefined;
+  if (capabilities?.schemaVersion !== 'collector.mcp.capabilities/v1' || !contract ||
+    contract.executionProvider !== caseDefinition.executionProvider) {
     throw new LiveMatrixError('collector_l3_capability_preflight_invalid');
   }
   const tool = tools.find((candidate) => candidate.name === caseDefinition.toolId);
@@ -243,7 +245,7 @@ export async function readAndVerifyArtifact(readResource, metadataUri, expected)
 }
 
 export function inputEvidence(argumentsRecord) {
-  const safeEnums = new Set(['executionTarget', 'listType']);
+  const safeEnums = new Set(['executionTarget', 'listType', 'searchDatabase']);
   return Object.fromEntries(Object.entries(argumentsRecord)
     .filter(([field]) => field !== 'bindingAlias' && field !== 'clientRequestId')
     .sort(([left], [right]) => left.localeCompare(right))

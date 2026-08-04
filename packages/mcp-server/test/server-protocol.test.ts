@@ -10,7 +10,7 @@ import { CollectorToolService } from '../src/tools.js';
 import { StubCoreReader } from './support/stub-core-reader.js';
 import { fixtureCompatibilityPolicy } from './support/core-contract-fixture.js';
 
-test('official MCP transport exposes Resources and all 15 strongly typed Tools', async () => {
+test('official MCP transport exposes Resources and all 18 strongly typed Tools', async () => {
   const core = new StubCoreReader();
   const compatibility = verifyCollectorCoreCompatibility(
     core.fixture,
@@ -46,7 +46,7 @@ test('official MCP transport exposes Resources and all 15 strongly typed Tools',
       'collector://artifacts/{artifactId}/chunks/{cursor}',
       'collector://operations/{operationId}'
     ]);
-    assert.equal(listedTools.tools.length, 15);
+    assert.equal(listedTools.tools.length, 18);
     assert.ok(client.getServerCapabilities()?.tools);
     assert.ok(client.getServerCapabilities()?.resources);
 

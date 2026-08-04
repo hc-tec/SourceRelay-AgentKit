@@ -23,7 +23,7 @@ test('Tool catalog has exact Core parity and mechanically flattened schemas', ()
   const { compatibility } = setup();
   const catalog = buildCollectorToolCatalog(compatibility);
   assert.equal(TOOL_CATALOG_VERSION, 'collector.mcp.tools/v1');
-  assert.equal(catalog.length, 15);
+  assert.equal(catalog.length, 18);
   assert.deepEqual(
     new Set(catalog.map((definition) => definition.capabilityId)),
     new Set(DIRECT_CAPABILITY_IDS)
@@ -70,6 +70,14 @@ test('Tool catalog has exact Core parity and mechanically flattened schemas', ()
     'maximumScrolls'
   ), true);
   assert.equal(Object.hasOwn(firstThen.properties as Record<string, unknown>, 'input'), false);
+
+  const official = catalog.find((definition) =>
+    definition.capabilityId === 'zhihu.search.public_content.v1')!;
+  const officialProperties = official.inputSchema.properties as Record<string, unknown>;
+  assert.deepEqual(Object.keys(officialProperties), ['clientRequestId', 'query', 'count']);
+  assert.deepEqual(official.inputSchema.required, ['clientRequestId', 'query']);
+  assert.equal(Object.hasOwn(officialProperties, 'bindingAlias'), false);
+  assert.equal(Object.hasOwn(officialProperties, 'executionTarget'), false);
 });
 
 test('fixed-target Tool resolves a safe alias, submits once, and returns only Operation identity', async () => {
@@ -105,7 +113,7 @@ test('fixed-target Tool resolves a safe alias, submits once, and returns only Op
   assert.ok(!logText.includes(core.fixture.bindings.bindings[0]!.browserBindingId));
 });
 
-test('all 15 Tool contracts accept representative typed input and submit their exact capability', async () => {
+test('all 18 Tool contracts accept representative typed input and submit their exact capability', async () => {
   const cases: Array<[string, Record<string, unknown>]> = [
     ['collector_bilibili_video_detail', { canonicalVideoUrl: VIDEO_URL }],
     ['collector_bilibili_native_search', { query: '公开情报' }],
@@ -134,21 +142,51 @@ test('all 15 Tool contracts accept representative typed input and submit their e
       executionTarget: 'existing_public_search_tab', resultRank: 1
     }],
     ['collector_xiaohongshu_note_public_comments', { maximumScrolls: 2 }],
-    ['collector_xiaohongshu_note_public_comment_replies', { maximumThreads: 2 }]
+    ['collector_xiaohongshu_note_public_comment_replies', { maximumThreads: 2 }],
+    ['collector_zhihu_search_public_content', { query: '大模型', count: 8 }],
+    ['collector_zhihu_hot_list_public_content', { limit: 20 }],
+    ['collector_web_search_global_zhihu_provider', {
+      query: '具身智能', count: 10, searchDatabase: 'all', site: 'example.com'
+    }]
   ];
   const { core, service } = setup();
   const mapping = new Map(collectorToolMappings().map((entry) => [entry.toolId, entry.capabilityId]));
   for (let index = 0; index < cases.length; index += 1) {
     const [toolId, capabilityFields] = cases[index]!;
     const clientRequestId = `00000000-0000-4000-8000-${String(index + 1).padStart(12, '0')}`;
+    const definition = service.definitions.find((entry) => entry.toolId === toolId)!;
     const result = await service.submit(toolId, {
-      bindingAlias: 'binding-1', clientRequestId, ...capabilityFields
+      ...(definition.contract.executionProvider === 'browser_extension'
+        ? { bindingAlias: 'binding-1' }
+        : {}),
+      clientRequestId,
+      ...capabilityFields
     });
     assert.equal(result.capabilityId, mapping.get(toolId));
     assert.equal(result.clientRequestId, clientRequestId);
     assert.equal(core.submissions[index]!.capability, mapping.get(toolId));
   }
-  assert.equal(core.submissions.length, 15);
+  assert.equal(core.submissions.length, 18);
+});
+
+test('Official Provider Tool omits browser identity and preserves a completed Operation', async () => {
+  const { core, service, logs } = setup();
+  const result = await service.submit('collector_zhihu_search_public_content', {
+    clientRequestId: CLIENT_REQUEST_ID,
+    query: '公开数据',
+    count: 6
+  });
+  assert.deepEqual(core.submissions, [{
+    schemaVersion: 3,
+    clientRequestId: CLIENT_REQUEST_ID,
+    platform: 'zhihu',
+    capability: 'zhihu.search.public_content.v1',
+    executionTarget: 'official_api',
+    input: { query: '公开数据', count: 6 }
+  }]);
+  assert.equal(result.coreState, 'completed');
+  assert.equal(logs.join('').includes('bindingAlias'), false);
+  assert.equal(logs.join('').includes('公开数据'), false);
 });
 
 test('enum-target Tool preserves only the admitted target and capability fields', async () => {
@@ -188,6 +226,12 @@ test('Tool schemas reject extra fields, hidden fixed targets and conditional vio
       bindingAlias: 'binding-1', clientRequestId: CLIENT_REQUEST_ID,
       executionTarget: 'discover_public_profile_from_note', maximumScrolls: 4,
       profileUrl: 'https://www.xiaohongshu.com/user/profile/unsafe'
+    }],
+    ['collector_zhihu_search_public_content', {
+      bindingAlias: 'binding-1', clientRequestId: CLIENT_REQUEST_ID, query: '不允许浏览器身份'
+    }],
+    ['collector_zhihu_hot_list_public_content', {
+      clientRequestId: CLIENT_REQUEST_ID, executionTarget: 'official_api'
     }]
   ];
   for (const [toolId, argumentsValue] of invalidCalls) {

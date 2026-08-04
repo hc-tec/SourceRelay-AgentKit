@@ -12,15 +12,19 @@ working notes, and final outputs in the caller; never turn MCP into a workflow s
 
 1. Read `collector://release` and `collector://capabilities` before the first platform action.
 2. Confirm the required Tool and capability are present now. Do not infer availability from this Skill.
-3. Read `collector://bindings` and select an `online` session-local `binding-N` alias.
-4. Stop before any Tool call when compatibility is unmet or no suitable binding is online.
+3. If the selected capability uses the Browser Provider, read `collector://bindings` and select an
+   `online` session-local `binding-N` alias. Official Provider capabilities intentionally do not
+   require a binding and their Tool schemas omit `bindingAlias`.
+4. Stop before any Tool call when compatibility is unmet, a required browser binding is unavailable,
+   or an Official Provider reports `runtimeState=credential_required`.
 
 Never request or expose a Core token, browser binding ID, extension ID, Profile, Cookie, tab ID, URL
 primitive, selector, script, CDP command, or Network body.
 
 ## Submit one operation
 
-1. Select one strongly typed Tool with the relevant Platform Skill.
+1. Select one strongly typed Tool with the relevant Platform Skill. Confirm its Provider and binding
+   requirement from the live capability contract.
 2. Generate one UUID `clientRequestId` for this exact canonical Tool call.
 3. Preserve the complete Tool name and arguments until the outcome is known.
 4. Call the Tool once. Do not poll inside the Tool call or issue a second capability implicitly.
@@ -62,4 +66,3 @@ MCP to summarize content or call a model.
 Read [references/protocol.md](references/protocol.md) when interpreting an error, designing polling,
 or recording Resource provenance. Keep capability-specific decisions in the Bilibili or Xiaohongshu
 Platform Skill.
-

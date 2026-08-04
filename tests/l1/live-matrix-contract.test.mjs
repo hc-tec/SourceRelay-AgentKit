@@ -15,13 +15,33 @@ import {
   verifyCaseAgainstLiveCatalog
 } from '../l3/live-matrix-contract.mjs';
 
-test('live matrix exposes all fifteen unique typed platform cases', () => {
+test('live matrix exposes all eighteen unique typed Provider cases', () => {
   const cases = listLiveMatrixCases();
-  assert.equal(cases.length, 15);
+  assert.equal(cases.length, 18);
   assert.equal(new Set(cases.map((entry) => entry.caseId)).size, cases.length);
   assert.equal(new Set(cases.map((entry) => entry.toolId)).size, cases.length);
   assert.equal(cases.filter((entry) => entry.platform === 'bilibili').length, 10);
   assert.equal(cases.filter((entry) => entry.platform === 'xiaohongshu').length, 5);
+  assert.equal(cases.filter((entry) => entry.executionProvider === 'browser_extension').length, 15);
+  assert.equal(cases.filter((entry) => entry.executionProvider === 'official_api').length, 3);
+  assert.equal(cases.filter((entry) => entry.requiresBinding).length, 15);
+});
+
+test('Official Provider cases require no binding and keep bounded source inputs', () => {
+  assert.deepEqual(resolveLiveMatrixCase('zhihu.public-content-search', {}).capabilityFields, {
+    query: '人工智能', count: 10
+  });
+  assert.deepEqual(resolveLiveMatrixCase('zhihu.hot-list', {}).capabilityFields, { limit: 30 });
+  assert.deepEqual(resolveLiveMatrixCase('web.global-search-via-zhihu', {}).capabilityFields, {
+    query: '人工智能', count: 10, searchDatabase: 'all'
+  });
+  assert.equal(resolveLiveMatrixCase('zhihu.public-content-search', {}).requiresBinding, false);
+  assert.throws(
+    () => resolveLiveMatrixCase('web.global-search-via-zhihu', {
+      COLLECTOR_L3_WEB_SITE: 'www.zhihu.com'
+    }),
+    /collector_l3_case_web_global_search_invalid/
+  );
 });
 
 test('case resolution supplies safe defaults but never guesses a series identity', () => {
@@ -147,7 +167,10 @@ test('case arguments are validated against the discovered live Tool schema', () 
   };
   const capabilities = {
     schemaVersion: 'collector.mcp.capabilities/v1',
-    catalog: { directContracts: [{ capability: caseDefinition.capabilityId }] }
+    catalog: { directContracts: [{
+      capability: caseDefinition.capabilityId,
+      executionProvider: 'browser_extension'
+    }] }
   };
   const tools = [{
     name: caseDefinition.toolId,

@@ -1,15 +1,19 @@
 {
   "schemaVersion": "collector.ai-integration.skill/v1alpha1",
-  "skillId": "use-collector-mcp",
+  "skillId": "collect-zhihu",
   "skillVersion": "0.1.0",
-  "layer": "foundation",
+  "layer": "platform",
   "publisher": "collector-ai-integration",
-  "source": "collector-ai-integration/skills/use-collector-mcp",
-  "digest": "sha256:36500f1227508a6ac6e1592fbeccc48ab40c9331eec3f1efcf2aca646143050a",
+  "source": "collector-ai-integration/skills/collect-zhihu",
+  "digest": "sha256:dd69bdbf209ffdfebe04d80dec5c1dcb8f3aa96d4a289564081248af8839f226",
   "license": "Apache-2.0",
   "official": true,
   "requirements": {
-    "tools": [],
+    "tools": [
+      "collector_zhihu_search_public_content",
+      "collector_zhihu_hot_list_public_content",
+      "collector_web_search_global_zhihu_provider"
+    ],
     "resources": [
       "collector://release",
       "collector://capabilities",
@@ -18,7 +22,11 @@
       "collector://artifacts/{artifactId}",
       "collector://artifacts/{artifactId}/chunks/{cursor}"
     ],
-    "capabilities": [],
+    "capabilities": [
+      "zhihu.search.public_content.v1",
+      "zhihu.hot_list.public_content.v1",
+      "web.search.global.zhihu_provider.v1"
+    ],
     "minimumOutputSchemas": {
       "collector://release": "collector.mcp.release/v1",
       "collector://capabilities": "collector.mcp.capabilities/v1",
@@ -44,6 +52,6 @@
     "platformReads": true,
     "platformWrites": false,
     "localWrites": [],
-    "networkDestinations": ["collector-mcp stdio"]
+    "networkDestinations": ["developer.zhihu.com via Collector Core"]
   }
 }

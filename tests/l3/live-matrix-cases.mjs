@@ -2,6 +2,7 @@ const DEFAULT_VIDEO_URL = 'https://www.bilibili.com/video/BV1qZSLBYEpa';
 const DEFAULT_PROFILE_URL = 'https://space.bilibili.com/7481602';
 const DEFAULT_BILIBILI_QUERY = '人工智能';
 const DEFAULT_XIAOHONGSHU_QUERY = '人工智能';
+const DEFAULT_ZHIHU_QUERY = '人工智能';
 
 const CASES = Object.freeze([
   defineBilibiliCase({
@@ -144,6 +145,45 @@ const CASES = Object.freeze([
       executionTarget: 'discover_public_profile_from_note',
       maximumScrolls: integerEnvironment(environment, 'COLLECTOR_L3_XIAOHONGSHU_ACCOUNT_SCROLLS', 3)
     })
+  }),
+  defineOfficialCase({
+    caseId: 'zhihu.public-content-search',
+    platform: 'zhihu',
+    toolId: 'collector_zhihu_search_public_content',
+    capabilityId: 'zhihu.search.public_content.v1',
+    targetRole: 'search',
+    input: (environment) => ({
+      query: environment.COLLECTOR_L3_ZHIHU_QUERY ?? DEFAULT_ZHIHU_QUERY,
+      count: integerEnvironment(environment, 'COLLECTOR_L3_ZHIHU_COUNT', 10)
+    })
+  }),
+  defineOfficialCase({
+    caseId: 'zhihu.hot-list',
+    platform: 'zhihu',
+    toolId: 'collector_zhihu_hot_list_public_content',
+    capabilityId: 'zhihu.hot_list.public_content.v1',
+    targetRole: 'breadth',
+    input: (environment) => ({
+      limit: integerEnvironment(environment, 'COLLECTOR_L3_ZHIHU_HOT_LIMIT', 30)
+    })
+  }),
+  defineOfficialCase({
+    caseId: 'web.global-search-via-zhihu',
+    platform: 'web',
+    toolId: 'collector_web_search_global_zhihu_provider',
+    capabilityId: 'web.search.global.zhihu_provider.v1',
+    targetRole: 'search',
+    input: (environment) => ({
+      query: environment.COLLECTOR_L3_WEB_QUERY ?? DEFAULT_ZHIHU_QUERY,
+      count: integerEnvironment(environment, 'COLLECTOR_L3_WEB_COUNT', 10),
+      searchDatabase: environment.COLLECTOR_L3_WEB_SEARCH_DATABASE ?? 'all',
+      ...(environment.COLLECTOR_L3_WEB_SITE === undefined
+        ? {}
+        : { site: environment.COLLECTOR_L3_WEB_SITE }),
+      ...(environment.COLLECTOR_L3_WEB_PUBLISHED_AFTER === undefined
+        ? {}
+        : { publishedAfter: environment.COLLECTOR_L3_WEB_PUBLISHED_AFTER })
+    })
   })
 ]);
 
@@ -159,6 +199,8 @@ export function resolveLiveMatrixCase(caseId, environment = process.env) {
   return Object.freeze({
     caseId: definition.caseId,
     platform: definition.platform,
+    executionProvider: definition.executionProvider,
+    requiresBinding: definition.requiresBinding,
     toolId: definition.toolId,
     capabilityId: definition.capabilityId,
     targetRole: definition.targetRole,
@@ -167,11 +209,19 @@ export function resolveLiveMatrixCase(caseId, environment = process.env) {
 }
 
 function defineBilibiliCase(value) {
-  return Object.freeze({ platform: 'bilibili', ...value });
+  return Object.freeze({
+    platform: 'bilibili', executionProvider: 'browser_extension', requiresBinding: true, ...value
+  });
 }
 
 function defineXiaohongshuCase(value) {
-  return Object.freeze({ platform: 'xiaohongshu', ...value });
+  return Object.freeze({
+    platform: 'xiaohongshu', executionProvider: 'browser_extension', requiresBinding: true, ...value
+  });
+}
+
+function defineOfficialCase(value) {
+  return Object.freeze({ executionProvider: 'official_api', requiresBinding: false, ...value });
 }
 
 function requiredEnvironment(environment, name) {
@@ -208,7 +258,8 @@ function validateCapabilityFields(caseId, fields) {
   if (Object.hasOwn(fields, 'query')) {
     const value = fields.query;
     const characters = typeof value === 'string' ? [...value].length : 0;
-    const maximum = caseId.startsWith('xiaohongshu.') ? 80 : 160;
+    const maximum = caseId.startsWith('xiaohongshu.') ? 80
+      : caseId.startsWith('bilibili.') ? 160 : 100;
     if (characters < 1 || characters > maximum || value !== value.trim()) {
       throw new Error('collector_l3_case_query_invalid');
     }
@@ -242,6 +293,23 @@ function validateCapabilityFields(caseId, fields) {
     (fields.executionTarget !== 'discover_public_profile_from_note' ||
       !integerBetween(fields.maximumScrolls, 1, 20) || Object.hasOwn(fields, 'profileUrl'))) {
     throw new Error('collector_l3_case_xiaohongshu_account_invalid');
+  }
+  if (caseId === 'zhihu.public-content-search' && !integerBetween(fields.count, 1, 10)) {
+    throw new Error('collector_l3_case_zhihu_search_invalid');
+  }
+  if (caseId === 'zhihu.hot-list' && !integerBetween(fields.limit, 1, 30)) {
+    throw new Error('collector_l3_case_zhihu_hot_list_invalid');
+  }
+  if (caseId === 'web.global-search-via-zhihu') {
+    if (!integerBetween(fields.count, 1, 20) ||
+      !['all', 'realtime', 'static'].includes(fields.searchDatabase) ||
+      (fields.site !== undefined &&
+        (typeof fields.site !== 'string' || !/^[A-Za-z0-9.-]{1,253}$/.test(fields.site) ||
+          /(^|\.)zhihu\.com$/i.test(fields.site))) ||
+      (fields.publishedAfter !== undefined &&
+        (typeof fields.publishedAfter !== 'string' || !Number.isFinite(Date.parse(fields.publishedAfter))))) {
+      throw new Error('collector_l3_case_web_global_search_invalid');
+    }
   }
 }
 

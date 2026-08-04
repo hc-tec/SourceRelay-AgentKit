@@ -18,7 +18,10 @@ export const DIRECT_CAPABILITY_IDS = [
   'xiaohongshu.account.public_notes.v1',
   'xiaohongshu.note.public_detail.v1',
   'xiaohongshu.note.public_comments.v1',
-  'xiaohongshu.note.public_comment_replies.v1'
+  'xiaohongshu.note.public_comment_replies.v1',
+  'zhihu.search.public_content.v1',
+  'zhihu.hot_list.public_content.v1',
+  'web.search.global.zhihu_provider.v1'
 ];
 
 export function coreContractFixture() {
@@ -33,12 +36,15 @@ export function coreContractFixture() {
     capabilities.push({ capability, dispatchState: 'direct_ready' });
     directContracts.push({
       capability,
+      executionProvider: isOfficialCapability(capability) ? 'official_api' : 'browser_extension',
       requestSchemaRef: `#/components/schemas/${schemaName}`,
       requestSchemaDigest: sha256Digest(schema),
       executionTargets: targets,
       defaultExecutionTarget: targets[0],
       executionTargetMode: targets.length === 1 ? 'fixed' : 'enum',
-      budgetPolicy: capability === 'bilibili.account_inventory'
+      budgetPolicy: isOfficialCapability(capability)
+        ? 'official_api_fixed_count'
+        : capability === 'bilibili.account_inventory'
         ? 'fixed_observation_budget'
         : capability.endsWith('public_comments.v1') || capability.endsWith('public_comment_replies.v1')
           ? 'input_bounded_queue_budget'
@@ -105,23 +111,30 @@ export function fixtureCompatibilityPolicy(
     openApiDigest: fixture.release.compatibility.openApiSchemaDigest,
     catalogDigest: fixture.catalog.catalogDigest,
     requiredFeatures: REQUIRED_CORE_FEATURES,
-    directCapabilityCount: 15
+    directCapabilityCount: 18
   };
 }
 
 function requestSchema(capability: string, targets: string[]): Record<string, unknown> {
-  const platform = capability.startsWith('bilibili.') ? 'bilibili' : 'xiaohongshu';
+  const platform = capability.startsWith('bilibili.')
+    ? 'bilibili'
+    : capability.startsWith('xiaohongshu.')
+      ? 'xiaohongshu'
+      : capability.startsWith('zhihu.') ? 'zhihu' : 'web';
+  const browserProvider = !isOfficialCapability(capability);
+  const envelopeFields = [
+    'schemaVersion', 'clientRequestId',
+    ...(browserProvider ? ['browserBindingId'] : []),
+    'platform', 'capability', 'executionTarget', 'input'
+  ];
   const schema: Record<string, unknown> = {
     type: 'object',
     additionalProperties: false,
-    required: [
-      'schemaVersion', 'clientRequestId', 'browserBindingId', 'platform', 'capability',
-      'executionTarget', 'input'
-    ],
+    required: envelopeFields,
     properties: {
       schemaVersion: { type: 'integer', const: 3 },
       clientRequestId: { type: 'string', format: 'uuid' },
-      browserBindingId: { type: 'string', format: 'uuid' },
+      ...(browserProvider ? { browserBindingId: { type: 'string', format: 'uuid' } } : {}),
       platform: { type: 'string', const: platform },
       capability: { type: 'string', const: capability },
       executionTarget: targets.length === 1
@@ -197,6 +210,27 @@ function capabilityInputSchema(capability: string): Record<string, unknown> {
   if (capability === 'xiaohongshu.note.public_comment_replies.v1') {
     return object(['maximumThreads'], { maximumThreads: { type: 'integer', enum: [1, 2, 3] } });
   }
+  if (capability === 'zhihu.search.public_content.v1') {
+    return object(['query'], {
+      query: { type: 'string', minLength: 1, maxLength: 100 },
+      count: { type: 'integer', minimum: 1, maximum: 10, default: 10 }
+    });
+  }
+  if (capability === 'zhihu.hot_list.public_content.v1') {
+    return {
+      type: 'object', additionalProperties: false,
+      properties: { limit: { type: 'integer', minimum: 1, maximum: 30, default: 30 } }
+    };
+  }
+  if (capability === 'web.search.global.zhihu_provider.v1') {
+    return object(['query'], {
+      query: { type: 'string', minLength: 1, maxLength: 100 },
+      count: { type: 'integer', minimum: 1, maximum: 20, default: 10 },
+      searchDatabase: { type: 'string', enum: ['all', 'realtime', 'static'], default: 'all' },
+      site: { type: 'string', minLength: 1, maxLength: 253, pattern: '^[A-Za-z0-9.-]+$' },
+      publishedAfter: { type: 'string', format: 'date-time' }
+    });
+  }
   if (capability === 'bilibili.video_detail' || capability === 'bilibili.danmaku' ||
     capability === 'bilibili.discussion') {
     return object(['canonicalVideoUrl'], { canonicalVideoUrl: { type: 'string', format: 'uri' } });
@@ -207,6 +241,7 @@ function capabilityInputSchema(capability: string): Record<string, unknown> {
 }
 
 function executionTargets(capability: string): string[] {
+  if (isOfficialCapability(capability)) return ['official_api'];
   if (capability === 'bilibili.account_inventory') {
     return ['collector_work_tab', 'user_selected_tab'];
   }
@@ -223,4 +258,8 @@ function executionTargets(capability: string): string[] {
   if (capability === 'xiaohongshu.search.public_notes.v1') return ['existing_public_explore_tab'];
   if (capability.startsWith('xiaohongshu.note.')) return ['existing_public_note_overlay'];
   return ['collector_work_tab'];
+}
+
+function isOfficialCapability(capability: string): boolean {
+  return capability.startsWith('zhihu.') || capability === 'web.search.global.zhihu_provider.v1';
 }

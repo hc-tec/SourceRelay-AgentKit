@@ -23,8 +23,8 @@
       "collect.client_request_id.v1",
       "operations.exact_core_state.v1"
     ],
-    "openApiSchemaDigest": "sha256:a82b2f45302998544ddd1a82c06398ede00ce7f706c8f071c77241ef93f46566",
-    "capabilityCatalogDigest": "sha256:448bc31aed31ead46fd453c09776266711668213bdd5b9a3d4a2acddf086e473",
+    "openApiSchemaDigest": "sha256:8e7c7e712f163f3372017c591fd9a1698186ad5ca1ec2b4b98e87d190a84ab83",
+    "capabilityCatalogDigest": "sha256:c9563008a44a52f785bb655dedeb45bee3fa45a57f16ef24ec34dd12d8250016",
     "directCapabilityIds": [
       "bilibili.video_detail",
       "bilibili.native_search",
@@ -40,7 +40,10 @@
       "xiaohongshu.account.public_notes.v1",
       "xiaohongshu.note.public_detail.v1",
       "xiaohongshu.note.public_comments.v1",
-      "xiaohongshu.note.public_comment_replies.v1"
+      "xiaohongshu.note.public_comment_replies.v1",
+      "zhihu.search.public_content.v1",
+      "zhihu.hot_list.public_content.v1",
+      "web.search.global.zhihu_provider.v1"
     ]
   },
   "mcp": {
@@ -123,6 +126,21 @@
         "toolId": "collector_xiaohongshu_note_public_comment_replies",
         "capabilityId": "xiaohongshu.note.public_comment_replies.v1",
         "inputSchemaDigest": "sha256:c0602cf30568ee01d3db058be4230f3af62eb24f57fbeecf9a053e77a9e69e21"
+      },
+      {
+        "toolId": "collector_zhihu_search_public_content",
+        "capabilityId": "zhihu.search.public_content.v1",
+        "inputSchemaDigest": "sha256:bf5e2a862f2fefb46984ebc44ee30ee92fc64fbafc3c7080c3c59d4d87b831da"
+      },
+      {
+        "toolId": "collector_zhihu_hot_list_public_content",
+        "capabilityId": "zhihu.hot_list.public_content.v1",
+        "inputSchemaDigest": "sha256:f980504ef3c3dc02040a2893ef1b394254c167975c47a565ac1da1c4e312185a"
+      },
+      {
+        "toolId": "collector_web_search_global_zhihu_provider",
+        "capabilityId": "web.search.global.zhihu_provider.v1",
+        "inputSchemaDigest": "sha256:706020080e7e02e3c0ac926fe5ef661ff36a201e8885624fdda35fe3302325c7"
       }
     ],
     "resources": [
@@ -139,7 +157,7 @@
       {
         "skillId": "use-collector-mcp",
         "skillVersion": "0.1.0",
-        "digest": "sha256:138aa97b0c588538f25daf273c27f61d5397ae9b67b86e6638926bfa0fd49563"
+        "digest": "sha256:36500f1227508a6ac6e1592fbeccc48ab40c9331eec3f1efcf2aca646143050a"
       },
       {
         "skillId": "collect-bilibili",
@@ -155,6 +173,11 @@
         "skillId": "research-search-then-detail",
         "skillVersion": "0.1.0",
         "digest": "sha256:8de11793b87a80858f455bc78e425a4bd9068de2371892c30d887f83318847d4"
+      },
+      {
+        "skillId": "collect-zhihu",
+        "skillVersion": "0.1.0",
+        "digest": "sha256:dd69bdbf209ffdfebe04d80dec5c1dcb8f3aa96d4a289564081248af8839f226"
       }
     ]
   },

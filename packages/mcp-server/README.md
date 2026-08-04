@@ -9,7 +9,8 @@ Checkpoint 4 的薄 stdio MCP runtime。它只调用发布版 Collector Core loo
 - required feature flags；
 - origin-independent OpenAPI SHA-256；
 - capability catalog SHA-256；
-- 15 项 direct-ready contract、request schema digest 与 execution target；
+- 18 项 direct-ready contract、request schema digest 与 execution target（15 项 Browser Provider、
+  3 项 Zhihu Official Provider）；
 - 带 `browser-bindings:read` scope 的真实 Core token。
 
 当前 MCP Resource 表面是：
@@ -47,11 +48,16 @@ collector_xiaohongshu_account_public_notes
 collector_xiaohongshu_note_public_detail
 collector_xiaohongshu_note_public_comments
 collector_xiaohongshu_note_public_comment_replies
+collector_zhihu_search_public_content
+collector_zhihu_hot_list_public_content
+collector_web_search_global_zhihu_provider
 ```
 
 Tool input schema 由启动时 digest-verified Core request schema 机械变换：使用 session-local
-`bindingAlias` 替换 Core browser binding ID，隐藏 schema/platform/capability/fixed target，并把
-capability input 字段扁平化。只有 Core 声明为 enum 的 execution target 才能由调用者选择。
+`bindingAlias` 替换 Core browser binding ID（仅 Browser Provider Tool），隐藏
+schema/platform/capability/fixed target，并把 capability input 字段扁平化。Official Provider
+Tool 不暴露浏览器身份，也不接受 `bindingAlias`；其 execution target 由 Core 固定为
+`official_api`。只有 Core 声明为 enum 的 execution target 才能由调用者选择。
 
 每次 Tool 调用只执行一次 `POST /v2/collect`，保留调用者提供的 `clientRequestId`，并立即返回
 `operationId` 与 `collector://operations/{operationId}`。它不等待终态、不轮询、不读取 Artifact、

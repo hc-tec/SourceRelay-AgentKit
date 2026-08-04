@@ -326,8 +326,8 @@ function nullableTimestamp(value: unknown): string | null {
   return value === null ? null : timestamp(value);
 }
 
-function platform(value: unknown): 'bilibili' | 'xiaohongshu' {
-  if (value !== 'bilibili' && value !== 'xiaohongshu') {
+function platform(value: unknown): 'bilibili' | 'xiaohongshu' | 'zhihu' | 'web' {
+  if (value !== 'bilibili' && value !== 'xiaohongshu' && value !== 'zhihu' && value !== 'web') {
     throw new CollectorMcpError('core_response_invalid');
   }
   return value;

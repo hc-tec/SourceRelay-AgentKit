@@ -123,14 +123,14 @@ export class StubCoreReader implements CollectorCoreApi {
       result: {
         schemaVersion: 1,
         operationId: OPERATION_ID,
-        browserBindingId: request.browserBindingId,
+        browserBindingId: request.browserBindingId ?? null,
         platform: request.platform,
         capability: request.capability,
         executionTarget: request.executionTarget,
-        state: 'queued',
+        state: request.executionTarget === 'official_api' ? 'completed' : 'queued',
         queuedAt: '2026-08-03T00:00:00.000Z',
-        claimedAt: null,
-        completedAt: null,
+        claimedAt: request.executionTarget === 'official_api' ? '2026-08-03T00:00:00.000Z' : null,
+        completedAt: request.executionTarget === 'official_api' ? '2026-08-03T00:00:01.000Z' : null,
         errorCode: null,
         terminalReason: null,
         artifact: null
