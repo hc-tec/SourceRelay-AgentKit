@@ -1,0 +1,56 @@
+name: SourceRelay AgentKit released-Core L2
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  released-core-l2:
+    name: Packaged AgentKit against released Core
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out AgentKit
+        uses: actions/checkout@v5
+
+      - name: Check out SourceRelay Core
+        uses: actions/checkout@v5
+        with:
+          repository: hc-tec/SourceRelay
+          ref: main
+          path: sourcerelay-core
+
+      - name: Set up Node
+        uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: |
+            package-lock.json
+            sourcerelay-core/poc/package-lock.json
+          registry-url: https://registry.npmjs.org
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+
+      - name: Install AgentKit locked dependencies
+        run: npm ci
+
+      - name: Install Core locked dependencies
+        run: npm ci
+        working-directory: sourcerelay-core/poc
+
+      - name: Package released Core
+        run: npm run package:core-release
+        working-directory: sourcerelay-core/poc
+
+      - name: Run AgentKit L2 against released Core
+        run: npm run test:l2
+        env:
+          COLLECTOR_L2_CORE_ENTRYPOINT: ${{ github.workspace }}/sourcerelay-core/poc/runtime/core-release-0.7.17/gateway/dist/user-browser-server.js

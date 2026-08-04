@@ -125,6 +125,10 @@ npm run test:l2
 `livePlatformRequests: 0`。这一步验证的是“packaged MCP + released Core process”的 L2
 协议闭环，不代表真实平台 L3 已验收。
 
+仓库中的 `.github/workflows/released-core-l2.yml` 会在 CI 中重复同一条路径：checkout
+SourceRelay Core `main`，生成 Core release directory，再让 AgentKit 的 packaged MCP 消费
+该目录中的 Gateway。它不依赖用户浏览器、Profile、Cookie 或真实平台。
+
 ## Tool 与 Resource 合同
 
 ### Tool catalog
