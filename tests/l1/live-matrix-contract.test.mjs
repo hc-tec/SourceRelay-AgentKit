@@ -15,12 +15,13 @@ import {
   verifyCaseAgainstLiveCatalog
 } from '../l3/live-matrix-contract.mjs';
 
-test('live matrix exposes ten unique explicit Bilibili cases', () => {
+test('live matrix exposes all fifteen unique typed platform cases', () => {
   const cases = listLiveMatrixCases();
-  assert.equal(cases.length, 10);
+  assert.equal(cases.length, 15);
   assert.equal(new Set(cases.map((entry) => entry.caseId)).size, cases.length);
   assert.equal(new Set(cases.map((entry) => entry.toolId)).size, cases.length);
-  assert.ok(cases.every((entry) => entry.platform === 'bilibili'));
+  assert.equal(cases.filter((entry) => entry.platform === 'bilibili').length, 10);
+  assert.equal(cases.filter((entry) => entry.platform === 'xiaohongshu').length, 5);
 });
 
 test('case resolution supplies safe defaults but never guesses a series identity', () => {
@@ -40,6 +41,43 @@ test('case resolution supplies safe defaults but never guesses a series identity
     stableSeriesId: '123',
     listType: 'season'
   });
+});
+
+test('Xiaohongshu cases encode the page-state chain without URLs or browser primitives', () => {
+  assert.deepEqual(
+    resolveLiveMatrixCase('xiaohongshu.public-notes-search', {}).capabilityFields,
+    { query: '人工智能', maximumDetails: 0 }
+  );
+  assert.deepEqual(
+    resolveLiveMatrixCase('xiaohongshu.note-public-detail', {}).capabilityFields,
+    { executionTarget: 'existing_public_search_tab', resultRank: 1 }
+  );
+  assert.deepEqual(
+    resolveLiveMatrixCase('xiaohongshu.note-public-comments', {
+      COLLECTOR_L3_XIAOHONGSHU_COMMENT_SCROLLS: '3'
+    }).capabilityFields,
+    { maximumScrolls: 3 }
+  );
+  assert.deepEqual(
+    resolveLiveMatrixCase('xiaohongshu.note-public-comment-replies', {}).capabilityFields,
+    { maximumThreads: 1 }
+  );
+  assert.deepEqual(
+    resolveLiveMatrixCase('xiaohongshu.account-public-notes', {}).capabilityFields,
+    { executionTarget: 'discover_public_profile_from_note', maximumScrolls: 3 }
+  );
+  assert.throws(
+    () => resolveLiveMatrixCase('xiaohongshu.note-public-detail', {
+      COLLECTOR_L3_XIAOHONGSHU_RESULT_RANK: '0'
+    }),
+    /collector_l3_case_xiaohongshu_detail_invalid/
+  );
+  assert.throws(
+    () => resolveLiveMatrixCase('xiaohongshu.account-public-notes', {
+      COLLECTOR_L3_XIAOHONGSHU_ACCOUNT_SCROLLS: '21'
+    }),
+    /collector_l3_case_xiaohongshu_account_invalid/
+  );
 });
 
 test('live invocation requires one explicit case and exactly one live mode', () => {
