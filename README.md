@@ -1,200 +1,231 @@
 # SourceRelay AgentKit
 
-SourceRelay AgentKit（内部开发目录仍为 `collector-ai-integration`）是 SourceRelay Core 的独立 AI-native 接入产品。它用一个薄的 MCP
-协议适配器公开 Core 已登记的强类型采集能力，并用版本化 Skills 教 Agent 正确发现能力、
-提交 Operation、解释终态和有界读取 raw Artifact。
+> A thin MCP + Skills integration layer for SourceRelay Core.
 
-## 当前状态
+SourceRelay AgentKit 把 SourceRelay Core 已登记的采集能力，转换成 AI Host 可以安全发现和调用的
+强类型 MCP Tools、只读 Resources 与版本化 Skills。它是协议适配层，不是 Workflow Engine、
+Planner、模型 Provider 或浏览器自动化框架。
 
-```text
-architecture: approved
-checkpoint 0: complete
-checkpoint 1: complete
-checkpoint 2: complete — repository foundation only
-checkpoint 3: complete — thin stdio MCP foundation + L1/L2
-checkpoint 4: complete — 18 typed capability Tools + exact parity gates
-checkpoint 5: complete — 5 official Skills + Bilibili L3 + pinned-Skill Agent L4
-checkpoint 6: in progress — Bilibili/Xiaohongshu matrices complete; Official Provider MCP parity added
-runtime MCP: implemented — asynchronous Tools + read-only Operation/Artifact Resources
-official Skills: 5 pinned version 0.1.0 packages; Foundation + Bilibili L4 validated
-platform capability claim: Bilibili native search L3/L4 on one Windows production-MV3 configuration
-```
+[SourceRelay Core](https://github.com/hc-tec/SourceRelay) 负责浏览器扩展、Gateway、官方 Provider
+和数据采集；AgentKit 只负责把 Core 合同带到 Codex、Claude、DeerFlow 或其他 MCP Client。
 
-当前仓库已经提供可打包的 TypeScript/Node stdio MCP 进程。它在启动时用真实 Core
-`release + capabilities + OpenAPI + bindings` 完成 SHA-256 compatibility preflight，并只公开
-Operation 与 Artifact 等只读 Resources。当前 18 项 direct-ready Core capability 均以独立强类型
-Tool 发布；每次调用最多提交一个 Core Operation，并立即返回 Operation Resource URI。README、
-manifest 或 Skill 说明永远不能替代实时 Core catalog。
+## 先看结论
 
-## 产品位置
+- 当前 MCP catalog：18 个 typed Tools、3 个静态 Resources、3 个 Resource templates。
+- 15 个 Tool 通过用户已经配对的 Browser Provider 执行，3 个 Tool 通过 Core Gateway 的
+  Zhihu Official Provider 执行。
+- 每次 Tool 调用最多提交一个 Core Operation，立即返回 Operation Resource URI；Agent Host 自己
+  决定目标、推理、轮询预算和最终输出。
+- MCP 不读取 Cookie/Profile，不控制浏览器，不接受任意 URL、selector、script、tab、CDP、
+  DevTools 或 Network response body。
+- 当前 release anchor：Core `0.7.17`、service schema `3`、tool catalog
+  `collector.mcp.tools/v1`。
+
+## 它在系统中的位置
 
 ```text
 Agent / AI-native Application
-  ├─ owns goal, reasoning, project state and output
-  ├─ loads pinned versioned Skills
-  └─ uses MCP Client
-          ↓
+  ├─ owns goal, reasoning, project state and final output
+  ├─ loads pinned Skills
+  └─ uses an MCP Client
+          │ stdio
+          ▼
 SourceRelay AgentKit
-  ├─ thin typed MCP adapter
-  ├─ Operation Resources
-  ├─ bounded Artifact Resources
-  ├─ compatibility / auth / budgets / logs
-  └─ no workflow, planner, model or browser control
-          ↓
-Collector Core API / SDK
-          ↓
-Paired MV3 extension in the user's daily Chrome/Edge
+  ├─ compatibility preflight
+  ├─ typed Tools
+  ├─ Operation / Artifact Resources
+  ├─ bounded logs and Core auth boundary
+  └─ no workflow, model or browser lifecycle
+          │ versioned Core API
+          ▼
+SourceRelay Core
+  ├─ loopback Gateway
+  ├─ paired MV3 extension in the user's daily browser
+  └─ allowlisted Official Providers
 ```
 
-Collector Core 位于独立仓库 `D:\AIProject\inteligence`，必须能在没有本项目时独立使用。
-已冻结历史原型位于 `D:\AIProject\inteligence-apps`；本项目禁止导入、启动、转发或回退到
-该原型。
+这个边界是硬合同：Core 可以脱离 AgentKit 独立运行；AgentKit 也不能导入、启动、代理或回退到
+历史 `inteligence-apps` 原型。
 
-## 只负责什么
+## 快速开始
 
-- 默认 stdio 的 thin Collector MCP Server；
-- Core release、OpenAPI、capability 与 binding compatibility preflight；
-- 一项 direct-ready Core capability 对应一项强类型 MCP Tool；
-- Core Operation 的只读 Resources；
-- Core Artifact 的 metadata-first、有界 Resources；
-- 最小权限 Core credential、调用预算和内容最小化日志；
-- Foundation、Platform、Intent 三层版本化 Skills；
-- Windows 安装、配置、升级和卸载；
-- L1–L4 分层验证与公开兼容清单。
+### 前置条件
 
-## 明确不负责什么
+- Node.js `>=22`；
+- 一个已运行并完成配对的 SourceRelay Core Gateway；
+- Core 为 MCP 子进程签发的最小权限 token：通常为
+  `browser-bindings:read`、`collect:execute`、`operations:read`、`artifacts:read`；
+- 不把 token 写入仓库、Skill、prompt、日志或命令行历史。
 
-- Workflow Engine、Planner、Workspace/Task/Run/Step 服务；
-- KnowledgePack、Evidence Workspace、Analysis API 或报告生成；
-- DeepSeek、DeerFlow、DeepResearch 或任何模型 provider；
-- Cookie、Profile、Storage、密码或浏览器生命周期；
-- Playwright、CDP、DevTools 或任意 URL/selector/script/tab/network Tool；
-- Core raw Artifact 的复制数据库；
-- 对 `inteligence-apps` 的兼容层；
-- 未经 Core direct-ready catalog 登记的隐藏能力。
+Core 的安装、扩展加载、配对和 token 创建见[SourceRelay 用户浏览器部署 runbook](https://github.com/hc-tec/SourceRelay/blob/main/docs/runbooks/core-user-browser-deployment-v0.7.md)。
 
-## 仓库结构
-
-```text
-contracts/                 versioned manifest schemas
-docs/architecture/         canonical approved architecture and decision record
-examples/                  future AI-native examples; currently empty by contract
-manifests/                 truthful machine-readable product compatibility
-packages/mcp-server/       thin stdio MCP runtime、Core client、typed Tools、Resources 与 L1 tests
-packages/windows-configurator/
-                            superseded boundary marker; no implementation planned
-skills/                     Foundation、Bilibili、Xiaohongshu、Zhihu、search-then-detail official Skills
-tests/                      repository gate 与 real-Core stdio L2
-scripts/                    verification entrypoints
-```
-
-不存在根级 `src/`、通用 workflow 包或旧原型 adapter。Checkpoint 3 已通过 ADR-0001 选择
-TypeScript/Node ESM 与官方 `@modelcontextprotocol/sdk@1.30.0`；默认 transport 只有 stdio。
-
-## 运行与验证
-
-安装依赖并运行 L1：
+### 安装、构建并运行 stdio MCP
 
 ```powershell
 Set-Location D:\AIProject\collector-ai-integration
-npm install
-python .\scripts\verify_repository.py
-python -X utf8 .\scripts\skill_package.py verify .\skills
-npm run test:l1
-```
+npm ci
+npm run build
 
-开发/L2 进程从子进程环境读取专用 Core token；Agent/MCP client 看不到它：
-
-```powershell
 $env:COLLECTOR_CORE_ORIGIN = 'http://127.0.0.1:43127'
 $env:COLLECTOR_CORE_TOKEN = 'cst_...'
 node .\packages\mcp-server\dist\src\cli.js
 ```
 
-真实 L2 由发布形态 MCP 包连接真实本地 Core 进程：
+MCP 进程只从自己的进程环境读取专用 Core token。Agent Host 看不到 token 的内容，Tool 和
+Resource 结果也不会回显它。
+
+### 配置 MCP Client
+
+Agent Host 只需要启动这个 stdio 进程。不同 Host 的配置文件位置不同，核心配置等价于：
+
+```json
+{
+  "mcpServers": {
+    "sourcerelay": {
+      "command": "node",
+      "args": ["<absolute-path>/packages/mcp-server/dist/src/cli.js"],
+      "env": {
+        "COLLECTOR_CORE_ORIGIN": "http://127.0.0.1:43127",
+        "COLLECTOR_CORE_TOKEN": "<inject-from-local-secret-store>"
+      }
+    }
+  }
+}
+```
+
+上面的 `<inject-from-local-secret-store>` 是部署占位符，不要把真实 token 提交到配置文件。
+
+启动后，MCP 会先读取并校验 Core 的 release、capability catalog、OpenAPI schema 和 binding
+合同；任一 digest、feature 或 direct-ready 集合不一致时会 fail closed，不会继续暴露过期 Tool。
+
+## Tool 与 Resource 合同
+
+### Tool catalog
+
+| Provider | Tool 数量 | 是否需要 `bindingAlias` | 代表能力 |
+| --- | ---: | --- | --- |
+| Bilibili Browser Provider | 10 | 是 | 搜索、视频详情、账号、动态、合集、弹幕、讨论 |
+| Xiaohongshu Browser Provider | 5 | 是 | 公开搜索、博主笔记、详情、评论、评论回复 |
+| Zhihu Official Provider | 2 | 否 | 公开内容搜索、热榜 |
+| Global Web Search via Zhihu Provider | 1 | 否 | 公共网页搜索 |
+
+每项 direct-ready Core capability 对应一个强类型 Tool。Browser Provider 的 AI-visible schema
+包含 session-local `bindingAlias`；Official Provider 不暴露浏览器身份，也不接受 binding，内部
+固定使用 Core 的 `official_api` execution target。
+
+典型 Browser Provider 调用形状（字段仍以实时 Tool schema 为准）：
+
+```json
+{
+  "bindingAlias": "binding-1",
+  "clientRequestId": "<uuid>",
+  "query": "人工智能"
+}
+```
+
+典型 Official Provider 调用不包含浏览器绑定：
+
+```json
+{
+  "clientRequestId": "<uuid>",
+  "query": "人工智能",
+  "count": 10
+}
+```
+
+### Resource surface
+
+```text
+collector://release
+collector://capabilities
+collector://bindings
+collector://operations/{operationId}
+collector://artifacts/{artifactId}
+collector://artifacts/{artifactId}/chunks/{cursor}
+```
+
+Operation Resource 保留 Core 的 exact state、terminal reason、error code、partial coverage 和
+outcome uncertainty；Artifact 先读取 metadata，再沿返回的 chunk URI 进行固定大小的 UTF-8
+读取。AgentKit 不把 Artifact 复制到自己的数据库，也不把内容交给模型处理。
+
+## Skills 是方法，不是权限
+
+仓库提供 5 个版本化、带 digest 的官方 Skill：
+
+| Skill | 用途 |
+| --- | --- |
+| `use-collector-mcp` | compatibility、binding、一次提交、Operation、Artifact 和错误处理 |
+| `collect-bilibili` | Bilibili Tool 选择、输入边界与序列化读取 |
+| `collect-xiaohongshu` | 小红书 no-refresh / overlay / Network-first 页面状态边界 |
+| `collect-zhihu` | Zhihu Official Provider 的搜索、热榜和公共网页搜索 |
+| `research-search-then-detail` | 先广度搜索、再对选中结果做有界详情读取 |
+
+Skill 只教授 Agent 如何选择和调用能力，不授予权限、不保存凭证、不拥有 Operation 状态，
+也不创建 workflow。Skill package digest 和精确 Tool/Resource 要求记录在各自的 `manifest.json`
+和 [skills/README.md](skills/README.md) 中。
+
+## 验证
+
+默认验证不访问真实平台：
+
+```powershell
+Set-Location D:\AIProject\collector-ai-integration
+npm ci
+
+# 仓库边界、Skill package、TypeScript build 与 39 项 L1 合同测试
+npm run verify
+```
+
+L2 使用发布形态的 MCP 与真实本地 Core 进程，但不会创建平台 Operation：
 
 ```powershell
 $env:COLLECTOR_L2_CORE_ENTRYPOINT = '<released Core user-browser-server.js>'
 npm run test:l2
 ```
 
-L2 只验证 stdio、真实 auth/preflight、18 项 Tool schema/Core parity、Resource/error/log 映射，
-并硬检查非法调用创建了 0 个平台 Operation；它不能宣称任何网站能力。
+L3/L4 只在明确的真实 Core + packaged MCP + 真实平台 / Agent Host 条件下执行。当前证据状态：
 
-## Compatibility 原则
+- Bilibili：typed Tool L3 matrix 与 pinned-Skill Agent L4 已验证；
+- Xiaohongshu：5 个 typed Tool 的真实 L3 matrix 已验证；
+- Zhihu Official Provider：Core Gateway 已验证，AgentKit MCP L3 三能力矩阵待有效本机凭证下单独验证；
+- 默认 L1/L2 通过不等于平台能力通过。
 
-唯一机器可读入口是：
+## 明确不负责什么
+
+- Workflow Engine、Planner、Workspace、Task/Run/Step 或统一恢复器；
+- DeepResearch、DeerFlow、蜂群调度、报告生成、向量数据库或业务数据库；
+- 模型 Provider、prompt 管理、长期账号档案和跨平台分析；
+- Cookie/Profile/密码/浏览器生命周期管理；
+- Playwright、CDP、DevTools、任意 tab、任意 selector、任意脚本或任意 Network API；
+- 对 Core Artifact 的二次复制和无限制原始内容读取；
+- 未登记在 Core live catalog 中的隐藏能力。
+
+## 仓库结构
 
 ```text
-manifests/compatibility.json
+contracts/                  manifest 与协议 schema
+manifests/                  机器可读兼容性清单
+packages/mcp-server/        thin stdio MCP runtime、Core client、Tools、Resources
+skills/                     Foundation、Platform、Intent Skills
+tests/                      repository gate、L1、real-Core stdio L2
+scripts/                    verification 与 package digest 入口
+docs/architecture/          目标架构与决策记录
+docs/validation/            L3/L4 真实证据与边界
 ```
 
-Checkpoint 5 完成后的 manifest 必须诚实声明：
-
-- phase 保持 `skills_canary`，Checkpoint 5 已进入 completed，current 为空，next 为 6；
-- Core release `0.7.17`、Service schema 3、feature 与 catalog digest 已绑定；
-- MCP protocol `2025-11-25`、stdio、18 项 typed Tool 与 6 类只读 Resource 已实现，其中 15 项来自 Browser Provider、3 项来自 Zhihu Official Provider；
-- Tool catalog 为 `collector.mcp.tools/v1`，每项记录 AI-visible input schema digest；
-- 5 个官方 Skill 均固定 `0.1.0`、package digest、Tool/Resource/capability 要求和外部影响；
-- `highestCompletedLevel` 为 `l4`，且只声明一个 B站原生搜索 L3/L4 实证配置；
-- Windows real-process L2 已记录，但 browser 支持与平台 claim 仍为空；
-- Workflow、模型、浏览器控制和旧原型依赖均为禁止状态。
-
-后续只有在实现和对应验证 checkpoint 同时通过后，manifest 才能扩大声明。
-
-## 后续 Checkpoints
-
-### Checkpoint 3 — MCP Foundation
-
-- 已完成：TypeScript/Node + 官方 MCP SDK；
-- 已完成：stdio、Core auth、live discovery；
-- 已完成：Resource/error/content-minimized log 合同；
-- 已完成：Core 幂等、schema identity、Artifact metadata/window 前置合同；
-- 已完成：13 项 L1 与 packaged MCP + real Core L2（0 platform action）。
-
-### Checkpoint 4 — Full Capability Parity
-
-- 已完成：当前全部 18 项 direct-ready capability 的强类型 Tools；
-- 已完成：单 POST、caller-controlled `clientRequestId`、session binding alias 与异步 Operation 返回；
-- 已完成：Tool schema digest、Core capability 与 manifest parity gate；
-- 已完成：Core 的 JavaScript/Python SDK capability matrix gate 与 MCP live-catalog gate 形成传递
-  一致性；
-- 已完成：packaged MCP + real Core L2（0 accepted platform Operation）。
-
-### Checkpoint 5 — Skills + Real AI Canary
-
-- 已完成：使用官方 `$skill-creator` 初始化并校验 Foundation、Bilibili、Xiaohongshu 和最小
-  search-then-detail Intent Skills；
-- 已完成：Skill manifest、MCP Tool/Capability/Resource parity 与 package SHA-256 门禁；
-- 已完成：production MV3 + real Core + packaged stdio MCP 的 B站原生搜索 L3 canary，证据见
-  [Checkpoint 5 L3 B站 canary](docs/validation/checkpoint-5-l3-bilibili-canary.md)；
-- 已完成：真实 Codex Agent Host + 精确 Skill version/digest + packaged MCP 的 L4 canary，证据见
-  [Checkpoint 5 L4 pinned-Skill Agent canary](docs/validation/checkpoint-5-l4-codex-pinned-skill-canary.md)。
-
-### Checkpoint 6 — Developer Readiness & Full Capability Acceptance
-
-- 已完成：B站 10 个 typed Tools 已完成 production MV3 + real Core + packaged MCP 的真实 L3
-  矩阵，证据见 [B站 developer-readiness L3 matrix](docs/validation/developer-readiness-bilibili-l3-matrix.md)；
-- 已完成：小红书 5 个 typed Tools 的真实 L3 矩阵及其 no-refresh、overlay、Network-first 安全边界，证据见 [小红书 developer-readiness L3 matrix](docs/validation/developer-readiness-xiaohongshu-l3-matrix.md)；
-- 已完成：SourceRelay 18 项 Core catalog 与 MCP Tool/Skill compatibility parity；
-- 待完成：知乎 Official Provider 的 MCP 真实 L3 三能力矩阵；
-- 待完成：发布 hash、SBOM、兼容性说明与开发者 runbook。
-
-Windows installer、Credential Manager configurator 和普通用户安装向导不属于当前仓库的目标
-架构；不得为了它们向 MCP 加入浏览器生命周期、Profile 或 secret 管理。
-
-## 权威架构
+## 从哪里继续读
 
 - [目标架构](docs/architecture/collector-ai-native-target-architecture.md)
-- [一致性审计](docs/architecture/overall-system-consistency-audit.md)
-- [整体决策账本](docs/architecture/overall-system-grilling-decision-log.md)
+- [MCP Tool contract](docs/architecture/checkpoint-4-capability-tool-contract.md)
+- [Skills catalog](skills/README.md)
+- [L3/L4 验证证据](docs/validation/)
+- [兼容性清单](manifests/compatibility.json)
+- [SourceRelay Core](https://github.com/hc-tec/SourceRelay)
 
-## 贡献与安全
+## 贡献、安全与许可
 
 贡献前阅读 [AGENTS.md](AGENTS.md)、[CONTRIBUTING.md](CONTRIBUTING.md) 和
-[SECURITY.md](SECURITY.md)。任何真实平台验证都必须通过正式 Core capability 执行，不能把
-fixture、fake Gateway 或 synthetic page 当成平台证据。
+[SECURITY.md](SECURITY.md)。新增 Tool 或 Skill 必须先完成 Core 合同、schema digest、权限边界、
+测试和真实验证证据，不能通过增加一个 generic JSON Tool 绕过能力登记。
 
-## License
-
-Apache License 2.0，见 [LICENSE](LICENSE)。
+本项目使用 [Apache License 2.0](LICENSE) 开源。
