@@ -98,6 +98,33 @@ Agent Host 只需要启动这个 stdio 进程。不同 Host 的配置文件位�
 启动后，MCP 会先读取并校验 Core 的 release、capability catalog、OpenAPI schema 和 binding
 合同；任一 digest、feature 或 direct-ready 集合不一致时会 fail closed，不会继续暴露过期 Tool。
 
+### 使用已发布 Core 制品做 L2 验证
+
+L2 不应只把 MCP 接到相邻 checkout 的源码构建目录。先在 SourceRelay Core 仓库生成发布目录：
+
+```powershell
+Set-Location D:\AIProject\inteligence\poc
+npm ci
+npm run package:core-release
+```
+
+发布目录中的 `release-manifest.json`、`sbom.cdx.json` 和 `sha256sums.json` 是可离线复核的发布
+身份与完整性依据。AgentKit 的 L2 脚本会检查 Core Gateway entrypoint 确实位于该目录，并在
+启动前重新核对 entrypoint 的 manifest/hash；源码目录或没有 manifest 的任意 `dist` 都会直接
+失败：
+
+```powershell
+Set-Location D:\AIProject\collector-ai-integration
+$env:COLLECTOR_L2_CORE_ENTRYPOINT = `
+  'D:\AIProject\inteligence\poc\runtime\core-release-0.7.17\gateway\dist\user-browser-server.js'
+npm run test:l2
+```
+
+成功结果必须同时包含 `releasedCoreVersion: "0.7.17"`、18 个 Tool、18 个 direct contract、
+`manifestParity: true`、`platformOperationsCreated: 0`、`officialOperationsCreated: 0` 和
+`livePlatformRequests: 0`。这一步验证的是“packaged MCP + released Core process”的 L2
+协议闭环，不代表真实平台 L3 已验收。
+
 ## Tool 与 Resource 合同
 
 ### Tool catalog

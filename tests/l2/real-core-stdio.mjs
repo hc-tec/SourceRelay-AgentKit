@@ -3,7 +3,7 @@ import { createHash } from 'node:crypto';
 import { createServer } from 'node:net';
 import { access, mkdir, mkdtemp, readFile, readdir, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
-import { dirname, join, resolve } from 'node:path';
+import { dirname, join, relative, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { Client } from '@modelcontextprotocol/sdk/client/index.js';
 import {
@@ -14,7 +14,7 @@ import {
 const repositoryRoot = resolve(fileURLToPath(new URL('../..', import.meta.url)));
 const coreEntrypoint = process.env.COLLECTOR_L2_CORE_ENTRYPOINT;
 if (!coreEntrypoint) throw new Error('collector_l2_core_entrypoint_required');
-await access(coreEntrypoint);
+const releasedCore = await verifyReleasedCore(coreEntrypoint);
 
 const temporaryRoot = await mkdtemp(join(tmpdir(), 'collector-mcp-l2-'));
 const coreHome = join(temporaryRoot, 'core-home');
@@ -186,6 +186,7 @@ try {
     gate: 'collector-mcp-real-core-stdio-l2',
     packagedMcp: true,
     realCoreProcess: true,
+    releasedCoreVersion: releasedCore.releaseVersion,
     scopedCoreToken: true,
     staticResources: resources.resources.length,
     resourceTemplates: templates.resourceTemplates.length,
@@ -374,6 +375,32 @@ async function availablePort() {
   });
   if (!address || typeof address === 'string') throw new Error('collector_l2_port_unavailable');
   return address.port;
+}
+
+async function verifyReleasedCore(entrypoint) {
+  const resolvedEntrypoint = resolve(entrypoint);
+  await access(resolvedEntrypoint);
+  const releaseRoot = dirname(dirname(dirname(resolvedEntrypoint)));
+  const manifestPath = join(releaseRoot, 'release-manifest.json');
+  const checksumsPath = join(releaseRoot, 'sha256sums.json');
+  const manifest = JSON.parse(await readFile(manifestPath, 'utf8'));
+  const relativeEntrypoint = relative(releaseRoot, resolvedEntrypoint).replaceAll('\\', '/');
+  if (manifest.schemaVersion !== 1 || manifest.releaseVersion !== '0.7.17' ||
+      `gateway/${manifest.gateway?.entrypoint}` !== relativeEntrypoint || !Array.isArray(manifest.files)) {
+    throw new Error('collector_l2_released_core_manifest_invalid');
+  }
+  const bytes = await readFile(resolvedEntrypoint);
+  const digest = createHash('sha256').update(bytes).digest('hex');
+  const manifestEntry = manifest.files.find((entry) => entry.path === relativeEntrypoint);
+  if (!manifestEntry || manifestEntry.bytes !== bytes.byteLength || manifestEntry.sha256 !== digest) {
+    throw new Error('collector_l2_released_core_manifest_hash_mismatch');
+  }
+  const checksums = JSON.parse(await readFile(checksumsPath, 'utf8'));
+  const checksumEntry = checksums.files?.find((entry) => entry.path === relativeEntrypoint);
+  if (!checksumEntry || checksumEntry.bytes !== bytes.byteLength || checksumEntry.sha256 !== digest) {
+    throw new Error('collector_l2_released_core_checksum_mismatch');
+  }
+  return manifest;
 }
 
 function runNpm(args, cwd) {
