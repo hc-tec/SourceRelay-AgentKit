@@ -16,12 +16,9 @@ account Operations was:
 631e8a778a7efa8be00341fd52339946b245198f84e20581359e7ab8817be630
 ```
 
-The completed comments and replies evidence was captured immediately beforehand on production build
-fingerprint `769a7810f8ab84bb087efc7d036a2519a1e0da6bbfd0e18a5eb40a127a186d47`.
-The only intervening platform-execution source change was the account-specific note-overlay author
-target module in Core commit `5945930`; comments and replies code did not change, and the final Core
-gate passed all 99 test files and 345 tests. Those two already-proved public discussion actions were
-therefore not repeated merely to make the build fingerprints identical.
+The final comments and replies evidence was recaptured through the formal `/v2/collect` path on the
+same production build fingerprint. Core commit `2cc9752` fixed the reply queue's Operation-identity
+handoff, and the final Core gate passed all 99 test files and 346 tests.
 
 Each L3 process selected one explicit case, generated a new caller-owned `clientRequestId`, submitted
 one typed Tool at most once, and polled only its returned Operation. There were no automatic Tool
@@ -48,8 +45,8 @@ identities, signed profile URLs, or Network response URLs.
 | --- | --- | --- | ---: | ---: | --- | --- |
 | `xiaohongshu.public-notes-search` | `completed` | `search_ready` | 5577 | 1 | `sha256:444880be31088da22dbb8fa1677d7ca0059af01e527918a39e455a58d7b9a0fe` | Network projection; 17 bounded public cards |
 | `xiaohongshu.note-public-detail` | `completed` | `note_detail_ready` | 4371 | 1 | `sha256:1ffebd84d88b4c995cdf5ee205f9f14315ec8d310b6e9da5b17a56e8f6b78683` | Same-document overlay with DOM fallback |
-| `xiaohongshu.note-public-comments` | `completed` | `note_comments_ready` | 11135 | 1 | `sha256:2ccfa9b716c28172c0df312e1473b1528410cbabaaa1bd64578a87eacbad1320` | Hybrid Network/DOM projection; 37 bounded public comments |
-| `xiaohongshu.note-public-comment-replies` | `completed` | `comment_replies_ready` | 1869 | 1 | `sha256:c57d30aef67fcb45ac70f7f83c15f6146a9325c948703d137e1677d21e69734a` | Network projection; one bounded public reply |
+| `xiaohongshu.note-public-comments` | `completed` | `note_comments_ready` | 11595 | 1 | `sha256:847469f6b6d001a7a9f80f5ae6434fca451298379a7ab4cd33be3c40af935724` | Hybrid Network/DOM projection; 37 bounded public comments |
+| `xiaohongshu.note-public-comment-replies` | `completed` | `comment_replies_ready` | 1972 | 1 | `sha256:fa15467aba46952fae3428a0df4f5e10a086c4afe9f60bb9eb2db9540b975259` | Network projection; one bounded public reply |
 | `xiaohongshu.account-public-notes` | `completed` | `profile_notes_ready` | 7019 | 1 | `sha256:dd87e541da9a4ace43e358c9d2575576567ba0921c3c7aa164970e54b9430bb7` | Visible note-author discovery; 30 bounded public cards through DOM fallback |
 
 All five Operations exposed the state sequence:
@@ -66,8 +63,8 @@ No case was rewritten from a stopped, partial, or failed state into apparent suc
 | --- | --- | --- | --- |
 | `xiaohongshu.public-notes-search` | `6e693371-0951-440e-88a7-8cbaf156c0d7` | `e80f967f-a984-4c27-99f3-d9fe71072b38` | `eea7bd7b-5d34-44ba-84b6-4dec90992666` |
 | `xiaohongshu.note-public-detail` | `af8d9d17-20e3-4286-b5bd-a538b5452605` | `6a908257-e95d-4874-a94f-d0d3675f430b` | `49c82735-6a64-4ae8-8ab1-4d8e2e1dbbe9` |
-| `xiaohongshu.note-public-comments` | `a0713ddc-d051-4c9c-8712-20c7616b9596` | `d8362dbd-35b8-47c8-b50c-674b6f1e29af` | `b3c12bca-a9af-4215-83bd-32ddf881fd23` |
-| `xiaohongshu.note-public-comment-replies` | `2c62735d-c2af-4878-b783-e1943b3cf7f5` | `27fe8232-c753-4ad5-8961-8fab968f0af7` | `88891659-eeaf-400c-a9c9-036564d3b2d4` |
+| `xiaohongshu.note-public-comments` | `00c5e7ee-37ac-4932-b1b4-c15e11b2a25a` | `468abce7-5fab-40e1-8bbb-d3c89eec0cb9` | `169be512-1976-4391-9c21-792d6d53088e` |
+| `xiaohongshu.note-public-comment-replies` | `a86f213b-ae04-4d0b-bb91-93c3edaf1025` | `2260c539-d07b-483b-9031-331da8d112e9` | `557d7aaa-2c01-4c26-8ab0-70e653f3b633` |
 | `xiaohongshu.account-public-notes` | `efb9f626-dcfc-4092-a138-6fbd9c5b0e11` | `4d1f6b49-a53a-4d4c-83b2-5e0ac2096357` | `64c24c6f-66c7-440c-938e-4f6b979f6429` |
 
 ## Real page-state and action evidence
@@ -89,8 +86,8 @@ following discussion and account Operations.
 
 ### Public comments and replies
 
-The comments Tool required the already-visible note overlay. With `maximumScrolls=2`, it executed two
-trusted bounded scrolls, observed one matching public payload (`17762` temporary bytes), and combined
+The comments Tool required the already-visible note overlay. With `maximumScrolls=3`, it executed two
+trusted bounded scrolls, observed one matching public payload (`16572` temporary bytes), and combined
 Network and visible DOM evidence into 37 public comments. It did not navigate, reload, or open a tab.
 
 The replies Tool reused the same admitted overlay and already-visible public reply context. With
@@ -143,6 +140,20 @@ All five successful Artifacts reported `rawPayloadStored=false` and `responseUrl
 trusted-input run also reported `debuggerDetached=true`.
 
 ## Defects discovered by the real matrix
+
+### Reply Operation identity split
+
+The first formal reply replay exposed that the Collector Service idempotency ledger and reply work
+queue used different Operation IDs. The ledger reserved one ID, but
+`enqueueXiaohongshuNotePublicCommentReplies()` discarded it and generated another random ID. The
+first request could reach the extension, while replay looked up the ledger ID and failed as
+`collector_service_idempotency_operation_unavailable`.
+
+Core commit `2cc9752` makes the reply queue preserve the caller-supplied Operation ID, matching every
+other direct capability. Queue and route-level regression tests now require one identity across the
+ledger, queue, first response, persisted work item, and replay. The completed reply above then proved
+the production path: one queue, one claim, one accepted result, followed by one idempotent replay that
+returned the same Operation and Artifact without a second extension or platform action.
 
 ### Risk-text false positive
 
@@ -205,6 +216,11 @@ collector_xiaohongshu_note_public_comments
 collector_xiaohongshu_note_public_comment_replies
 collector_xiaohongshu_account_public_notes
 ```
+
+The JavaScript Testbench and Python smoke app independently replayed all five typed requests against
+the production Gateway. Each run produced five `collector.operation.idempotent_replay` events, zero
+new Core Operations, zero extension claims/results, and zero platform actions; all five Artifact
+byte lengths and complete SHA-256 values matched this matrix.
 
 Upper-layer developers must still obey each Tool's typed page prerequisite. A breadth search does not
 magically create a detail overlay; comments and replies require the admitted visible overlay; account
