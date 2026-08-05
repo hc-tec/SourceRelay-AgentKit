@@ -77,7 +77,10 @@ jobs:
           mkdir -p runtime/agentkit-release
           npm pack --workspace @collector-ai-integration/mcp-server --pack-destination runtime/agentkit-release
           cp manifests/compatibility.json runtime/agentkit-release/compatibility.json
-          sha256sum runtime/agentkit-release/* > runtime/agentkit-release/SHA256SUMS
+          (
+            cd runtime/agentkit-release
+            sha256sum *.tgz compatibility.json > SHA256SUMS
+          )
           test -f "runtime/agentkit-release/collector-ai-integration-mcp-server-${AGENTKIT_VERSION}.tgz"
 
       - name: Resolve AgentKit release tag
