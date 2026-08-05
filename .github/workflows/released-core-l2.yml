@@ -42,6 +42,9 @@ jobs:
       - name: Install AgentKit locked dependencies
         run: npm ci
 
+      - name: Verify AgentKit repository and official Skills
+        run: npm run verify
+
       - name: Install Core locked dependencies
         run: npm ci
         working-directory: sourcerelay-core/poc
