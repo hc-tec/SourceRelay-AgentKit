@@ -2,7 +2,9 @@ from __future__ import annotations
 
 import json
 import re
+import shutil
 import sys
+import tempfile
 import unittest
 from pathlib import Path
 
@@ -220,6 +222,16 @@ class OfficialSkillTests(unittest.TestCase):
             self.assertRegex(digest, r"^sha256:[0-9a-f]{64}$")
             self.assertEqual(manifest["digest"], digest, skill_id)
             self.assertEqual(catalog[skill_id], (manifest["skillVersion"], digest))
+
+    def test_skill_package_digest_is_line_ending_stable(self) -> None:
+        source = ROOT / "skills" / "collect-bilibili"
+        with tempfile.TemporaryDirectory() as directory:
+            copy = Path(directory) / source.name
+            shutil.copytree(source, copy)
+            for path in copy.rglob("*"):
+                if path.is_file() and path.suffix.lower() in {".json", ".md", ".yaml", ".yml"}:
+                    path.write_bytes(path.read_bytes().replace(b"\r\n", b"\n").replace(b"\n", b"\r\n"))
+            self.assertEqual(compute_skill_digest(copy), compute_skill_digest(source))
 
 
 def parse_frontmatter(text: str) -> dict[str, str]:

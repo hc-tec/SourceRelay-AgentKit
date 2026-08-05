@@ -11,6 +11,7 @@ from typing import Any
 ALGORITHM = "sha256-skill-package-v1"
 ZERO_DIGEST = "sha256:" + "0" * 64
 PREFIX = b"collector-ai-integration\0sha256-skill-package-v1\0"
+TEXT_SUFFIXES = {".json", ".md", ".yaml", ".yml"}
 
 
 def load_json_without_duplicates(path: Path) -> dict[str, Any]:
@@ -70,7 +71,13 @@ def packaged_skills(skills_root: Path) -> list[Path]:
 
 def _digest_bytes(path: Path, relative: str) -> bytes:
     if relative != "manifest.json":
-        return path.read_bytes()
+        data = path.read_bytes()
+        if path.suffix.lower() in TEXT_SUFFIXES:
+            # Git normalizes packaged text to LF. Apply the same normalization
+            # before hashing so an existing Windows CRLF worktree cannot create
+            # a digest that differs from a clean Linux checkout.
+            return data.decode("utf-8").replace("\r\n", "\n").replace("\r", "\n").encode("utf-8")
+        return data
     manifest = load_json_without_duplicates(path)
     manifest["digest"] = ZERO_DIGEST
     return json.dumps(

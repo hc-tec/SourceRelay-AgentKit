@@ -34,7 +34,7 @@ session 启动前，harness 将以下两个 package 复制到临时快照，重�
 | Skill | Version | Digest |
 | --- | --- | --- |
 | `use-collector-mcp` | `0.1.0` | `sha256:138aa97b0c588538f25daf273c27f61d5397ae9b67b86e6638926bfa0fd49563` |
-| `collect-bilibili` | `0.1.0` | `sha256:9ed4641eb0cda7f5844cec27fe9896e754e93d914361f97dc03d3abc37e66796` |
+| `collect-bilibili` | `0.1.0` | `sha256:8c6beecf13f7790ffc4dcec9be736cfabffeb22d160447c41e59bb8c0e7a4af3` |
 
 prompt 显式调用 `$use-collector-mcp` 与 `$collect-bilibili`。session 期间不热切换 Skill，不从
 第三方仓库或全局 Skill 覆盖这两个包。

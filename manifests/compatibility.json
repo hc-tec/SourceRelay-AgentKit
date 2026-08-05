@@ -157,27 +157,27 @@
       {
         "skillId": "use-collector-mcp",
         "skillVersion": "0.1.0",
-        "digest": "sha256:36500f1227508a6ac6e1592fbeccc48ab40c9331eec3f1efcf2aca646143050a"
+        "digest": "sha256:7bc035ac9099ce502385b64e423a9f12e7d4e64021b241937cd33abcbaf0bc8e"
       },
       {
         "skillId": "collect-bilibili",
         "skillVersion": "0.1.0",
-        "digest": "sha256:9ed4641eb0cda7f5844cec27fe9896e754e93d914361f97dc03d3abc37e66796"
+        "digest": "sha256:8c6beecf13f7790ffc4dcec9be736cfabffeb22d160447c41e59bb8c0e7a4af3"
       },
       {
         "skillId": "collect-xiaohongshu",
         "skillVersion": "0.1.0",
-        "digest": "sha256:c24f403fb96d43c318d06ecef50e5f3812b9fa58568e7e4e6ca85d8101bd879a"
+        "digest": "sha256:d445715580256379ff91a61d7bcf47863872a01c44dba20d32f838c4747438af"
       },
       {
         "skillId": "research-search-then-detail",
         "skillVersion": "0.1.0",
-        "digest": "sha256:8de11793b87a80858f455bc78e425a4bd9068de2371892c30d887f83318847d4"
+        "digest": "sha256:0dbf4dd20e00e086e6356f0b0c61393e09283a60ed2ac31f8f16bdc6fe6b4fcb"
       },
       {
         "skillId": "collect-zhihu",
         "skillVersion": "0.1.0",
-        "digest": "sha256:dd69bdbf209ffdfebe04d80dec5c1dcb8f3aa96d4a289564081248af8839f226"
+        "digest": "sha256:e69d96e4c334fee4a2b1c508445b409194db7b13442ad9a6e4933a6c9468bd68"
       }
     ]
   },

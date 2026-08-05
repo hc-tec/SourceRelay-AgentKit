@@ -14,6 +14,10 @@ Each Skill contains only `SKILL.md`, `agents/openai.yaml`, its required manifest
 single-level reference. Package digests and exact MCP requirements are pinned in each `manifest.json`
 and `../manifests/compatibility.json`.
 
+The `sha256-skill-package-v1` digest canonicalizes packaged UTF-8 text (`.md`, `.yaml`, `.yml`, and
+`.json`) to LF before hashing. This keeps a Windows worktree with CRLF files equivalent to a clean
+Linux checkout; the manifest and compatibility catalog therefore pin one cross-platform digest.
+
 A Skill teaches method. It does not grant permission, execute a Tool by itself, own runtime state,
 receive a secret, or prove that a live capability is currently available. The narrow Bilibili native
 search L3 canary and the pinned Foundation + Bilibili L4 Agent canary are recorded under
