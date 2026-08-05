@@ -25,7 +25,7 @@ jobs:
       AGENTKIT_VERSION: '0.0.0-mcp-foundation'
       CORE_RELEASE_VERSION: '0.7.17'
       CORE_RELEASE_TAG: core-v0.7.17
-      CORE_RELEASE_ARCHIVE_SHA256: 210d7107e5ce7b4eb8e400175551ebb61e8fb67c2bf93a3c162e5d916b322bc7
+      CORE_RELEASE_ARCHIVE_SHA256: ab444468be0209100371651de2e65284e07cee319bee8eed8db3822ded7784d7
 
     steps:
       - name: Check out AgentKit

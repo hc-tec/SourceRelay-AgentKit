@@ -99,7 +99,7 @@ L2 必须使用 GitHub Release 的完整制品，而不是相邻 Core checkout �
 tag:       core-v0.7.17
 asset:     sourcerelay-core-0.7.17.tar.gz
 download:  https://github.com/hc-tec/SourceRelay/releases/download/core-v0.7.17/sourcerelay-core-0.7.17.tar.gz
-sha256:    210d7107e5ce7b4eb8e400175551ebb61e8fb67c2bf93a3c162e5d916b322bc7
+sha256:    ab444468be0209100371651de2e65284e07cee319bee8eed8db3822ded7784d7
 ```
 
 下载后先校验归档，再解压并确认 `release-manifest.json`、`sha256sums.json`、SBOM 与 Gateway
@@ -113,7 +113,7 @@ Invoke-WebRequest `
   -Uri 'https://github.com/hc-tec/SourceRelay/releases/download/core-v0.7.17/sourcerelay-core-0.7.17.tar.gz' `
   -OutFile $archive
 if ((Get-FileHash -Algorithm SHA256 -LiteralPath $archive).Hash.ToLowerInvariant() -ne `
-    '210d7107e5ce7b4eb8e400175551ebb61e8fb67c2bf93a3c162e5d916b322bc7') {
+    'ab444468be0209100371651de2e65284e07cee319bee8eed8db3822ded7784d7') {
   throw 'SourceRelay Core release archive SHA-256 mismatch'
 }
 tar -xzf $archive -C .\runtime\core-release-download
@@ -201,5 +201,5 @@ Core service schema:    3
 MCP tool catalog:       collector.mcp.tools/v1
 Core catalog digest:    sha256:8af4e632cebf3338055c7eba10542b65ab6ee77720a40abff7453f1ace28808a
 Core OpenAPI digest:    sha256:f31d0aa0b25270f5ef27bd29547a6f5ceefb1a38e9a68f7854ee756a018c31ed
-Core archive SHA-256:   210d7107e5ce7b4eb8e400175551ebb61e8fb67c2bf93a3c162e5d916b322bc7
+Core archive SHA-256:   ab444468be0209100371651de2e65284e07cee319bee8eed8db3822ded7784d7
 ```
