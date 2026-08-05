@@ -78,6 +78,7 @@ REQUIRED_CORE_FEATURES = {
     "capabilities.direct_contracts.v1",
     "collect.client_request_id.v1",
     "operations.exact_core_state.v1",
+    "capabilities.catalog_digest_excludes_runtime_state.v1",
 }
 
 TOOL_CAPABILITY_MAP = {
@@ -211,7 +212,7 @@ class RepositoryFoundationTests(unittest.TestCase):
         self.assertEqual(set(core["requiredFeatures"]), REQUIRED_CORE_FEATURES)
         self.assertEqual(
             core["openApiSchemaDigest"],
-            "sha256:8e7c7e712f163f3372017c591fd9a1698186ad5ca1ec2b4b98e87d190a84ab83",
+            "sha256:f31d0aa0b25270f5ef27bd29547a6f5ceefb1a38e9a68f7854ee756a018c31ed",
         )
         self.assertRegex(core["capabilityCatalogDigest"], r"^sha256:[0-9a-f]{64}$")
         self.assertEqual(len(core["directCapabilityIds"]), 18)

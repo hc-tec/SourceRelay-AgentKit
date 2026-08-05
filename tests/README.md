@@ -42,6 +42,11 @@ $env:COLLECTOR_CORE_TOKEN = '<scoped Core token>'
 npm run test:l3 -- --case bilibili.video-detail --execute-live
 ```
 
+Official Provider 的隔离 L3 可以把正式发布 Core 启动在随机 loopback 端口，避免接管默认的
+`43127` Gateway。只有同时显式设置 `COLLECTOR_L3_ALLOW_ISOLATED_CORE=true` 时，运行器才接受
+`http://127.0.0.1:<port>`；它仍拒绝非 loopback、HTTPS、路径、query 和 fragment。Browser
+Provider 的隔离验证还必须满足各自的真实浏览器/Profile 前置条件。
+
 系列详情不能猜 ID。先单独运行 `bilibili.collection-series-overview`，从其真实 Artifact 中选定
 公开的稳定 ID/type，再为下一独立 run 提供：
 

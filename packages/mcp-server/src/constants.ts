@@ -5,16 +5,17 @@ export const SUPPORTED_CORE_RELEASE = '0.7.17';
 export const SUPPORTED_CORE_SERVICE_SCHEMA = 3;
 export const SUPPORTED_CORE_OPENAPI_VERSION = '3.0.0-experimental';
 export const SUPPORTED_CORE_CATALOG_DIGEST =
-  'sha256:c9563008a44a52f785bb655dedeb45bee3fa45a57f16ef24ec34dd12d8250016';
+  'sha256:8af4e632cebf3338055c7eba10542b65ab6ee77720a40abff7453f1ace28808a';
 export const SUPPORTED_CORE_OPENAPI_DIGEST =
-  'sha256:8e7c7e712f163f3372017c591fd9a1698186ad5ca1ec2b4b98e87d190a84ab83';
+  'sha256:f31d0aa0b25270f5ef27bd29547a6f5ceefb1a38e9a68f7854ee756a018c31ed';
 
 export const REQUIRED_CORE_FEATURES = Object.freeze([
   'artifacts.canonical_json_utf8_window.v1',
   'artifacts.metadata.v1',
   'capabilities.direct_contracts.v1',
   'collect.client_request_id.v1',
-  'operations.exact_core_state.v1'
+  'operations.exact_core_state.v1',
+  'capabilities.catalog_digest_excludes_runtime_state.v1'
 ]);
 
 export const DEFAULT_CORE_ORIGIN = 'http://127.0.0.1:43127';

@@ -16,7 +16,8 @@ Implemented Core result:
 - Service schema 3 with required `clientRequestId` and Core-backed persistent reservation;
 - preallocated Operation ID, same-request replay, conflict, rejection recovery and explicit
   outcome-unknown;
-- release/OpenAPI/catalog SHA-256 identity and five required feature flags;
+- release/OpenAPI/catalog SHA-256 identity and six required feature flags, including a stable catalog
+  identity that excludes transient Official Provider readiness;
 - 15 generated direct contracts with request schema digest, target mode and budget policy;
 - global Artifact metadata and canonical UTF-8 window routes bounded to 64 KiB;
 - JavaScript/Python SDK parity and packaged-install verification.

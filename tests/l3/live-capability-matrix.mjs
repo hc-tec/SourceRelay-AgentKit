@@ -43,6 +43,7 @@ if (invocation.mode === 'list') {
 
 const caseDefinition = resolveLiveMatrixCase(invocation.caseId);
 const coreOrigin = process.env.COLLECTOR_CORE_ORIGIN ?? 'http://127.0.0.1:43127';
+const allowIsolatedCore = process.env.COLLECTOR_L3_ALLOW_ISOLATED_CORE === 'true';
 const coreToken = process.env.COLLECTOR_CORE_TOKEN ?? '';
 const requestedBindingAlias = process.env.COLLECTOR_L3_BINDING_ALIAS;
 const suppliedClientRequestId = process.env.COLLECTOR_L3_CLIENT_REQUEST_ID;
@@ -253,7 +254,20 @@ try {
 }
 
 function validateRuntimeInvocation() {
-  if (coreOrigin !== 'http://127.0.0.1:43127') {
+  if (allowIsolatedCore) {
+    let isolatedOrigin;
+    try {
+      isolatedOrigin = new URL(coreOrigin);
+    } catch {
+      throw new LiveMatrixError('collector_l3_isolated_core_origin_invalid');
+    }
+    if (isolatedOrigin.protocol !== 'http:' || isolatedOrigin.hostname !== '127.0.0.1' ||
+        isolatedOrigin.pathname !== '/' || isolatedOrigin.search !== '' || isolatedOrigin.hash !== '' ||
+        isolatedOrigin.port.length === 0 || Number(isolatedOrigin.port) < 1 ||
+        Number(isolatedOrigin.port) > 65_535) {
+      throw new LiveMatrixError('collector_l3_isolated_core_origin_invalid');
+    }
+  } else if (coreOrigin !== 'http://127.0.0.1:43127') {
     throw new LiveMatrixError('collector_l3_production_core_origin_required');
   }
   if (!/^cst_[A-Za-z0-9_-]{43}$/.test(coreToken)) {

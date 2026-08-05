@@ -233,8 +233,8 @@ L3/L4 只在明确的真实 Core + packaged MCP + 真实平台 / Agent Host 条�
 
 - Bilibili：typed Tool L3 matrix 与 pinned-Skill Agent L4 已验证；
 - Xiaohongshu：5 个 typed Tool 的真实 L3 matrix 已验证；
-- Zhihu Official Provider：Core Gateway 已验证，AgentKit MCP L3 三能力矩阵待正式发布 Core
-  身份一致的本机凭证下单独验证；
+- Zhihu Official Provider：三个 typed Tool 的 AgentKit MCP L3 矩阵已验证（见
+  [`developer-readiness-zhihu-l3-matrix`](docs/validation/developer-readiness-zhihu-l3-matrix.md)）；
 - 默认 L1/L2 通过不等于平台能力通过。
 
 ## 明确不负责什么

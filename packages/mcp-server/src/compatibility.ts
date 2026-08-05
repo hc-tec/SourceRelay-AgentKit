@@ -115,7 +115,10 @@ export function verifyCollectorCoreCompatibility(
   const capabilities = requiredArray(catalog.capabilities).map(requiredRecord);
   const directContracts = requiredArray(catalog.directContracts).map(requiredRecord);
   requireValue(directContracts.length === policy.directCapabilityCount);
-  requireValue(sha256Digest({ capabilities, directContracts }) === catalogDigest);
+  requireValue(sha256Digest({
+    capabilities: stableCapabilityCatalogProjection(capabilities),
+    directContracts
+  }) === catalogDigest);
 
   const directReadyIds = capabilities
     .filter((capability) => capability.dispatchState === 'direct_ready')
@@ -189,6 +192,19 @@ export function verifyCollectorCoreCompatibility(
     directCapabilityIds: [...contractIds],
     directContracts: verifiedDirectContracts
   };
+}
+
+/** Runtime readiness is operational state, not part of the released catalog identity. */
+function stableCapabilityCatalogProjection(
+  capabilities: Record<string, unknown>[]
+): Record<string, unknown>[] {
+  return capabilities.map((capability) => {
+    if (Object.hasOwn(capability, 'runtimeState')) {
+      const { runtimeState: _runtimeState, ...stable } = capability;
+      return stable;
+    }
+    return { ...capability };
+  });
 }
 
 function verifyDirectRequestEnvelope(
