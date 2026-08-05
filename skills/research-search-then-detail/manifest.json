@@ -5,7 +5,7 @@
   "layer": "intent",
   "publisher": "collector-ai-integration",
   "source": "collector-ai-integration/skills/research-search-then-detail",
-  "digest": "sha256:8de11793b87a80858f455bc78e425a4bd9068de2371892c30d887f83318847d4",
+  "digest": "sha256:0dbf4dd20e00e086e6356f0b0c61393e09283a60ed2ac31f8f16bdc6fe6b4fcb",
   "license": "Apache-2.0",
   "official": true,
   "requirements": {

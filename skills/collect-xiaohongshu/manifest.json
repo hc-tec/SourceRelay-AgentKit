@@ -5,7 +5,7 @@
   "layer": "platform",
   "publisher": "collector-ai-integration",
   "source": "collector-ai-integration/skills/collect-xiaohongshu",
-  "digest": "sha256:c24f403fb96d43c318d06ecef50e5f3812b9fa58568e7e4e6ca85d8101bd879a",
+  "digest": "sha256:d445715580256379ff91a61d7bcf47863872a01c44dba20d32f838c4747438af",
   "license": "Apache-2.0",
   "official": true,
   "requirements": {

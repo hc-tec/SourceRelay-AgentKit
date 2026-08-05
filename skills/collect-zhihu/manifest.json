@@ -5,7 +5,7 @@
   "layer": "platform",
   "publisher": "collector-ai-integration",
   "source": "collector-ai-integration/skills/collect-zhihu",
-  "digest": "sha256:dd69bdbf209ffdfebe04d80dec5c1dcb8f3aa96d4a289564081248af8839f226",
+  "digest": "sha256:e69d96e4c334fee4a2b1c508445b409194db7b13442ad9a6e4933a6c9468bd68",
   "license": "Apache-2.0",
   "official": true,
   "requirements": {
