@@ -13,6 +13,14 @@ jobs:
     name: Packaged AgentKit against released Core
     runs-on: ubuntu-latest
 
+    # Keep the Core release anchor explicit. The archive digest is the digest
+    # shown by the GitHub Release asset and is checked before extraction; the
+    # L2 runner then verifies the extracted release-manifest/SBOM/checksum set.
+    env:
+      CORE_RELEASE_VERSION: '0.7.17'
+      CORE_RELEASE_TAG: core-v0.7.17
+      CORE_RELEASE_ARCHIVE_SHA256: 39ba3bcecd5f2a0fa4db5f1dba8613d57dd60435b4e02ba94225800e06ba8b5d
+
     steps:
       - name: Check out AgentKit
         uses: actions/checkout@v5
@@ -36,28 +44,22 @@ jobs:
       - name: Verify AgentKit repository and official Skills
         run: npm run verify
 
-      # Keep the sibling Core checkout outside the AgentKit repository-boundary
-      # scan above. The L2 process consumes only its released artifact below.
-      - name: Check out SourceRelay Core
-        uses: actions/checkout@v5
-        with:
-          repository: hc-tec/SourceRelay
-          ref: main
-          path: sourcerelay-core
+      - name: Download and verify SourceRelay Core Release asset
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p runtime
+          archive="runtime/sourcerelay-core-${CORE_RELEASE_VERSION}.tar.gz"
+          curl --fail --location --retry 3 --retry-delay 2 \
+            --proto '=https' --tlsv1.2 \
+            --output "$archive" \
+            "https://github.com/hc-tec/SourceRelay/releases/download/${CORE_RELEASE_TAG}/sourcerelay-core-${CORE_RELEASE_VERSION}.tar.gz"
+          echo "${CORE_RELEASE_ARCHIVE_SHA256}  ${archive}" | sha256sum --check
+          tar -xzf "$archive" -C runtime
+          test -f "runtime/core-release-${CORE_RELEASE_VERSION}/release-manifest.json"
+          test -f "runtime/core-release-${CORE_RELEASE_VERSION}/gateway/dist/user-browser-server.js"
 
-      - name: Install Core locked dependencies
-        run: npm ci
-        working-directory: sourcerelay-core/poc
-
-      - name: Package released Core
-        run: npm run package:core-release
-        working-directory: sourcerelay-core/poc
-
-      - name: Verify released Core bundle
-        run: npm run verify:core-release-bundle -- --directory runtime/core-release-0.7.17
-        working-directory: sourcerelay-core/poc
-
-      - name: Run AgentKit L2 against released Core
+      - name: Run AgentKit L2 against downloaded Core Release
         run: npm run test:l2
         env:
-          COLLECTOR_L2_CORE_ENTRYPOINT: ${{ github.workspace }}/sourcerelay-core/poc/runtime/core-release-0.7.17/gateway/dist/user-browser-server.js
+          COLLECTOR_L2_CORE_ENTRYPOINT: ${{ github.workspace }}/runtime/core-release-${{ env.CORE_RELEASE_VERSION }}/gateway/dist/user-browser-server.js

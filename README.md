@@ -98,27 +98,28 @@ Agent Host 只需要启动这个 stdio 进程。不同 Host 的配置文件位�
 启动后，MCP 会先读取并校验 Core 的 release、capability catalog、OpenAPI schema 和 binding
 合同；任一 digest、feature 或 direct-ready 集合不一致时会 fail closed，不会继续暴露过期 Tool。
 
-### 使用已发布 Core 制品做 L2 验证
+### 使用 GitHub Release Core 制品做 L2 验证
 
-L2 不应只把 MCP 接到相邻 checkout 的源码构建目录。先在 SourceRelay Core 仓库生成发布目录：
+L2 必须消费 SourceRelay GitHub Release 中的版本化制品，不能把 MCP 接到相邻 checkout 的源码
+构建目录。当前兼容锚点为 `core-v0.7.17`，发布包下载地址为：
 
-```powershell
-Set-Location D:\AIProject\inteligence\poc
-npm ci
-npm run package:core-release
+```text
+https://github.com/hc-tec/SourceRelay/releases/download/core-v0.7.17/sourcerelay-core-0.7.17.tar.gz
 ```
 
-发布目录中的 `release-manifest.json`、`sbom.cdx.json` 和 `sha256sums.json` 是可离线复核的发布
-身份与完整性依据。AgentKit 的 L2 脚本会检查 Core Gateway entrypoint 确实位于该目录，并在
-启动前重新核对 entrypoint 的 manifest/hash；源码目录或没有 manifest 的任意 `dist` 都会直接
-失败：
+下载并解压后，先用 Core release verifier 校验 `release-manifest.json`、SBOM 和 checksum；也可以
+直接运行下面的 AgentKit L2，它会在启动 Core 前再次检查整个 bundle：
 
 ```powershell
 Set-Location D:\AIProject\collector-ai-integration
 $env:COLLECTOR_L2_CORE_ENTRYPOINT = `
-  'D:\AIProject\inteligence\poc\runtime\core-release-0.7.17\gateway\dist\user-browser-server.js'
+  '<downloaded>\core-release-0.7.17\gateway\dist\user-browser-server.js'
 npm run test:l2
 ```
+
+`release-manifest.json`、`sbom.cdx.json` 和 `sha256sums.json` 是发布身份与完整性依据。AgentKit 的
+L2 脚本会检查 Core Gateway entrypoint 确实位于该 bundle，并重新核对整个文件集合、SHA-256、SBOM
+和 checksum；源码目录或没有 manifest 的任意 `dist` 都会直接失败。
 
 成功结果必须同时包含 `releasedCoreVersion: "0.7.17"`、`releasedCoreBundleVerified: true`、
 30 个 manifest 文件、31 个 checksum 文件、169 个 SBOM components、18 个 Tool、18 个 direct contract、
@@ -126,9 +127,9 @@ npm run test:l2
 `livePlatformRequests: 0`。这一步验证的是“packaged MCP + released Core process”的 L2
 协议闭环，不代表真实平台 L3 已验收。
 
-仓库中的 `.github/workflows/released-core-l2.yml` 会在 CI 中重复同一条路径：checkout
-SourceRelay Core `main`，生成 Core release directory，再让 AgentKit 的 packaged MCP 消费
-该目录中的 Gateway。它不依赖用户浏览器、Profile、Cookie 或真实平台。
+仓库中的 `.github/workflows/released-core-l2.yml` 会在 CI 中重复同一条路径：下载固定的
+SourceRelay Core GitHub Release asset，先校验归档 SHA-256，再让 AgentKit 的 packaged MCP 消费
+解压目录中的 Gateway。它不 checkout Core 源码、不依赖用户浏览器、Profile、Cookie 或真实平台。
 
 ## Tool 与 Resource 合同
 
