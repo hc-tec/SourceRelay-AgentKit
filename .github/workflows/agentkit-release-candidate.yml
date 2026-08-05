@@ -1,0 +1,112 @@
+name: SourceRelay AgentKit release candidate
+
+on:
+  push:
+    tags:
+      - 'agentkit-v*'
+  workflow_dispatch:
+    inputs:
+      release_tag:
+        description: Existing or new AgentKit release-candidate tag
+        required: true
+        default: agentkit-v0.0.0-mcp-foundation
+
+permissions:
+  contents: write
+
+jobs:
+  package-and-verify:
+    name: Package and verify AgentKit release candidate
+    runs-on: ubuntu-latest
+
+    # This is the compatibility pair published by this release candidate.
+    # The Core archive digest is checked before the real-process L2 starts.
+    env:
+      AGENTKIT_VERSION: '0.0.0-mcp-foundation'
+      CORE_RELEASE_VERSION: '0.7.17'
+      CORE_RELEASE_TAG: core-v0.7.17
+      CORE_RELEASE_ARCHIVE_SHA256: 39ba3bcecd5f2a0fa4db5f1dba8613d57dd60435b4e02ba94225800e06ba8b5d
+
+    steps:
+      - name: Check out AgentKit
+        uses: actions/checkout@v5
+
+      - name: Set up Node
+        uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: package-lock.json
+          registry-url: https://registry.npmjs.org
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+
+      - name: Install locked dependencies
+        run: npm ci
+
+      - name: Verify AgentKit repository and official Skills
+        run: npm run verify
+
+      - name: Download and verify pinned Core Release asset
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p runtime/core-release
+          archive="runtime/core-release/sourcerelay-core-${CORE_RELEASE_VERSION}.tar.gz"
+          curl --fail --location --retry 3 --retry-delay 2 \
+            --proto '=https' --tlsv1.2 \
+            --output "$archive" \
+            "https://github.com/hc-tec/SourceRelay/releases/download/${CORE_RELEASE_TAG}/sourcerelay-core-${CORE_RELEASE_VERSION}.tar.gz"
+          echo "${CORE_RELEASE_ARCHIVE_SHA256}  ${archive}" | sha256sum --check
+          tar -xzf "$archive" -C runtime/core-release
+          test -f "runtime/core-release/core-release-${CORE_RELEASE_VERSION}/release-manifest.json"
+          test -f "runtime/core-release/core-release-${CORE_RELEASE_VERSION}/gateway/dist/user-browser-server.js"
+
+      - name: Run AgentKit L2 against pinned Core Release
+        run: npm run test:l2
+        env:
+          COLLECTOR_L2_CORE_ENTRYPOINT: ${{ github.workspace }}/runtime/core-release/core-release-${{ env.CORE_RELEASE_VERSION }}/gateway/dist/user-browser-server.js
+
+      - name: Package AgentKit release assets
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p runtime/agentkit-release
+          npm pack --workspace @collector-ai-integration/mcp-server --pack-destination runtime/agentkit-release
+          cp manifests/compatibility.json runtime/agentkit-release/compatibility.json
+          sha256sum runtime/agentkit-release/* > runtime/agentkit-release/SHA256SUMS
+          test -f "runtime/agentkit-release/collector-ai-integration-mcp-server-${AGENTKIT_VERSION}.tgz"
+
+      - name: Resolve AgentKit release tag
+        id: release
+        shell: bash
+        env:
+          REQUESTED_RELEASE_TAG: ${{ inputs.release_tag }}
+        run: |
+          set -euo pipefail
+          tag="${REQUESTED_RELEASE_TAG:-$GITHUB_REF_NAME}"
+          [[ "$tag" == agentkit-v* ]]
+          echo "tag=$tag" >> "$GITHUB_OUTPUT"
+
+      - name: Upload AgentKit release candidate artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: sourcerelay-agentkit-${{ env.AGENTKIT_VERSION }}-${{ github.sha }}
+          path: runtime/agentkit-release
+          if-no-files-found: error
+          retention-days: 14
+
+      - name: Publish GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.release.outputs.tag }}
+          target_commitish: ${{ github.sha }}
+          name: SourceRelay AgentKit ${{ env.AGENTKIT_VERSION }}
+          generate_release_notes: true
+          files: |
+            runtime/agentkit-release/collector-ai-integration-mcp-server-${{ env.AGENTKIT_VERSION }}.tgz
+            runtime/agentkit-release/compatibility.json
+            runtime/agentkit-release/SHA256SUMS

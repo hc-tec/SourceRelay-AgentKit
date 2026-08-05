@@ -18,8 +18,8 @@ Planner、模型 Provider 或浏览器自动化框架。
   决定目标、推理、轮询预算和最终输出。
 - MCP 不读取 Cookie/Profile，不控制浏览器，不接受任意 URL、selector、script、tab、CDP、
   DevTools 或 Network response body。
-- 当前 release anchor：Core `0.7.17`、service schema `3`、tool catalog
-  `collector.mcp.tools/v1`。
+- 当前组合 release anchor：AgentKit `0.0.0-mcp-foundation` 配套 Core `0.7.17`、service schema `3`、
+  tool catalog `collector.mcp.tools/v1`。
 
 ## 它在系统中的位置
 
@@ -130,6 +130,19 @@ L2 脚本会检查 Core Gateway entrypoint 确实位于该 bundle，并重新核
 仓库中的 `.github/workflows/released-core-l2.yml` 会在 CI 中重复同一条路径：下载固定的
 SourceRelay Core GitHub Release asset，先校验归档 SHA-256，再让 AgentKit 的 packaged MCP 消费
 解压目录中的 Gateway。它不 checkout Core 源码、不依赖用户浏览器、Profile、Cookie 或真实平台。
+
+### AgentKit release candidate
+
+当前组合使用 AgentKit `0.0.0-mcp-foundation` + Core `0.7.17`。对应的 release-candidate tag 为：
+
+```text
+agentkit-v0.0.0-mcp-foundation
+```
+
+`.github/workflows/agentkit-release-candidate.yml` 只在这个 tag（或显式手动运行）上发布。它会
+先下载并校验固定的 Core Release，再运行真实本地 Core 进程 L2，最后发布 MCP npm tarball、
+`compatibility.json` 与 `SHA256SUMS`。因此 AgentKit release 不会把 Core 源码、Profile、Cookie
+或平台数据打进制品，也不会把一个只通过单元测试的 MCP 包标记为可用。
 
 ## Tool 与 Resource 合同
 
