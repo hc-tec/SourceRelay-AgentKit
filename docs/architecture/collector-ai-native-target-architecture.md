@@ -556,15 +556,16 @@ LICENSE、SECURITY、CONTRIBUTING、SBOM/依赖许可证、release hash、边界
 
 ### Checkpoint 6 — Developer Readiness & Full Capability Acceptance
 
-- 状态：`In progress — 2026-08-05`；
+- 状态：`Completed — 2026-08-05`；
 - B站全部 10 个 typed Tools 已完成 packaged MCP → real Core → production MV3 → real platform
   的真实 L3 验收；
 - 小红书 5 个 typed Tools 的真实 L3 矩阵已经完成；
 - 18 项 Core catalog、MCP Tools、双 SDK 与官方 Skills 的 parity 已完成；
 - 知乎 Official Provider 三项 MCP 真实 L3 矩阵已完成，见
-  `docs/validation/developer-readiness-zhihu-l3-matrix.md`；发布 hash、SBOM 和开发者 runbook
-  仍作为发布材料门禁单独维护，不改变运行时能力边界；
-- 不实现 Windows installer、Credential Manager configurator 或普通用户安装向导。
+  `docs/validation/developer-readiness-zhihu-l3-matrix.md`；不改变运行时能力边界；
+- 发布材料已收口：Core `0.7.17` 正式 archive hash、SBOM/checksum 验证与 AgentKit developer
+  runbook 均已登记；不实现 Windows installer、Credential Manager configurator 或普通用户安装
+  向导。
 
 不提供旧 Task/Analysis API 兼容、43128 forwarding、dual-write、fallback 或旧仓库 runtime
 dependency。

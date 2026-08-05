@@ -17,7 +17,8 @@ the approved boundary: thin MCP adapter + versioned Skills over the released Col
 - Checkpoint 3 is complete: the thin stdio protocol/Resource foundation is frozen by ADR-0001 and L1/L2.
 - Checkpoint 4 adds direct capability Tool parity, not hidden convenience capabilities.
 - Checkpoint 5 includes official Skills and real L3/L4 canaries.
-- Checkpoint 6 adds the supported Windows user release.
+- Checkpoint 6 closes developer readiness and full capability acceptance for the existing Windows
+  stdio/Core release path. It does not add an installer or credential configurator.
 
 Do not combine multiple checkpoints into one large commit. Do not add compatibility adapters for the
 old Task/Analysis API, port 43128, KnowledgePack builders, or model consumers.

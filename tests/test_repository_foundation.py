@@ -203,7 +203,7 @@ class RepositoryFoundationTests(unittest.TestCase):
         self.assertEqual(manifest["product"]["license"], "Apache-2.0")
         self.assertEqual(
             manifest["checkpoint"],
-            {"completed": [0, 1, 2, 3, 4, 5], "current": None, "next": 6},
+            {"completed": [0, 1, 2, 3, 4, 5, 6], "current": None, "next": None},
         )
 
         core = manifest["core"]

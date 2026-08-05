@@ -58,6 +58,8 @@ SourceRelay Core
 - 不把 token 写入仓库、Skill、prompt、日志或命令行历史。
 
 Core 的安装、扩展加载、配对和 token 创建见[SourceRelay 用户浏览器部署 runbook](https://github.com/hc-tec/SourceRelay/blob/main/docs/runbooks/core-user-browser-deployment-v0.7.md)。
+AgentKit 本身的构建、stdio 配置、正式 Core 制品校验、L2/L3/L4 边界和故障排查见
+[AgentKit developer runbook](docs/runbooks/agentkit-developer-runbook.md)。
 
 ### 安装、构建并运行 stdio MCP
 
@@ -266,6 +268,7 @@ docs/validation/            L3/L4 真实证据与边界
 - [MCP Tool contract](docs/architecture/checkpoint-4-capability-tool-contract.md)
 - [Skills catalog](skills/README.md)
 - [L3/L4 验证证据](docs/validation/)
+- [AgentKit developer runbook](docs/runbooks/agentkit-developer-runbook.md)
 - [兼容性清单](manifests/compatibility.json)
 - [SourceRelay Core](https://github.com/hc-tec/SourceRelay)
 
