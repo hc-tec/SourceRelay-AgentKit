@@ -3,7 +3,7 @@ import { createHash } from 'node:crypto';
 import { createServer } from 'node:net';
 import { access, mkdir, mkdtemp, readFile, readdir, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
-import { dirname, join, relative, resolve } from 'node:path';
+import { dirname, join, relative, resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { Client } from '@modelcontextprotocol/sdk/client/index.js';
 import {
@@ -187,6 +187,10 @@ try {
     packagedMcp: true,
     realCoreProcess: true,
     releasedCoreVersion: releasedCore.releaseVersion,
+    releasedCoreBundleVerified: true,
+    releasedCoreManifestFiles: releasedCore.bundle.manifestFiles,
+    releasedCoreChecksumFiles: releasedCore.bundle.checksumFiles,
+    releasedCoreSbomComponents: releasedCore.bundle.sbomComponents,
     scopedCoreToken: true,
     staticResources: resources.resources.length,
     resourceTemplates: templates.resourceTemplates.length,
@@ -400,7 +404,109 @@ async function verifyReleasedCore(entrypoint) {
   if (!checksumEntry || checksumEntry.bytes !== bytes.byteLength || checksumEntry.sha256 !== digest) {
     throw new Error('collector_l2_released_core_checksum_mismatch');
   }
-  return manifest;
+  const bundle = await verifyReleasedCoreBundle(releaseRoot, manifest);
+  return { ...manifest, bundle };
+}
+
+async function verifyReleasedCoreBundle(root, manifest) {
+  const manifestFiles = new Map();
+  if (manifest.sbom?.file !== 'sbom.cdx.json' || manifest.sbom?.format !== 'CycloneDX' ||
+      manifest.sbom?.deterministic !== true || manifest.files.length === 0) {
+    throw new Error('collector_l2_released_core_bundle_manifest_invalid');
+  }
+  for (const entry of manifest.files) {
+    if (!entry || typeof entry.path !== 'string' || manifestFiles.has(entry.path)) {
+      throw new Error('collector_l2_released_core_bundle_manifest_entry_invalid');
+    }
+    const bytes = await readReleaseFile(root, entry.path);
+    const actual = digestBytes(bytes);
+    if (actual.bytes !== entry.bytes || actual.sha256 !== entry.sha256) {
+      throw new Error(`collector_l2_released_core_bundle_manifest_hash_mismatch:${entry.path}`);
+    }
+    manifestFiles.set(entry.path, entry);
+  }
+  const actualPayload = await releaseFiles(root, new Set(['release-manifest.json', 'sha256sums.json']));
+  if (actualPayload.length !== manifestFiles.size ||
+      actualPayload.some((entry) => !manifestFiles.has(entry.path))) {
+    throw new Error('collector_l2_released_core_bundle_manifest_file_set_mismatch');
+  }
+
+  const sbom = JSON.parse((await readReleaseFile(root, manifest.sbom.file)).toString('utf8'));
+  const componentRefs = sbom.components?.map((component) => component?.['bom-ref']);
+  if (sbom.bomFormat !== 'CycloneDX' || sbom.specVersion !== '1.5' ||
+      !Array.isArray(sbom.components) || sbom.components.length === 0 ||
+      !Array.isArray(sbom.metadata?.tools) || sbom.metadata.tools[0]?.vendor !== 'SourceRelay' ||
+      new Set(componentRefs).size !== componentRefs.length ||
+      sbom.metadata.component?.version !== manifest.releaseVersion) {
+    throw new Error('collector_l2_released_core_bundle_sbom_invalid');
+  }
+
+  const checksums = JSON.parse((await readReleaseFile(root, 'sha256sums.json')).toString('utf8'));
+  if (checksums.schemaVersion !== 1 || checksums.algorithm !== 'sha256' ||
+      !Array.isArray(checksums.files) ||
+      JSON.stringify(checksums.excludes) !== JSON.stringify(['sha256sums.json'])) {
+    throw new Error('collector_l2_released_core_bundle_checksums_invalid');
+  }
+  const checksumFiles = new Map();
+  for (const entry of checksums.files) {
+    if (!entry || typeof entry.path !== 'string' || checksumFiles.has(entry.path)) {
+      throw new Error('collector_l2_released_core_bundle_checksum_entry_invalid');
+    }
+    const bytes = await readReleaseFile(root, entry.path);
+    const actual = digestBytes(bytes);
+    if (actual.bytes !== entry.bytes || actual.sha256 !== entry.sha256) {
+      throw new Error(`collector_l2_released_core_bundle_checksum_mismatch:${entry.path}`);
+    }
+    checksumFiles.set(entry.path, entry);
+  }
+  const expectedChecksumFiles = await releaseFiles(root, new Set(['sha256sums.json']));
+  if (expectedChecksumFiles.length !== checksumFiles.size ||
+      expectedChecksumFiles.some((entry) => !checksumFiles.has(entry.path))) {
+    throw new Error('collector_l2_released_core_bundle_checksum_file_set_mismatch');
+  }
+  return {
+    manifestFiles: manifestFiles.size,
+    checksumFiles: checksumFiles.size,
+    sbomComponents: sbom.components.length
+  };
+}
+
+async function readReleaseFile(root, pathname) {
+  return readFile(safeReleasePath(root, pathname));
+}
+
+function safeReleasePath(root, pathname) {
+  if (!pathname || pathname.includes('\0') || pathname.startsWith('/') || pathname.startsWith('\\')) {
+    throw new Error('collector_l2_released_core_bundle_path_invalid');
+  }
+  const target = resolve(root, pathname);
+  const base = resolve(root);
+  if (target !== base && !target.startsWith(base + sep)) {
+    throw new Error('collector_l2_released_core_bundle_path_escape');
+  }
+  return target;
+}
+
+async function releaseFiles(root, excluded) {
+  const files = [];
+  await visitReleaseFiles(root, root, excluded, files);
+  return files.sort((left, right) => left.path < right.path ? -1 : left.path > right.path ? 1 : 0);
+}
+
+async function visitReleaseFiles(root, current, excluded, result) {
+  for (const entry of await readdir(current, { withFileTypes: true })) {
+    if (excluded.has(entry.name)) continue;
+    const target = join(current, entry.name);
+    if (entry.isDirectory()) await visitReleaseFiles(root, target, excluded, result);
+    else if (entry.isFile()) {
+      const bytes = await readFile(target);
+      result.push({ path: relative(root, target).replaceAll('\\', '/'), ...digestBytes(bytes) });
+    }
+  }
+}
+
+function digestBytes(bytes) {
+  return { bytes: bytes.byteLength, sha256: createHash('sha256').update(bytes).digest('hex') };
 }
 
 function runNpm(args, cwd) {

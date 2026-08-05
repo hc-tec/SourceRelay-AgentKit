@@ -53,6 +53,10 @@ jobs:
         run: npm run package:core-release
         working-directory: sourcerelay-core/poc
 
+      - name: Verify released Core bundle
+        run: npm run verify:core-release-bundle -- --directory runtime/core-release-0.7.17
+        working-directory: sourcerelay-core/poc
+
       - name: Run AgentKit L2 against released Core
         run: npm run test:l2
         env:

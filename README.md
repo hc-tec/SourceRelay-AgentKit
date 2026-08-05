@@ -120,7 +120,8 @@ $env:COLLECTOR_L2_CORE_ENTRYPOINT = `
 npm run test:l2
 ```
 
-成功结果必须同时包含 `releasedCoreVersion: "0.7.17"`、18 个 Tool、18 个 direct contract、
+成功结果必须同时包含 `releasedCoreVersion: "0.7.17"`、`releasedCoreBundleVerified: true`、
+30 个 manifest 文件、31 个 checksum 文件、169 个 SBOM components、18 个 Tool、18 个 direct contract、
 `manifestParity: true`、`platformOperationsCreated: 0`、`officialOperationsCreated: 0` 和
 `livePlatformRequests: 0`。这一步验证的是“packaged MCP + released Core process”的 L2
 协议闭环，不代表真实平台 L3 已验收。
