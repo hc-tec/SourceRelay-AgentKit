@@ -152,7 +152,7 @@ agentkit-v0.0.0-mcp-foundation
 | --- | ---: | --- | --- |
 | Bilibili Browser Provider | 10 | 是 | 搜索、视频详情、账号、动态、合集、弹幕、讨论 |
 | Xiaohongshu Browser Provider | 5 | 是 | 公开搜索、博主笔记、详情、评论、评论回复 |
-| Zhihu Official Provider | 2 | 否 | 公开内容搜索、热榜 |
+| Zhihu Official Provider | 3 | 否 | 公开内容搜索、热榜、全网搜索 |
 | Global Web Search via Zhihu Provider | 1 | 否 | 公共网页搜索 |
 
 每项 direct-ready Core capability 对应一个强类型 Tool。Browser Provider 的 AI-visible schema
@@ -233,7 +233,8 @@ L3/L4 只在明确的真实 Core + packaged MCP + 真实平台 / Agent Host 条�
 
 - Bilibili：typed Tool L3 matrix 与 pinned-Skill Agent L4 已验证；
 - Xiaohongshu：5 个 typed Tool 的真实 L3 matrix 已验证；
-- Zhihu Official Provider：Core Gateway 已验证，AgentKit MCP L3 三能力矩阵待有效本机凭证下单独验证；
+- Zhihu Official Provider：Core Gateway 已验证，AgentKit MCP L3 三能力矩阵待正式发布 Core
+  身份一致的本机凭证下单独验证；
 - 默认 L1/L2 通过不等于平台能力通过。
 
 ## 明确不负责什么

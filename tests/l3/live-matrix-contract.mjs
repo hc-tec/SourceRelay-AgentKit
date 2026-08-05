@@ -104,6 +104,12 @@ export function verifyCaseAgainstLiveCatalog(caseDefinition, capabilities, tools
       }
     }
   });
+  ajv.addFormat('date-time', {
+    type: 'string',
+    validate(value) {
+      return Number.isFinite(Date.parse(value));
+    }
+  });
   const validate = ajv.compile(tool.inputSchema);
   if (!validate(argumentsRecord)) {
     throw new LiveMatrixError('collector_l3_case_does_not_match_live_tool_schema', {
