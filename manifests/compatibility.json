@@ -56,77 +56,77 @@
       {
         "toolId": "collector_bilibili_video_detail",
         "capabilityId": "bilibili.video_detail",
-        "inputSchemaDigest": "sha256:f3a28feaba29e563e6821ea1827bfab0ed1bc29d612b716dde0f9e0dfc3e831e"
+        "inputSchemaDigest": "sha256:5147d9c27669fdaac89d968c50e52745f0346cd96615b8a52f389c34264e13ba"
       },
       {
         "toolId": "collector_bilibili_native_search",
         "capabilityId": "bilibili.native_search",
-        "inputSchemaDigest": "sha256:4df1134a927c11dc7b456a9ef7f9c5f80f844b470a80bd728b7115bd231e6c2e"
+        "inputSchemaDigest": "sha256:eac1cc4ee519ddc3d6527e3ebe0395e20eb0f231175dba040f861c5d80447a7b"
       },
       {
         "toolId": "collector_bilibili_native_search_batch",
         "capabilityId": "bilibili.native_search_batch",
-        "inputSchemaDigest": "sha256:4df1134a927c11dc7b456a9ef7f9c5f80f844b470a80bd728b7115bd231e6c2e"
+        "inputSchemaDigest": "sha256:eac1cc4ee519ddc3d6527e3ebe0395e20eb0f231175dba040f861c5d80447a7b"
       },
       {
         "toolId": "collector_bilibili_account_profile",
         "capabilityId": "bilibili.account_profile",
-        "inputSchemaDigest": "sha256:a45a182389e2aa52aaffafea172588433a3ad2ed2d0173368b88557f29af57c1"
+        "inputSchemaDigest": "sha256:df2a67691a6323fcef8995196c76c782a82ee2e6f2a381c6f39047fb512ecb55"
       },
       {
         "toolId": "collector_bilibili_account_inventory",
         "capabilityId": "bilibili.account_inventory",
-        "inputSchemaDigest": "sha256:cace6fe7c36fd0c505aea440e6e6862b92e5a3fff37a6bc465ee54103c43e7e1"
+        "inputSchemaDigest": "sha256:7da9d35d11d4cffb4dbbe2199632bb18c42671e7ff6fa5f622d87477505ecbce"
       },
       {
         "toolId": "collector_bilibili_dynamic",
         "capabilityId": "bilibili.dynamic",
-        "inputSchemaDigest": "sha256:a45a182389e2aa52aaffafea172588433a3ad2ed2d0173368b88557f29af57c1"
+        "inputSchemaDigest": "sha256:df2a67691a6323fcef8995196c76c782a82ee2e6f2a381c6f39047fb512ecb55"
       },
       {
         "toolId": "collector_bilibili_collection_series_overview",
         "capabilityId": "bilibili.collection_series.overview",
-        "inputSchemaDigest": "sha256:a45a182389e2aa52aaffafea172588433a3ad2ed2d0173368b88557f29af57c1"
+        "inputSchemaDigest": "sha256:df2a67691a6323fcef8995196c76c782a82ee2e6f2a381c6f39047fb512ecb55"
       },
       {
         "toolId": "collector_bilibili_collection_series_detail",
         "capabilityId": "bilibili.collection_series.detail",
-        "inputSchemaDigest": "sha256:c26dd0cb6ffdff6a383c320b474cdf320041fecd8b85c898ba48e414a5642579"
+        "inputSchemaDigest": "sha256:a2f8598ace30a610c53d6c3e817ae7a566d0068cf5935394020571fd0c3b43a6"
       },
       {
         "toolId": "collector_bilibili_danmaku",
         "capabilityId": "bilibili.danmaku",
-        "inputSchemaDigest": "sha256:f3a28feaba29e563e6821ea1827bfab0ed1bc29d612b716dde0f9e0dfc3e831e"
+        "inputSchemaDigest": "sha256:5147d9c27669fdaac89d968c50e52745f0346cd96615b8a52f389c34264e13ba"
       },
       {
         "toolId": "collector_bilibili_discussion",
         "capabilityId": "bilibili.discussion",
-        "inputSchemaDigest": "sha256:0079014824b77886e9ca8052835e95056759076def396006c820ffdf20cf3b06"
+        "inputSchemaDigest": "sha256:57386e9ea66b88cd8d7612d7205368c5851793dc725a867d4610cf05c32e37d2"
       },
       {
         "toolId": "collector_xiaohongshu_public_notes_search",
         "capabilityId": "xiaohongshu.search.public_notes.v1",
-        "inputSchemaDigest": "sha256:289dde1a870ce97877c1183dba1270c784746bdc13b64a7dedcc092e8777560c"
+        "inputSchemaDigest": "sha256:95771f8c05f4205651587d64e594fb4f35306a9d6ec23e6fceb642d98ef8ae0e"
       },
       {
         "toolId": "collector_xiaohongshu_account_public_notes",
         "capabilityId": "xiaohongshu.account.public_notes.v1",
-        "inputSchemaDigest": "sha256:b99b32064e1b908830e3c7439ee02c0fed3071d1f241d8f5bf48c5b935aa5bef"
+        "inputSchemaDigest": "sha256:fe0fe4feb0fe1316b635b16a9909f93067b56bfc64ce80f2cb33cb0788039636"
       },
       {
         "toolId": "collector_xiaohongshu_note_public_detail",
         "capabilityId": "xiaohongshu.note.public_detail.v1",
-        "inputSchemaDigest": "sha256:2e85c98f51ec8df9fc4c51bc1935e004ee9881488a9d8726dce6a6101a2267d2"
+        "inputSchemaDigest": "sha256:28ce192615f868ef540887baf62ca8e1336cd01170ad3bcf5e2b82a7de64bfc9"
       },
       {
         "toolId": "collector_xiaohongshu_note_public_comments",
         "capabilityId": "xiaohongshu.note.public_comments.v1",
-        "inputSchemaDigest": "sha256:0e02dc933be49be4c25c53a4caf98853e63bc844f9d8329c34b91b0f192d473d"
+        "inputSchemaDigest": "sha256:9ba2823f54d7771b4fd5609ebed22a129bd59dfc3c666e541c998caa6c5ff17a"
       },
       {
         "toolId": "collector_xiaohongshu_note_public_comment_replies",
         "capabilityId": "xiaohongshu.note.public_comment_replies.v1",
-        "inputSchemaDigest": "sha256:c0602cf30568ee01d3db058be4230f3af62eb24f57fbeecf9a053e77a9e69e21"
+        "inputSchemaDigest": "sha256:2d3fe55775adb116e607fdb617a6db1ba9897ac6fbae2039354ad833621a60aa"
       },
       {
         "toolId": "collector_zhihu_search_public_content",
@@ -158,27 +158,27 @@
       {
         "skillId": "use-collector-mcp",
         "skillVersion": "0.1.0",
-        "digest": "sha256:7bc035ac9099ce502385b64e423a9f12e7d4e64021b241937cd33abcbaf0bc8e"
+        "digest": "sha256:bdd7bb63be161e406f12e4047ca396cbc457d4d733919a9ba55df6accdf81ec9"
       },
       {
         "skillId": "collect-bilibili",
         "skillVersion": "0.1.0",
-        "digest": "sha256:8c6beecf13f7790ffc4dcec9be736cfabffeb22d160447c41e59bb8c0e7a4af3"
+        "digest": "sha256:fe4ce68150e88719ea17f8d307a850a40c8ef208a8d08dde6da538c5f0052b1c"
       },
       {
         "skillId": "collect-xiaohongshu",
         "skillVersion": "0.1.0",
-        "digest": "sha256:d445715580256379ff91a61d7bcf47863872a01c44dba20d32f838c4747438af"
+        "digest": "sha256:11ef990c9443f950a382911278879f745aa746bf9728d839b8dbad1f4b5c83b2"
       },
       {
         "skillId": "research-search-then-detail",
         "skillVersion": "0.1.0",
-        "digest": "sha256:0dbf4dd20e00e086e6356f0b0c61393e09283a60ed2ac31f8f16bdc6fe6b4fcb"
+        "digest": "sha256:fa34143d129c65ca440a655fa3c9c43619ed725f0ba198d2b1669c167af5687e"
       },
       {
         "skillId": "collect-zhihu",
         "skillVersion": "0.1.0",
-        "digest": "sha256:e69d96e4c334fee4a2b1c508445b409194db7b13442ad9a6e4933a6c9468bd68"
+        "digest": "sha256:f89485dffcd80ca133016ef67d1e155e7a9b2ac7255123da5685ba9564432251"
       }
     ]
   },
