@@ -34,8 +34,9 @@ SearchDB, Filter, route, URL, or API parameters.
 
 ## Submit and read
 
-1. Read `collector://release` and `collector://capabilities`; stop if the Official Provider capability
-   is absent or its `runtimeState` is `credential_required`.
+1. Read `collector://release` and `collector://capabilities`. If the Official Provider capability is
+   absent or its `runtimeState` is `credential_required`, record that source as unavailable and
+   continue independent platform sources; do not stop the whole research task or request a secret.
 2. Do not read or request `collector://bindings` as a prerequisite for these three Tools. Their
    input schema intentionally has no `bindingAlias`.
 3. Generate one UUID `clientRequestId` for one canonical request and call exactly one typed Tool.

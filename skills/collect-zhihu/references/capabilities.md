@@ -53,8 +53,9 @@ search Tool.
 - These Tools expose one bounded result page/list, not unlimited pagination.
 - They do not provide all answers, all comments, private account surfaces, favorites, messages, or
   arbitrary author archives.
-- `runtimeState=credential_required` is a Core configuration fact; it is not a reason to request a
-  secret from the caller or to fall back to browser collection.
+- `runtimeState=credential_required` is a Core configuration fact. Record the provider gap, do not
+  request a secret from the caller, do not fall back to browser collection, and continue independent
+  sources in the caller's plan.
 - Official Provider operations normally complete synchronously in Core, but the MCP contract still
   exposes an Operation Resource and requires the same idempotent reconciliation rules.
 - Keep `terminalReason`, `errorCode`, quota/rate-limit state, and Artifact hashes exact.

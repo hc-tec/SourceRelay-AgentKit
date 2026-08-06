@@ -24,8 +24,11 @@ logs, reports, Skill state, or a long-term account profile.
 
 ## Choose breadth and depth deliberately
 
-For public search, use `collector_xiaohongshu_public_notes_search` in the unique existing public
-Explore page.
+For public search, call `collector_xiaohongshu_public_notes_search` once. The Tool/Core owns the
+existing-page admission and trusted input boundary; the Agent must not open, refresh, or manually
+prepare an Explore tab. The current no-navigation contract intentionally uses an already-open public
+Xiaohongshu context only. If Core returns `existing_public_explore_tab_required` or an equivalent
+context-unavailable terminal, preserve it as a source gap and continue the caller's other sources.
 
 - Set `maximumDetails: 0` or omit it for breadth-only card collection.
 - Set `maximumDetails` from 1 through 20 when the user needs detail. Slow does not mean artificially
@@ -62,9 +65,9 @@ Use `collector_xiaohongshu_note_public_comments` only in an already-open same-do
 overlay. Use `collector_xiaohongshu_note_public_comment_replies` only after the relevant public reply
 threads are available in that same overlay context. Keep both budgets within the Tool enum 1–3.
 
-Read [references/capabilities.md](references/capabilities.md) before constructing inputs or chaining
-search, detail, comments, replies, or account collection.
+Read [references/capabilities.md](references/capabilities.md) when constructing inputs or chaining
+search, detail, comments, replies, or account collection. Do not use it as a manual page-setup
+checklist.
 
 All capabilities are public reads. Do not like, follow, favorite, comment, message, publish, delete,
 read account-scoped surfaces, export credentials, or bypass platform controls.
-

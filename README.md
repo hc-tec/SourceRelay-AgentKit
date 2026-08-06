@@ -213,22 +213,21 @@ agentkit-v0.0.0-mcp-foundation
 
 ### Tool catalog
 
-| Provider | Tool 数量 | 是否需要 `bindingAlias` | 代表能力 |
+| Provider | Tool 数量 | `bindingAlias` | 代表能力 |
 | --- | ---: | --- | --- |
-| Bilibili Browser Provider | 10 | 是 | 搜索、视频详情、账号、动态、合集、弹幕、讨论 |
-| Xiaohongshu Browser Provider | 5 | 是 | 公开搜索、博主笔记、详情、评论、评论回复 |
+| Bilibili Browser Provider | 10 | 单一 online 会话可省略 | 搜索、视频详情、账号、动态、合集、弹幕、讨论 |
+| Xiaohongshu Browser Provider | 5 | 单一 online 会话可省略 | 公开搜索、博主笔记、详情、评论、评论回复 |
 | Zhihu Official Provider | 3 | 否 | 公开内容搜索、热榜、全网搜索 |
 | Global Web Search via Zhihu Provider | 1 | 否 | 公共网页搜索 |
 
 每项 direct-ready Core capability 对应一个强类型 Tool。Browser Provider 的 AI-visible schema
-包含 session-local `bindingAlias`；Official Provider 不暴露浏览器身份，也不接受 binding，内部
+允许 session-local `bindingAlias`；省略时 AgentKit 自动选择唯一 online 会话，只有多在线会话时才需要显式选择。Official Provider 不暴露浏览器身份，也不接受 binding，内部
 固定使用 Core 的 `official_api` execution target。
 
 典型 Browser Provider 调用形状（字段仍以实时 Tool schema 为准）：
 
 ```json
 {
-  "bindingAlias": "binding-1",
   "clientRequestId": "<uuid>",
   "query": "人工智能"
 }

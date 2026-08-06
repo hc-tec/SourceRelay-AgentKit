@@ -44,7 +44,7 @@ const TOOL_MAPPINGS = Object.freeze([
     'Queue the registered bounded public discussion capability for one canonical BV URL.'),
   tool('collector_xiaohongshu_public_notes_search', 'xiaohongshu.search.public_notes.v1',
     'Search public Xiaohongshu notes',
-    'Queue one trusted in-page public-note search in an existing Explore page, with optional bounded detail and discussion depth.'),
+    'Queue one trusted in-page public-note search using an already-open public Xiaohongshu context; Core handles context admission and bounded detail or discussion depth.'),
   tool('collector_xiaohongshu_account_public_notes', 'xiaohongshu.account.public_notes.v1',
     'Collect public Xiaohongshu account notes',
     'Queue bounded public-note inventory collection from an admitted Xiaohongshu account context.'),
@@ -133,7 +133,7 @@ export function deriveToolInputSchema(
           bindingAlias: {
             type: 'string',
             pattern: BINDING_ALIAS_JSON_PATTERN,
-            description: 'Session-local alias from collector://bindings; never a browser or extension ID.'
+            description: 'Optional session-local alias from collector://bindings. Omit it when the session has one online binding; never a browser or extension ID.'
           }
         }
       : {}),
@@ -147,7 +147,6 @@ export function deriveToolInputSchema(
   }
 
   const required = [
-    ...(contract.executionProvider === 'browser_extension' ? ['bindingAlias'] : []),
     'clientRequestId',
     ...(contract.executionTargetMode === 'enum' ? ['executionTarget'] : []),
     ...requiredStrings(capabilityInput.required)

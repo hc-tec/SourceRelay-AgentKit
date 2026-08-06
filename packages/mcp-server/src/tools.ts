@@ -7,7 +7,7 @@ import {
   McpError
 } from '@modelcontextprotocol/sdk/types.js';
 import { UUID_PATTERN } from './constants.js';
-import type { VerifiedCoreCompatibility } from './compatibility.js';
+import { verifyBindings, type VerifiedCoreCompatibility } from './compatibility.js';
 import type { CollectorCoreApi } from './core-client.js';
 import { CollectorMcpError, stableErrorCode, toProtocolError } from './errors.js';
 import type { SafeLogger } from './logger.js';
@@ -95,9 +95,21 @@ export class CollectorToolService {
       const argumentsRecord = record(argumentsValue);
       clientRequestId = requiredUuid(argumentsRecord.clientRequestId);
       const contract = compiled.definition.contract;
-      const browserBindingId = contract.executionProvider === 'browser_extension'
-        ? this.#aliases.resolve(bindingAlias = requiredString(argumentsRecord.bindingAlias))
-        : null;
+      let browserBindingId: string | null = null;
+      if (contract.executionProvider === 'browser_extension') {
+        // Refresh the safe projection at submission time. The MCP session can
+        // outlive a browser reconnect, and an Agent should not need to poll
+        // binding state merely to use the common single-online-session case.
+        this.#aliases.project(verifyBindings(await this.#core.readBindings()));
+        if (argumentsRecord.bindingAlias === undefined) {
+          const selected = this.#aliases.resolveOnline();
+          bindingAlias = selected.bindingAlias;
+          browserBindingId = selected.browserBindingId;
+        } else {
+          bindingAlias = requiredString(argumentsRecord.bindingAlias);
+          browserBindingId = this.#aliases.resolve(bindingAlias);
+        }
+      }
       const executionTarget = contract.executionTargetMode === 'fixed'
         ? contract.defaultExecutionTarget
         : requiredString(argumentsRecord.executionTarget);

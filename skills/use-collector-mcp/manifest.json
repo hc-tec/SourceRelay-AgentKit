@@ -5,7 +5,7 @@
   "layer": "foundation",
   "publisher": "collector-ai-integration",
   "source": "collector-ai-integration/skills/use-collector-mcp",
-  "digest": "sha256:7bc035ac9099ce502385b64e423a9f12e7d4e64021b241937cd33abcbaf0bc8e",
+  "digest": "sha256:41df20cd84447dee52c33b1cb2329660c732c37aad78b19ca791a25b48e34e11",
   "license": "Apache-2.0",
   "official": true,
   "requirements": {

@@ -53,8 +53,9 @@ collector_zhihu_hot_list_public_content
 collector_web_search_global_zhihu_provider
 ```
 
-Tool input schema 由启动时 digest-verified Core request schema 机械变换：使用 session-local
-`bindingAlias` 替换 Core browser binding ID（仅 Browser Provider Tool），隐藏
+Tool input schema 由启动时 digest-verified Core request schema 机械变换：Browser Provider Tool
+可选使用 session-local `bindingAlias` 替换 Core browser binding ID；省略时，AgentKit 会在提交前
+刷新安全绑定投影并自动选择唯一 `online` 会话，隐藏
 schema/platform/capability/fixed target，并把 capability input 字段扁平化。Official Provider
 Tool 不暴露浏览器身份，也不接受 `bindingAlias`；其 execution target 由 Core 固定为
 `official_api`。只有 Core 声明为 enum 的 execution target 才能由调用者选择。

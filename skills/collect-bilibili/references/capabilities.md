@@ -15,7 +15,9 @@
 | `collector_bilibili_danmaku` | `canonicalVideoUrl` | fixed internally | Public danmaku evidence |
 | `collector_bilibili_discussion` | `canonicalVideoUrl` | fixed internally | Public comments/discussion evidence |
 
-Every Tool also requires `bindingAlias` and caller-controlled UUID `clientRequestId`. Fixed execution
+Every Tool requires a caller-controlled UUID `clientRequestId`. Browser Tools normally auto-select
+the only online binding; provide `bindingAlias` only when the session has multiple online bindings
+and the caller has deliberately chosen one. Fixed execution
 targets must not be supplied as extra fields.
 
 ## Input boundaries
@@ -61,4 +63,3 @@ not merge failed or partial sources into a synthetic completed state.
 The current Tool catalog has no transcript, subtitle, article, arbitrary account pagination, arbitrary
 sort, arbitrary comments action plan, raw response-body, or browser-control Tool. Re-read
 `collector://capabilities` rather than relying on this reference if the catalog changes.
-

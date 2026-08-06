@@ -46,6 +46,8 @@ browser identity or Artifact body.
 | `compatibility_unmet` | Published Core identity or contract is unsupported | Stop before platform action |
 | `tool_input_invalid` | Tool arguments violate the AI-visible schema | Correct arguments; use a new ID only if no POST occurred |
 | `binding_alias_not_found` | Alias is absent from this MCP session | Re-read bindings; do not invent an alias |
+| `binding_selection_required` | More than one online binding is available for an omitted alias | Read bindings once, choose one deliberate alias, and retry the exact new action only if no POST occurred |
+| `binding_unavailable` | No online binding is available for a Browser Provider Tool | Preserve the unavailable source and continue independent sources; do not open or pair a browser from the Agent |
 | `authentication_failed` | MCP's dedicated Core credential failed | Stop and repair local configuration outside the Agent |
 | `permission_denied` | Required Core scope or origin policy rejected | Stop; do not seek broader browser credentials |
 | `request_rejected` | Core rejected capability input or admission | Preserve safe Core error and correct the explicit request |
@@ -71,4 +73,3 @@ capturedAt
 chunk byte range and chunk SHA-256 when quoting raw content
 partial or truncation facts
 ```
-

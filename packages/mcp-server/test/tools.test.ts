@@ -41,7 +41,7 @@ test('Tool catalog has exact Core parity and mechanically flattened schemas', ()
     'bindingAlias', 'clientRequestId', 'canonicalVideoUrl'
   ]);
   assert.deepEqual(fixed.inputSchema.required, [
-    'bindingAlias', 'clientRequestId', 'canonicalVideoUrl'
+    'clientRequestId', 'canonicalVideoUrl'
   ]);
   assert.equal(fixed.inputSchema.additionalProperties, false);
   for (const hidden of [
@@ -111,6 +111,45 @@ test('fixed-target Tool resolves a safe alias, submits once, and returns only Op
   assert.ok(logText.includes(OPERATION_ID));
   assert.ok(!logText.includes(VIDEO_URL));
   assert.ok(!logText.includes(core.fixture.bindings.bindings[0]!.browserBindingId));
+});
+
+test('fixed-target Tool auto-selects the only online binding when alias is omitted', async () => {
+  const { core, service } = setup();
+  const result = await service.submit('collector_bilibili_video_detail', {
+    clientRequestId: CLIENT_REQUEST_ID,
+    canonicalVideoUrl: VIDEO_URL
+  });
+  assert.equal(result.accepted, true);
+  assert.equal(core.submissions.length, 1);
+  assert.equal(core.submissions[0]!.browserBindingId, core.fixture.bindings.bindings[0]!.browserBindingId);
+});
+
+test('automatic binding selection fails closed when there is no unique online session', async () => {
+  const unavailable = setup();
+  unavailable.core.fixture.bindings.bindings[0]!.state = 'paired';
+  await assert.rejects(
+    unavailable.service.submit('collector_bilibili_video_detail', {
+      clientRequestId: CLIENT_REQUEST_ID,
+      canonicalVideoUrl: VIDEO_URL
+    }),
+    (error: unknown) => error instanceof CollectorMcpError && error.code === 'binding_unavailable'
+  );
+  assert.equal(unavailable.core.submissions.length, 0);
+
+  const ambiguous = setup();
+  ambiguous.core.fixture.bindings.bindings.push({
+    ...ambiguous.core.fixture.bindings.bindings[0]!,
+    browserBindingId: '33333333-3333-4333-8333-333333333333',
+    extensionId: 'b'.repeat(32)
+  });
+  await assert.rejects(
+    ambiguous.service.submit('collector_bilibili_video_detail', {
+      clientRequestId: CLIENT_REQUEST_ID,
+      canonicalVideoUrl: VIDEO_URL
+    }),
+    (error: unknown) => error instanceof CollectorMcpError && error.code === 'binding_selection_required'
+  );
+  assert.equal(ambiguous.core.submissions.length, 0);
 });
 
 test('all 18 Tool contracts accept representative typed input and submit their exact capability', async () => {

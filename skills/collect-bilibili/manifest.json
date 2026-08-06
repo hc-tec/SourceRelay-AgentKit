@@ -5,7 +5,7 @@
   "layer": "platform",
   "publisher": "collector-ai-integration",
   "source": "collector-ai-integration/skills/collect-bilibili",
-  "digest": "sha256:8c6beecf13f7790ffc4dcec9be736cfabffeb22d160447c41e59bb8c0e7a4af3",
+  "digest": "sha256:fe4ce68150e88719ea17f8d307a850a40c8ef208a8d08dde6da538c5f0052b1c",
   "license": "Apache-2.0",
   "official": true,
   "requirements": {

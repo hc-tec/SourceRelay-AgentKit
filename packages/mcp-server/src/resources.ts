@@ -33,17 +33,24 @@ export interface SafeBrowserBinding {
 export class BindingAliasRegistry {
   readonly #aliases = new Map<string, string>();
   readonly #bindingIds = new Map<string, string>();
+  readonly #states = new Map<string, RawBrowserBinding['state']>();
   #next = 1;
 
   project(bindings: RawBrowserBinding[]): SafeBrowserBinding[] {
+    const seen = new Set<string>();
     for (const binding of [...bindings].sort((left, right) =>
       left.browserBindingId.localeCompare(right.browserBindingId))) {
+      seen.add(binding.browserBindingId);
       if (!this.#aliases.has(binding.browserBindingId)) {
         const alias = `binding-${this.#next}`;
         this.#aliases.set(binding.browserBindingId, alias);
         this.#bindingIds.set(alias, binding.browserBindingId);
         this.#next += 1;
       }
+      this.#states.set(binding.browserBindingId, binding.state);
+    }
+    for (const browserBindingId of this.#states.keys()) {
+      if (!seen.has(browserBindingId)) this.#states.delete(browserBindingId);
     }
     return bindings.map((binding) => ({
       bindingAlias: this.#aliases.get(binding.browserBindingId)!,
@@ -60,6 +67,22 @@ export class BindingAliasRegistry {
     const browserBindingId = this.#bindingIds.get(bindingAlias);
     if (browserBindingId === undefined) throw new CollectorMcpError('binding_alias_not_found');
     return browserBindingId;
+  }
+
+  /**
+   * Resolve the normal single-session case without forcing an Agent to turn
+   * a read-only binding inventory into workflow state. Multiple online
+   * bindings remain an explicit choice because silently selecting one could
+   * send a public read to the wrong browser session.
+   */
+  resolveOnline(): { bindingAlias: string; browserBindingId: string } {
+    const online = [...this.#states.entries()].filter(([, state]) => state === 'online');
+    if (online.length === 0) throw new CollectorMcpError('binding_unavailable');
+    if (online.length > 1) throw new CollectorMcpError('binding_selection_required');
+    const [browserBindingId] = online[0]!;
+    const bindingAlias = this.#aliases.get(browserBindingId);
+    if (bindingAlias === undefined) throw new CollectorMcpError('binding_unavailable');
+    return { bindingAlias, browserBindingId };
   }
 }
 

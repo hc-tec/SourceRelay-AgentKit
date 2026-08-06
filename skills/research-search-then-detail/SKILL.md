@@ -32,8 +32,8 @@ For Bilibili, choose one of:
   multi-page surface.
 
 For Xiaohongshu, use `collector_xiaohongshu_public_notes_search` with `maximumDetails: 0` or omitted
-when selection must happen after breadth review. Keep the required existing public Explore page and
-do not refresh it.
+when selection must happen after breadth review. Do not prepare, refresh, or reopen a page for this
+call; let Core return the exact context-unavailable terminal if no admitted public context exists.
 
 Use a separate UUID request ID for each platform search. Follow each Operation to terminal, then read
 Artifact metadata and only enough chunks to evaluate the bounded candidate set.
@@ -81,4 +81,3 @@ or persist a shared knowledge workspace.
 Stop when the evidence threshold is met, the declared detail budget is exhausted, no remaining result
 can materially change the answer, or any safety terminal occurs. Report uncovered gaps instead of
 automatically broadening queries, adding platforms, reopening pages, or collecting comments.
-

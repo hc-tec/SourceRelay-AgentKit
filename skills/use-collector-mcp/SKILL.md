@@ -12,11 +12,16 @@ working notes, and final outputs in the caller; never turn MCP into a workflow s
 
 1. Read `collector://release` and `collector://capabilities` before the first platform action.
 2. Confirm the required Tool and capability are present now. Do not infer availability from this Skill.
-3. If the selected capability uses the Browser Provider, read `collector://bindings` and select an
-   `online` session-local `binding-N` alias. Official Provider capabilities intentionally do not
-   require a binding and their Tool schemas omit `bindingAlias`.
-4. Stop before any Tool call when compatibility is unmet, a required browser binding is unavailable,
-   or an Official Provider reports `runtimeState=credential_required`.
+3. Browser Provider Tools normally auto-select the only `online` session-local binding. Omit
+   `bindingAlias` in that normal case; only read `collector://bindings` and choose an alias when the
+   Tool reports `binding_selection_required` or the caller deliberately has multiple online sessions.
+   Official Provider capabilities intentionally do not require a binding and their Tool schemas omit
+   `bindingAlias`.
+4. Do not turn provider readiness or page preparation into a separate workflow. If a capability is
+   absent, has no online binding, or reports `runtimeState=credential_required`, record that exact
+   unavailable condition, skip that source, and continue independent sources in the caller's plan.
+   Do not ask the user for a platform credential or manually prepare a tab unless the user explicitly
+   requests a human-authentication action.
 
 Never request or expose a Core token, browser binding ID, extension ID, Profile, Cookie, tab ID, URL
 primitive, selector, script, CDP command, or Network body.
@@ -24,8 +29,10 @@ primitive, selector, script, CDP command, or Network body.
 ## Submit one operation
 
 1. Select one strongly typed Tool with the relevant Platform Skill. Confirm its Provider and binding
-   requirement from the live capability contract.
-2. Generate one UUID `clientRequestId` for this exact canonical Tool call.
+   requirement from the live capability contract, but do not make a binding/page-preparation call a
+   prerequisite when the Tool can resolve it internally.
+2. Generate one UUID `clientRequestId` for this exact canonical Tool call. Omit `bindingAlias` for
+   the ordinary single-online-binding case; include it only when an explicit session choice is needed.
 3. Preserve the complete Tool name and arguments until the outcome is known.
 4. Call the Tool once. Do not poll inside the Tool call or issue a second capability implicitly.
 5. Record the returned `operationId`, `operationResourceUri`, `capabilityId`, and

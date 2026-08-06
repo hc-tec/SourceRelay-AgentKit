@@ -5,6 +5,8 @@ export type CollectorMcpErrorCode =
   | 'artifact_read_out_of_bounds'
   | 'authentication_failed'
   | 'binding_alias_not_found'
+  | 'binding_selection_required'
+  | 'binding_unavailable'
   | 'compatibility_unmet'
   | 'core_response_invalid'
   | 'core_response_too_large'
@@ -44,6 +46,7 @@ export function toProtocolError(error: unknown): McpError {
   const code = stableErrorCode(error);
   const protocolCode = code === 'resource_uri_invalid' || code === 'resource_not_found' ||
     code === 'artifact_read_out_of_bounds' || code === 'binding_alias_not_found' ||
+    code === 'binding_selection_required' || code === 'binding_unavailable' ||
     code === 'tool_input_invalid'
     ? ErrorCode.InvalidParams
     : ErrorCode.InternalError;
