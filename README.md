@@ -255,7 +255,7 @@ collector://artifacts/{artifactId}/chunks/{cursor}
 ```
 
 Operation Resource 保留 Core 的 exact state、terminal reason、error code、partial coverage 和
-outcome uncertainty；Artifact 先读取 metadata，再沿返回的 chunk URI 进行固定大小的 UTF-8
+outcome uncertainty，并提供非权威的 `recommendedAction` 处理提示；Artifact 先读取 metadata，再沿返回的 chunk URI 进行固定大小的 UTF-8
 读取。AgentKit 不把 Artifact 复制到自己的数据库，也不把内容交给模型处理。
 
 ## Skills 是方法，不是权限

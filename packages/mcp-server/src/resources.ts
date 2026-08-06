@@ -186,6 +186,11 @@ function operationProjection(value: unknown, expectedOperationId: string): Recor
     executionTarget: safeIdentifier(operation.executionTarget),
     coreState: state,
     statusClass: state === 'queued' ? 'accepted' : state === 'claimed' ? 'running' : state,
+    recommendedAction: recommendedOperationAction(
+      state,
+      nullableSafeCode(operation.terminalReason),
+      nullableSafeCode(operation.errorCode)
+    ),
     terminalReason: nullableSafeCode(operation.terminalReason),
     errorCode: nullableSafeCode(operation.errorCode),
     queuedAt: timestamp(operation.queuedAt),
@@ -194,6 +199,48 @@ function operationProjection(value: unknown, expectedOperationId: string): Recor
     platformActionAttempted: null,
     artifact
   };
+}
+
+type RecommendedOperationAction =
+  | 'poll_operation'
+  | 'read_artifact'
+  | 'continue_other_sources'
+  | 'stop_platform_action'
+  | 'reconcile_submission'
+  | 'preserve_terminal';
+
+function recommendedOperationAction(
+  state: ReturnType<typeof operationState>,
+  terminalReason: string | null,
+  errorCode: string | null
+): RecommendedOperationAction {
+  if (state === 'queued' || state === 'claimed') return 'poll_operation';
+  if (state === 'completed' || state === 'partial') return 'read_artifact';
+  if (errorCode === 'submission_outcome_unknown') return 'reconcile_submission';
+  const sourceCanContinue = new Set([
+    'existing_public_explore_tab_required',
+    'existing_public_explore_tab_ambiguous',
+    'search_target_unavailable',
+    'zhihu_official_api_credential_required',
+    'zhihu_official_api_source_unavailable',
+    'source_unavailable',
+    'browser_binding_offline',
+    'binding_unavailable'
+  ]);
+  if (sourceCanContinue.has(errorCode ?? '') || sourceCanContinue.has(terminalReason ?? '')) {
+    return 'continue_other_sources';
+  }
+  const platformStop = new Set([
+    'login_required',
+    'verification_required',
+    'rate_limited',
+    'permission_required',
+    'captcha_required'
+  ]);
+  if (platformStop.has(errorCode ?? '') || platformStop.has(terminalReason ?? '')) {
+    return 'stop_platform_action';
+  }
+  return 'preserve_terminal';
 }
 
 function artifactReference(value: unknown): Record<string, unknown> {

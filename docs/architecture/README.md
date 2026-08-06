@@ -13,6 +13,9 @@ These are the canonical AI Integration architecture records from Checkpoint 2 on
 - [Checkpoint 4 capability Tool contract](checkpoint-4-capability-tool-contract.md) — stable mapping,
   schema transformation, one-POST semantics, and the historical L1/L2 verification boundary for the
   initial 15 Browser Provider Tools. The current catalog also includes 3 Official Provider Tools.
+- [Agent-facing prerequisite simplification](agent-facing-prerequisite-simplification-2026-08-06.md) —
+  automatic single-online binding selection, non-authoritative operation handling hints, and the
+  preserved no-navigation Xiaohongshu boundary.
 
 The pre-migration documents remain recoverable at the `final-prototype` tag in `inteligence-apps`.
 Pointer files at the old paths direct readers here; do not maintain duplicate bodies.

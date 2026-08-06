@@ -7,7 +7,7 @@
 | `collector://release` | `collector.mcp.release/v1` | Verified Core identity and feature contract |
 | `collector://capabilities` | `collector.mcp.capabilities/v1` | Current capability and direct-contract truth |
 | `collector://bindings` | `collector.mcp.bindings/v1` | Safe session-local binding aliases and state |
-| `collector://operations/{operationId}` | `collector.mcp.operation/v1` | Exact Core state, terminal facts, Artifact reference |
+| `collector://operations/{operationId}` | `collector.mcp.operation/v1` | Exact Core state, terminal facts, Artifact reference, and a non-authoritative handling hint |
 | `collector://artifacts/{artifactId}` | `collector.mcp.artifact-metadata/v1` | Metadata before content |
 | `collector://artifacts/{artifactId}/chunks/{cursor}` | `collector.mcp.artifact-chunk/v1` | Fixed 16 KiB canonical UTF-8 JSON window |
 
@@ -27,6 +27,11 @@ operationResourceUri
 
 The result is not the collected data. It does not prove terminal success and does not contain a
 browser identity or Artifact body.
+
+Operation Resources also expose `recommendedAction`. It is a convenience hint, not a replacement
+for the exact state: `poll_operation` for queued/claimed, `read_artifact` for completed/partial,
+`continue_other_sources` for an unavailable independent source, `stop_platform_action` for login /
+verification / rate-limit safety stops, and `reconcile_submission` for an uncertain POST.
 
 ## Core state interpretation
 

@@ -53,6 +53,7 @@ test('preserves exact Operation state while removing browser identity and Core r
     executionTarget: 'collector_work_tab',
     coreState: 'completed',
     statusClass: 'completed',
+    recommendedAction: 'read_artifact',
     terminalReason: 'detail_ready',
     errorCode: null,
     queuedAt: '2026-08-03T00:00:00.000Z',

@@ -62,7 +62,9 @@ Tool 不暴露浏览器身份，也不接受 `bindingAlias`；其 execution targ
 
 每次 Tool 调用只执行一次 `POST /v2/collect`，保留调用者提供的 `clientRequestId`，并立即返回
 `operationId` 与 `collector://operations/{operationId}`。它不等待终态、不轮询、不读取 Artifact、
-不调用模型，也不在 transport outcome unknown 时自动重试。
+不调用模型，也不在 transport outcome unknown 时自动重试。Operation Resource 会额外给出一个
+非权威的 `recommendedAction` 提示，帮助 Agent 直接决定轮询、读取 Artifact、继续其他来源或
+停止平台动作；Core 的 exact state、terminal reason 和 error code 始终是事实来源。
 
 开发启动（推荐使用 launcher）：
 
