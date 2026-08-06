@@ -317,8 +317,15 @@ class RepositoryFoundationTests(unittest.TestCase):
             mcp_package["dependencies"],
             {"@modelcontextprotocol/sdk": "1.30.0", "ajv": "8.17.1", "zod": "4.4.3"},
         )
-        self.assertEqual(mcp_package["bin"], {"collector-mcp": "./dist/src/cli.js"})
+        self.assertEqual(
+            mcp_package["bin"],
+            {
+                "collector-mcp": "./dist/src/cli.js",
+                "collector-agent": "./dist/src/agent-cli.js",
+            },
+        )
         self.assertTrue((ROOT / "packages" / "mcp-server" / "src" / "cli.ts").is_file())
+        self.assertTrue((ROOT / "packages" / "mcp-server" / "src" / "agent-cli.ts").is_file())
         self.assertTrue((ROOT / "packages" / "mcp-server" / "src" / "server.ts").is_file())
         windows_files = {
             path.relative_to(ROOT / "packages" / "windows-configurator").as_posix()

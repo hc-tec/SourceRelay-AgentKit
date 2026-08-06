@@ -5,7 +5,8 @@
   "license": "Apache-2.0",
   "type": "module",
   "bin": {
-    "collector-mcp": "./dist/src/cli.js"
+    "collector-mcp": "./dist/src/cli.js",
+    "collector-agent": "./dist/src/agent-cli.js"
   },
   "exports": {
     ".": "./dist/src/index.js"

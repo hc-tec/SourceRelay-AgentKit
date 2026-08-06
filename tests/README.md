@@ -25,6 +25,18 @@ $env:COLLECTOR_L2_CORE_ENTRYPOINT = '<released Core user-browser-server.js>'
 npm run test:l2
 ```
 
+验证用户体验入口（真实本地 Core + 一次性临时 scoped credential + `collector-agent mcp` stdio
+launcher）：
+
+```powershell
+$env:COLLECTOR_L2_CORE_ENTRYPOINT = '<released Core user-browser-server.js>'
+npm run test:l2:launcher
+```
+
+该门禁只验证 AgentKit launcher 能把本机 credential store 接到真实 Core/MCP 初始化，不创建
+平台 Operation，也不接触用户日常浏览器。它会在临时 loopback 端口启动自己管理的 Core，结束时
+清理临时进程和凭据。
+
 运行 L3 前必须让正式 Core Gateway 与用户日常浏览器中的 production MV3 保持在线，并向
 MCP 子进程注入已有的最小 scope Core token。先列出已登记 case；该命令只做本地构建与列表，
 不会创建平台 Operation：

@@ -22,6 +22,28 @@ export {
   type CollectorCoreRuntimeConfig
 } from './credential.js';
 export {
+  CREDENTIAL_SCHEMA_VERSION,
+  configuredCoreEntrypoint,
+  credentialFilePath,
+  defaultCredentialFilePath,
+  isValidCoreEntrypoint,
+  isValidLoopbackOrigin,
+  parseStoredCredential,
+  readStoredCredential,
+  readStoredCredentialSync,
+  resolveCredentialPath,
+  writeStoredCredential,
+  type StoredCollectorCoreCredential
+} from './local-credential.js';
+export {
+  parseAgentCliArguments,
+  runAgentCli,
+  type AgentCliCommand,
+  type AgentStatusDocument,
+  type CoreProbeResult,
+  type ParsedAgentCliArguments
+} from './agent-cli.js';
+export {
   CollectorCoreClient,
   type CollectorCoreApi
 } from './core-client.js';

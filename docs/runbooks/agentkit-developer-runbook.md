@@ -44,16 +44,58 @@ npm run verify
 L1 合同、日志/secret 隔离和双 SDK/Tool catalog 相关门禁。门禁失败时先修复合同或依赖问题，
 不要通过关闭断言或引入 fake Gateway 绕过。
 
-## 4. 启动 stdio MCP
+## 4. 一次 setup，之后由 Agent Host 自动启动
 
-Agent Host 每个 session 启动一个 MCP 子进程。MCP 只从进程环境读取最小权限 Core token：
+用户不应为每个 Agent session 找端口、复制 token 或编辑 MCP 配置。AgentKit 提供一个很薄的
+`collector-agent` launcher：它不是 Workflow/Planner，也不控制浏览器，只负责读取本机凭据、检查
+Core loopback Gateway，并把 stdio 原样交给正式 MCP runtime。
+
+首次安装在 AgentKit 仓库执行一次：
 
 ```powershell
 Set-Location D:\AIProject\collector-ai-integration
-$env:COLLECTOR_CORE_ORIGIN = 'http://127.0.0.1:43127'
-$env:COLLECTOR_CORE_TOKEN = '<从本机受保护凭据存储注入的 cst token>'
-node .\packages\mcp-server\dist\src\cli.js
+npm ci
+npm run build
+npm run agent:setup
+npm run agent:status
 ```
+
+`setup` 只要求用户输入一次 Core Console 签发的最小权限 `cst_...` token。默认保存到：
+
+```text
+%LOCALAPPDATA%\SourceRelay\AgentKit\core-credential.json
+```
+
+文件只包含 schema、loopback origin、scoped token、创建时间和可选的已发布 Core entrypoint；
+不会写入 Cookie、Profile、浏览器身份、Operation 内容或平台数据。Windows 首版使用当前用户
+目录与受限文件模式；完整 DPAPI/Credential Manager 适配属于后续安装器增强，不在 MCP 合同内。
+
+`status` 不只检查端口和 token 格式，还会执行与 MCP 启动相同的 release、capability、OpenAPI、
+binding 和 digest 预检；不兼容时直接显示 `compatibility_unmet`，不会误报“已就绪”。
+
+Codex 用户再执行一次：
+
+```powershell
+npm run agent:install-codex
+```
+
+它注册的是不含 secret 的 `collector-agent mcp` 命令。以后 Codex/其他 MCP Host 每个 session
+只需启动这个命令：
+
+```powershell
+node .\packages\mcp-server\dist\src\agent-cli.js mcp
+```
+
+launcher 会复用已经运行的 Core。若首次 setup 时提供了已发布 Core 的 entrypoint：
+
+```powershell
+npm run agent:setup -- --core-entrypoint `
+  'C:\Path\to\core-release\gateway\dist\user-browser-server.js'
+```
+
+那么 Gateway 不可达时 launcher 会启动这个明确配置的 release entrypoint，等待 loopback 健康后
+再启动 MCP。它不会导入 Core 源码、创建 Profile、打开或关闭浏览器，也不会在 MCP 退出时关闭
+Gateway。没有配置 entrypoint 时，`agent:status` 会明确告诉用户需要启动 Core，而不是反复重试。
 
 推荐 token scopes：
 
@@ -65,28 +107,23 @@ artifacts:read
 ```
 
 不要把真实 token 写入仓库、`.env`、Skill、prompt、MCP 配置提交、命令行历史或日志。生产
-Agent Host 应从本机受保护凭据存储注入 `COLLECTOR_CORE_TOKEN`；当前 MVP 不在 AgentKit
-内实现 Credential Manager configurator。
+Agent Host 仍可在 CI/L2 中显式注入 `COLLECTOR_CORE_TOKEN`，它优先于本机 credential store；
+正常安装不需要环境变量。
 
-等价的 MCP host 配置形状如下，`<inject-from-local-secret-store>` 必须由宿主在启动时替换，
-不能提交真实值：
+等价的 MCP host 配置形状如下，配置中没有 secret：
 
 ```json
 {
   "mcpServers": {
-    "sourcerelay": {
-      "command": "node",
-      "args": ["<absolute-path>/packages/mcp-server/dist/src/cli.js"],
-      "env": {
-        "COLLECTOR_CORE_ORIGIN": "http://127.0.0.1:43127",
-        "COLLECTOR_CORE_TOKEN": "<inject-from-local-secret-store>"
-      }
+    "collector": {
+      "command": "<absolute-path-to-node>",
+      "args": ["<absolute-path>/packages/mcp-server/dist/src/agent-cli.js", "mcp"]
     }
   }
 }
 ```
 
-启动时 MCP 会读取 Core release、capability catalog、OpenAPI schema 和 binding 合同。任一
+如果 Host 没有 Codex CLI，可使用 `npm run agent:print-config` 生成上面的无密钥配置。启动时 MCP 会读取 Core release、capability catalog、OpenAPI schema 和 binding 合同。任一
 release/API/schema/feature/digest 不满足时，进程应 fail closed 并返回 `compatibility_unmet`；
 不得让 Agent 猜字段、切换到旧 endpoint 或下载未经验证的兼容代码。
 
@@ -126,6 +163,17 @@ npm run test:l2
 18 个 Tools、`platformOperationsCreated: 0`、`officialOperationsCreated: 0` 和
 `livePlatformRequests: 0`。L2 证明的是 packaged MCP 与真实本地 Core 的协议闭环，不是平台
 真实可用性；平台能力只能由 L3/L4 证据证明。
+
+额外的 launcher 入口门禁使用同一个真实 Core entrypoint，但通过本机 credential store 启动
+`collector-agent mcp`，验证“Agent Host 不需要把 token 放进 MCP 配置”的闭环：
+
+```powershell
+$env:COLLECTOR_L2_CORE_ENTRYPOINT = '<released Core user-browser-server.js>'
+npm run test:l2:launcher
+```
+
+它在临时 loopback 端口创建 scoped client、启动真实 Core/MCP、完成一次 MCP initialize 后清理
+临时进程和凭据；不会创建平台 Operation，也不接触日常浏览器。
 
 ## 6. 真实 L3/L4 的边界
 

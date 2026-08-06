@@ -61,20 +61,45 @@ Core 的安装、扩展加载、配对和 token 创建见[SourceRelay 用户浏�
 AgentKit 本身的构建、stdio 配置、正式 Core 制品校验、L2/L3/L4 边界和故障排查见
 [AgentKit developer runbook](docs/runbooks/agentkit-developer-runbook.md)。
 
-### 安装、构建并运行 stdio MCP
+### 一次配置，以后由 Agent Host 自动启动
 
 ```powershell
 Set-Location D:\AIProject\collector-ai-integration
 npm ci
 npm run build
 
-$env:COLLECTOR_CORE_ORIGIN = 'http://127.0.0.1:43127'
-$env:COLLECTOR_CORE_TOKEN = 'cst_...'
-node .\packages\mcp-server\dist\src\cli.js
+# 首次执行：输入一次由 Core Console 签发的最小权限 token
+npm run agent:setup
+
+# 查看 Core、凭据、兼容性和 MCP launcher 是否就绪
+npm run agent:status
+
+# 只需把下面的 launcher 注册给一次 Codex；以后 Codex 会自动启动 MCP
+npm run agent:install-codex
 ```
 
-MCP 进程只从自己的进程环境读取专用 Core token。Agent Host 看不到 token 的内容，Tool 和
-Resource 结果也不会回显它。
+`agent:setup` 将 token 保存到当前用户目录的受限文件：
+
+```text
+Windows: %LOCALAPPDATA%\SourceRelay\AgentKit\core-credential.json
+其他系统: $XDG_CONFIG_HOME/SourceRelay/AgentKit/core-credential.json
+```
+
+它不会把 token 写入 MCP 配置、stdout、日志、Skill、prompt 或 Git。`agent:status` 会执行与 MCP
+启动相同的 release/capability/OpenAPI/binding 兼容性预检；以后 AI Host 只启动
+`collector-agent mcp`，launcher 自动读取本机凭据并检查 Core；用户不再需要复制 token、设置
+环境变量或手写 MCP 配置。
+
+如果 Core Gateway 没有由系统启动，首次 setup 时可以额外提供已发布 Core 的
+`user-browser-server.js` 路径：
+
+```powershell
+npm run agent:setup -- --core-entrypoint 'C:\Path\to\core-release\gateway\dist\user-browser-server.js'
+```
+
+之后 `collector-agent mcp` 只在 loopback Gateway 不可达时启动这个已明确配置的 Core entrypoint；
+它不会导入 Core 源码、创建 Profile、打开/关闭浏览器或管理浏览器生命周期。MCP 退出也不会
+关闭 Core Gateway。
 
 ### 配置 MCP Client
 
@@ -83,19 +108,20 @@ Agent Host 只需要启动这个 stdio 进程。不同 Host 的配置文件位�
 ```json
 {
   "mcpServers": {
-    "sourcerelay": {
-      "command": "node",
-      "args": ["<absolute-path>/packages/mcp-server/dist/src/cli.js"],
-      "env": {
-        "COLLECTOR_CORE_ORIGIN": "http://127.0.0.1:43127",
-        "COLLECTOR_CORE_TOKEN": "<inject-from-local-secret-store>"
-      }
+    "collector": {
+      "command": "<absolute-path-to-node>",
+      "args": [
+        "<absolute-path>/packages/mcp-server/dist/src/agent-cli.js",
+        "mcp"
+      ]
     }
   }
 }
 ```
 
-上面的 `<inject-from-local-secret-store>` 是部署占位符，不要把真实 token 提交到配置文件。
+最稳妥的方式是运行 `npm run agent:print-config` 复制生成的 JSON，或运行
+`npm run agent:install-codex` 自动写入 Codex 配置。这个配置中没有 secret；launcher 在子进程
+内加载本机 credential store。
 
 启动后，MCP 会先读取并校验 Core 的 release、capability catalog、OpenAPI schema 和 binding
 合同；任一 digest、feature 或 direct-ready 集合不一致时会 fail closed，不会继续暴露过期 Tool。

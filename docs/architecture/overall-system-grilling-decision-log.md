@@ -947,6 +947,14 @@ Windows-first 产品发布方案不再作为本仓库 Checkpoint；本仓库不�
 Manager/DPAPI configurator、launcher 或 autostart。Core/Agent Host 可以在其自身部署边界处理
 进程和凭据，但不得把这些职责重新耦合进 thin MCP、Skills 或浏览器采集合同。
 
+**2026-08-06 implementation clarification：**为解决“每个 Agent session 手工复制 token、编辑
+MCP JSON、单独启动 stdio MCP”的实际使用摩擦，AgentKit 增加了独立的
+`collector-agent setup/status/print-config/install-codex/mcp` bootstrap CLI。它不是 MCP 业务
+层，也不是 Core installer：只保存当前用户的 scoped credential、生成无密钥 Host 配置、探测
+loopback Gateway，并在用户明确提供已发布 Core entrypoint 时按需启动 Gateway。MCP runtime
+仍不拥有 Core/浏览器生命周期，Core 源码与 Profile 仍不可被 AgentKit 导入或管理。完整
+Windows Credential Manager/DPAPI 与登录自启仍留给后续原生安装器。
+
 ### 30. Core 与 AI Integration 分别以 Apache-2.0 独立开源
 
 采纳 **A：通用基础设施开源，具体应用和模型业务独立选择许可证**。

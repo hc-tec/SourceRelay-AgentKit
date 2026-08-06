@@ -4,6 +4,11 @@ import {
   TOKEN_PATTERN
 } from './constants.js';
 import { CollectorMcpError } from './errors.js';
+import {
+  defaultCredentialFilePath,
+  readStoredCredentialSync,
+  validateStoredCredentialOrigin
+} from './local-credential.js';
 
 export interface CollectorCoreRuntimeConfig {
   origin: string;
@@ -11,21 +16,20 @@ export interface CollectorCoreRuntimeConfig {
   requestTimeoutMs: number;
 }
 
-/**
- * Checkpoint 3 credential boundary.
- *
- * The Agent never receives this object. Credential issuance and child-process
- * environment injection belong to the Core/Agent Host deployment boundary;
- * this MCP package deliberately has no OS credential-store configurator.
- */
 export function loadCollectorCoreRuntimeConfig(
   environment: NodeJS.ProcessEnv = process.env
 ): CollectorCoreRuntimeConfig {
-  const token = environment.COLLECTOR_CORE_TOKEN;
+  const explicitToken = environment.COLLECTOR_CORE_TOKEN;
+  const credential = explicitToken === undefined && shouldReadLocalCredential(environment)
+    ? readCredentialForRuntime(environment)
+    : null;
+  const token = explicitToken ?? credential?.token;
   if (typeof token !== 'string' || !TOKEN_PATTERN.test(token)) {
     throw new CollectorMcpError('authentication_failed');
   }
-  const origin = validateCoreOrigin(environment.COLLECTOR_CORE_ORIGIN ?? DEFAULT_CORE_ORIGIN);
+  const origin = validateCoreOrigin(
+    environment.COLLECTOR_CORE_ORIGIN ?? credential?.origin ?? DEFAULT_CORE_ORIGIN
+  );
   const requestTimeoutMs = parseTimeout(
     environment.COLLECTOR_CORE_REQUEST_TIMEOUT_MS,
     DEFAULT_CORE_REQUEST_TIMEOUT_MS
@@ -34,17 +38,34 @@ export function loadCollectorCoreRuntimeConfig(
 }
 
 export function validateCoreOrigin(value: string): string {
-  let url: URL;
+  if (!validateStoredCredentialOrigin(value)) {
+    throw new CollectorMcpError('core_unavailable');
+  }
+  return new URL(value).origin;
+}
+
+function readCredentialForRuntime(
+  environment: NodeJS.ProcessEnv
+): ReturnType<typeof readStoredCredentialSync> {
   try {
-    url = new URL(value);
+    return readStoredCredentialSync({
+      environment,
+      filePath: environment.COLLECTOR_AGENT_CREDENTIAL_FILE ?? defaultCredentialFilePath(environment)
+    });
   } catch {
-    throw new CollectorMcpError('core_unavailable');
+    // Missing and malformed local credentials are intentionally collapsed into
+    // the stable authentication_failed MCP error below. The file contents and
+    // parser details must never enter an Agent trace.
+    return null;
   }
-  if (url.protocol !== 'http:' || url.hostname !== '127.0.0.1' || !url.port ||
-    url.username || url.password || url.pathname !== '/' || url.search || url.hash) {
-    throw new CollectorMcpError('core_unavailable');
-  }
-  return url.origin;
+}
+
+function shouldReadLocalCredential(environment: NodeJS.ProcessEnv): boolean {
+  // Production CLI calls this function with process.env. Tests and embedded
+  // callers commonly pass a deliberately isolated object; they must not
+  // accidentally read a developer's real credential file from disk.
+  return environment === process.env ||
+    typeof environment.COLLECTOR_AGENT_CREDENTIAL_FILE === 'string';
 }
 
 function parseTimeout(value: string | undefined, fallback: number): number {

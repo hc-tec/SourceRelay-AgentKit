@@ -164,8 +164,11 @@ Windows current user session
         +-- owns conversation and application state
 ```
 
-Core Gateway 不启动、关闭或附着日常浏览器。MCP 不启动、关闭或重启 Core/浏览器。Agent
-session 结束只结束自己的 MCP process，不影响 binding、Operation 或 Artifact。
+Core Gateway 不启动、关闭或附着日常浏览器。MCP runtime 不启动、关闭或重启 Core/浏览器。
+AgentKit 的独立 `collector-agent` launcher 只做本机 bootstrap：读取用户凭据、探测 loopback
+Gateway，并可在用户明确配置已发布 Core entrypoint 时启动一个缺失的 Gateway；它不导入 Core
+源码、不创建 Profile，也不在 MCP session 结束时关闭 Gateway。Agent session 结束只结束自己的
+MCP process，不影响 binding、Operation 或 Artifact。
 
 ## 6. 信任边界
 
@@ -354,8 +357,10 @@ per-binding/platform action concurrency、at-most-once/account safety，以及�
 
 ## 13. 认证与 Secret
 
-默认 stdio MCP 由 Agent host 启动。MCP 从 Windows OS 保护的凭据存储、受限配置或进程环境
-读取专用最小 Core token。Agent 看不到 token。
+默认 stdio MCP 由 Agent host 启动。正常安装通过 AgentKit 的一次性 `collector-agent setup`
+将最小 Core token 保存到当前用户受限配置；CI/L2 仍可通过进程环境显式注入。Agent 看不到
+token。这个 launcher/configurer 属于 AgentKit 安装入口，不属于 MCP Tool、Skill 或 Core 业务
+合同。
 
 MCP 所需 Core scopes 默认只包含：
 
@@ -455,7 +460,8 @@ L4 pinned-Skill Agent canary
 ## 18. 安装、升级和进程
 
 - Core installer：Gateway/launcher、稳定 MV3 目录、配对与 scoped credentials；
-- AI Integration installer/configurer：MCP、Skills、compatibility、Agent host config、OS secret；
+- AI Integration installer/configurer：MCP、Skills、compatibility、Agent host config、本机
+  credential store 与无密钥 launcher；
 - Core：当前用户单实例、可选登录自启、独立长期运行；
 - MCP：Agent session stdio 子进程；
 - browser：始终由用户自己运行；
@@ -564,8 +570,9 @@ LICENSE、SECURITY、CONTRIBUTING、SBOM/依赖许可证、release hash、边界
 - 知乎 Official Provider 三项 MCP 真实 L3 矩阵已完成，见
   `docs/validation/developer-readiness-zhihu-l3-matrix.md`；不改变运行时能力边界；
 - 发布材料已收口：Core `0.7.17` 正式 archive hash、SBOM/checksum 验证与 AgentKit developer
-  runbook 均已登记；不实现 Windows installer、Credential Manager configurator 或普通用户安装
-  向导。
+  runbook 均已登记；AgentKit 已提供一次 setup/status/无密钥 MCP launcher/Codex 注册入口。
+  完整 Windows installer、DPAPI/Credential Manager 原生适配和普通用户 GUI 向导仍属于后续
+  安装器工作，不进入 thin MCP 或 Core 采集合同。
 
 不提供旧 Task/Analysis API 兼容、43128 forwarding、dual-write、fallback 或旧仓库 runtime
 dependency。

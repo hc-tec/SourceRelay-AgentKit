@@ -63,15 +63,17 @@ Tool 不暴露浏览器身份，也不接受 `bindingAlias`；其 execution targ
 `operationId` 与 `collector://operations/{operationId}`。它不等待终态、不轮询、不读取 Artifact、
 不调用模型，也不在 transport outcome unknown 时自动重试。
 
-开发启动：
+开发启动（推荐使用 launcher）：
 
 ```powershell
-$env:COLLECTOR_CORE_ORIGIN = 'http://127.0.0.1:43127'
-$env:COLLECTOR_CORE_TOKEN = 'cst_...'
 npm run build
-node .\packages\mcp-server\dist\src\cli.js
+npm run agent:setup
+node .\packages\mcp-server\dist\src\agent-cli.js status
+node .\packages\mcp-server\dist\src\agent-cli.js mcp
 ```
 
-Core token 仅从 MCP 子进程环境进入内存，不进入 stdout、Resource 或结构化 stderr。凭据签发
-与 stdio 子进程环境注入属于 Core/Agent Host 的部署边界；本仓库不实现 Windows Credential
-Manager configurator，也不把开发时的 L2 环境变量示例扩张为 secret-management 产品。
+首次 `setup` 后，Core token 只保存在当前用户目录的受限
+`%LOCALAPPDATA%\\SourceRelay\\AgentKit\\core-credential.json`（非 Windows 使用
+`$XDG_CONFIG_HOME/SourceRelay/AgentKit/core-credential.json`）。MCP Host 只需启动
+`collector-agent mcp`，不会再要求手工复制 token、设置环境变量或编辑带 secret 的配置。
+环境变量 `COLLECTOR_CORE_TOKEN` 仍作为 CI/L2 的显式覆盖入口，但不应写入仓库或 MCP 配置。
