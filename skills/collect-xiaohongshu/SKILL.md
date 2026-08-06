@@ -25,10 +25,12 @@ logs, reports, Skill state, or a long-term account profile.
 ## Choose breadth and depth deliberately
 
 For public search, call `collector_xiaohongshu_public_notes_search` once. The Tool/Core owns the
-existing-page admission and trusted input boundary; the Agent must not open, refresh, or manually
-prepare an Explore tab. The current no-navigation contract intentionally uses an already-open public
-Xiaohongshu context only. If Core returns `existing_public_explore_tab_required` or an equivalent
-context-unavailable terminal, preserve it as a source gap and continue the caller's other sources.
+managed work-tab lifecycle and trusted input boundary: it creates or reuses one Collector-owned tab,
+and may navigate it at most once to the official `https://www.xiaohongshu.com/explore` surface. The
+Agent does not open, refresh, manually prepare, or navigate an Explore tab. A managed tab is kept for
+inspection and safe reuse after a successful run; an uncertain or risk-stopped run is retained but
+removed from the reuse pool. If Core returns a context-unavailable terminal, preserve the exact gap
+and continue the caller's other sources; do not repeat the operation.
 
 - Set `maximumDetails: 0` or omit it for breadth-only card collection.
 - Set `maximumDetails` from 1 through 20 when the user needs detail. Slow does not mean artificially

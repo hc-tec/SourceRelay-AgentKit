@@ -17,8 +17,8 @@ Official Provider capabilities.
 The release compatibility identity was:
 
 ```text
-openApiSchemaDigest:       sha256:f31d0aa0b25270f5ef27bd29547a6f5ceefb1a38e9a68f7854ee756a018c31ed
-capabilityCatalogDigest:   sha256:8af4e632cebf3338055c7eba10542b65ab6ee77720a40abff7453f1ace28808a
+openApiSchemaDigest:       sha256:c1f9b713f7e5ae1bd7d5d4294f08d5bda52b4352f6b30665d4c1b9b168b56cea
+capabilityCatalogDigest:   sha256:3c05da851fff32fecf4da4b36ccfcec24a6630118ccd4b2e3552d17caa5b3ab4
 feature:                   capabilities.catalog_digest_excludes_runtime_state.v1
 ```
 

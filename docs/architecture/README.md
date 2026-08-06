@@ -15,7 +15,8 @@ These are the canonical AI Integration architecture records from Checkpoint 2 on
   initial 15 Browser Provider Tools. The current catalog also includes 3 Official Provider Tools.
 - [Agent-facing prerequisite simplification](agent-facing-prerequisite-simplification-2026-08-06.md) —
   automatic single-online binding selection, non-authoritative operation handling hints, and the
-  preserved no-navigation Xiaohongshu boundary.
+  managed-work-tab Xiaohongshu boundary: one fixed official Explore navigation, no refresh, and
+  no page-initiated new document.
 
 The pre-migration documents remain recoverable at the `final-prototype` tag in `inteligence-apps`.
 Pointer files at the old paths direct readers here; do not maintain duplicate bodies.

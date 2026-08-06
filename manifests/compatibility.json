@@ -24,8 +24,8 @@
       "operations.exact_core_state.v1",
       "capabilities.catalog_digest_excludes_runtime_state.v1"
     ],
-    "openApiSchemaDigest": "sha256:f31d0aa0b25270f5ef27bd29547a6f5ceefb1a38e9a68f7854ee756a018c31ed",
-    "capabilityCatalogDigest": "sha256:8af4e632cebf3338055c7eba10542b65ab6ee77720a40abff7453f1ace28808a",
+    "openApiSchemaDigest": "sha256:c1f9b713f7e5ae1bd7d5d4294f08d5bda52b4352f6b30665d4c1b9b168b56cea",
+    "capabilityCatalogDigest": "sha256:3c05da851fff32fecf4da4b36ccfcec24a6630118ccd4b2e3552d17caa5b3ab4",
     "directCapabilityIds": [
       "bilibili.video_detail",
       "bilibili.native_search",
@@ -106,7 +106,7 @@
       {
         "toolId": "collector_xiaohongshu_public_notes_search",
         "capabilityId": "xiaohongshu.search.public_notes.v1",
-        "inputSchemaDigest": "sha256:95771f8c05f4205651587d64e594fb4f35306a9d6ec23e6fceb642d98ef8ae0e"
+        "inputSchemaDigest": "sha256:b1e743c0377eb797af4efe7368f8232560b1602b1fb8821507f649851c5e1d66"
       },
       {
         "toolId": "collector_xiaohongshu_account_public_notes",
@@ -168,7 +168,7 @@
       {
         "skillId": "collect-xiaohongshu",
         "skillVersion": "0.1.0",
-        "digest": "sha256:11ef990c9443f950a382911278879f745aa746bf9728d839b8dbad1f4b5c83b2"
+        "digest": "sha256:5c33346f92f065c7feb476ed25e0c788a62ea85fad65372b1d336448460c0ab6"
       },
       {
         "skillId": "research-search-then-detail",

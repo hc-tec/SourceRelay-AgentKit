@@ -212,7 +212,7 @@ class RepositoryFoundationTests(unittest.TestCase):
         self.assertEqual(set(core["requiredFeatures"]), REQUIRED_CORE_FEATURES)
         self.assertEqual(
             core["openApiSchemaDigest"],
-            "sha256:f31d0aa0b25270f5ef27bd29547a6f5ceefb1a38e9a68f7854ee756a018c31ed",
+            "sha256:c1f9b713f7e5ae1bd7d5d4294f08d5bda52b4352f6b30665d4c1b9b168b56cea",
         )
         self.assertRegex(core["capabilityCatalogDigest"], r"^sha256:[0-9a-f]{64}$")
         self.assertEqual(len(core["directCapabilityIds"]), 18)

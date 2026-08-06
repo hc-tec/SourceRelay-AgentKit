@@ -42,11 +42,13 @@ Explore-tab preparation, or a single provider's credential readiness a hidden wo
 one typed call, records the exact gap, and lets the caller continue independent sources. It never asks
 for platform credentials or falls back from the Zhihu Official Provider to browser collection.
 
-For Xiaohongshu specifically, the current no-navigation contract is intentionally preserved: a
-search call can only use an already-open admitted public context. The Agent must not refresh, open a
-new tab, or navigate to a guessed URL. If no such context exists, Core still stops with
-`existing_public_explore_tab_required`; this remains an honest source gap rather than a reason for
-the Agent to repeat setup instructions.
+For Xiaohongshu specifically, the no-refresh/no-page-initiated-new-document boundary is preserved,
+but the old "pre-open Explore" prerequisite is removed. A search call creates or reuses one
+Collector-managed work tab and may enter only the fixed official
+`https://www.xiaohongshu.com/explore` surface once. The Agent still cannot supply a URL, tab ID,
+selector, or navigation plan. A successful run releases the tab as `idle_reusable`; an uncertain or
+risk-stopped run retains it for inspection and marks it non-reusable. The legacy
+`existing_public_explore_tab_required` terminal remains only for the internal canary path.
 
 ## Deliberately deferred
 

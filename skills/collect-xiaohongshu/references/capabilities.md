@@ -4,7 +4,7 @@
 
 | Tool | Capability fields | Required page state or target |
 | --- | --- | --- |
-| `collector_xiaohongshu_public_notes_search` | `query`; optional `maximumDetails`; optional nested `comments` | Existing public Xiaohongshu context; Core admits it internally and never creates or refreshes a page |
+| `collector_xiaohongshu_public_notes_search` | `query`; optional `maximumDetails`; optional nested `comments` | Core creates or reuses one managed tab and may enter the official `/explore` surface once; no refresh or page-initiated new document |
 | `collector_xiaohongshu_account_public_notes` | `executionTarget`, `maximumScrolls`; conditional `profileUrl` | Existing profile, ephemeral official profile URL, or discoverable visible note author |
 | `collector_xiaohongshu_note_public_detail` | `executionTarget`, `resultRank` | Existing public search or profile page with the ranked card visible |
 | `collector_xiaohongshu_note_public_comments` | `maximumScrolls` | Already-open same-document public note overlay |

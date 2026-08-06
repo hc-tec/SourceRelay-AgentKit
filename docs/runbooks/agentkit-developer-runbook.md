@@ -247,7 +247,7 @@ AgentKit version:       0.0.0-mcp-foundation
 Core release:           0.7.17
 Core service schema:    3
 MCP tool catalog:       collector.mcp.tools/v1
-Core catalog digest:    sha256:8af4e632cebf3338055c7eba10542b65ab6ee77720a40abff7453f1ace28808a
-Core OpenAPI digest:    sha256:f31d0aa0b25270f5ef27bd29547a6f5ceefb1a38e9a68f7854ee756a018c31ed
+Core catalog digest:    sha256:3c05da851fff32fecf4da4b36ccfcec24a6630118ccd4b2e3552d17caa5b3ab4
+Core OpenAPI digest:    sha256:c1f9b713f7e5ae1bd7d5d4294f08d5bda52b4352f6b30665d4c1b9b168b56cea
 Core archive SHA-256:   ab444468be0209100371651de2e65284e07cee319bee8eed8db3822ded7784d7
 ```
