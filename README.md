@@ -1,109 +1,89 @@
 # SourceRelay AgentKit
 
-> A thin MCP + Skills integration layer for SourceRelay Core.
+> SourceRelay Core 的 MCP + Skills 适配层，让 AI Agent 可以安全调用已经登记的浏览器采集能力。
 
-SourceRelay AgentKit 把 SourceRelay Core 已登记的采集能力，转换成 AI Host 可以安全发现和调用的
-强类型 MCP Tools、只读 Resources 与版本化 Skills。它是协议适配层，不是 Workflow Engine、
-Planner、模型 Provider 或浏览器自动化框架。
+SourceRelay AgentKit 把 Core 的 capability catalog 转换成强类型 MCP Tools、只读 Resources 和
+版本化 Skills。它是一个薄协议适配层，不是 Workflow Engine、Planner、模型 Provider、DeepResearch
+框架或浏览器自动化框架。
 
-[SourceRelay Core](https://github.com/hc-tec/SourceRelay) 负责浏览器扩展、Gateway、官方 Provider
-和数据采集；AgentKit 只负责把 Core 合同带到 Codex、Claude、DeerFlow 或其他 MCP Client。
+[SourceRelay Core](https://github.com/hc-tec/SourceRelay) 负责 Gateway、MV3 扩展、用户日常浏览器、
+官方 Provider 和平台采集；AgentKit 负责把已经发布的 Core 合同安全地带到 Codex、Claude、DeerFlow
+或其他 MCP Host。
 
-## 先看结论
+## 先看使用体验
 
-- 当前 MCP catalog：18 个 typed Tools、3 个静态 Resources、3 个 Resource templates。
-- 15 个 Tool 通过用户已经配对的 Browser Provider 执行，3 个 Tool 通过 Core Gateway 的
-  Zhihu Official Provider 执行。
-- 每次 Tool 调用最多提交一个 Core Operation，立即返回 Operation Resource URI；Agent Host 自己
-  决定目标、推理、轮询预算和最终输出。
-- MCP 不读取 Cookie/Profile，不控制浏览器，不接受任意 URL、selector、script、tab、CDP、
-  DevTools 或 Network response body。
-- 当前组合 release anchor：AgentKit `0.0.0-mcp-foundation` 配套 Core `0.7.17`、service schema `3`、
-  tool catalog `collector.mcp.tools/v1`。
+### 第一次安装
 
-## 它在系统中的位置
-
-```text
-Agent / AI-native Application
-  ├─ owns goal, reasoning, project state and final output
-  ├─ loads pinned Skills
-  └─ uses an MCP Client
-          │ stdio
-          ▼
-SourceRelay AgentKit
-  ├─ compatibility preflight
-  ├─ typed Tools
-  ├─ Operation / Artifact Resources
-  ├─ bounded logs and Core auth boundary
-  └─ no workflow, model or browser lifecycle
-          │ versioned Core API
-          ▼
-SourceRelay Core
-  ├─ loopback Gateway
-  ├─ paired MV3 extension in the user's daily browser
-  └─ allowlisted Official Providers
-```
-
-这个边界是硬合同：Core 可以脱离 AgentKit 独立运行；AgentKit 也不能导入、启动、代理或回退到
-历史 `inteligence-apps` 原型。
-
-## 快速开始
-
-### 前置条件
-
-- Node.js `>=22`；
-- 一个已运行并完成配对的 SourceRelay Core Gateway；
-- Core 为 MCP 子进程签发的最小权限 token：通常为
-  `browser-bindings:read`、`collect:execute`、`operations:read`、`artifacts:read`；
-- 不把 token 写入仓库、Skill、prompt、日志或命令行历史。
-
-Core 的安装、扩展加载、配对和 token 创建见[SourceRelay 用户浏览器部署 runbook](https://github.com/hc-tec/SourceRelay/blob/main/docs/runbooks/core-user-browser-deployment-v0.7.md)。
-AgentKit 本身的构建、stdio 配置、正式 Core 制品校验、L2/L3/L4 边界和故障排查见
-[AgentKit developer runbook](docs/runbooks/agentkit-developer-runbook.md)。
-
-### 一次配置，以后由 Agent Host 自动启动
+前提是已经安装 SourceRelay Core，并在用户自己的 Chrome/Edge 中完成扩展配对。Core 可以已经
+运行，也可以在 setup 时提供一个正式发布版的 Gateway entrypoint。
 
 ```powershell
 Set-Location D:\AIProject\collector-ai-integration
 npm ci
 npm run build
 
-# 首次执行：输入一次由 Core Console 签发的最小权限 token
+# 只在第一次执行：输入一次 Core 签发的最小权限 scoped token
 npm run agent:setup
 
-# 查看 Core、凭据、兼容性和 MCP launcher 是否就绪
-npm run agent:status
-
-# 只需把下面的 launcher 注册给一次 Codex；以后 Codex 会自动启动 MCP
+# 只在第一次执行：把无密钥 launcher 注册到 Codex
 npm run agent:install-codex
 ```
 
-`agent:setup` 将 token 保存到当前用户目录的受限文件：
+`agent:setup` 将凭据保存到当前用户目录：
 
 ```text
 Windows: %LOCALAPPDATA%\SourceRelay\AgentKit\core-credential.json
 其他系统: $XDG_CONFIG_HOME/SourceRelay/AgentKit/core-credential.json
 ```
 
-它不会把 token 写入 MCP 配置、stdout、日志、Skill、prompt 或 Git。`agent:status` 会执行与 MCP
-启动相同的 release/capability/OpenAPI/binding 兼容性预检；以后 AI Host 只启动
-`collector-agent mcp`，launcher 自动读取本机凭据并检查 Core；用户不再需要复制 token、设置
-环境变量或手写 MCP 配置。
+凭据文件只供本机 launcher 使用，不会进入 Git、MCP JSON、Skill、prompt、stdout 或日志。默认
+scopes 为：
 
-如果 Core Gateway 没有由系统启动，首次 setup 时可以额外提供已发布 Core 的
-`user-browser-server.js` 路径：
-
-```powershell
-npm run agent:setup -- --core-entrypoint 'C:\Path\to\core-release\gateway\dist\user-browser-server.js'
+```text
+browser-bindings:read
+collect:execute
+operations:read
+artifacts:read
 ```
 
-之后 `collector-agent mcp` 只在 loopback Gateway 不可达时启动这个已明确配置的 Core entrypoint；
-它不会导入 Core 源码、创建 Profile、打开/关闭浏览器或管理浏览器生命周期。MCP 退出也不会
-关闭 Core Gateway。
+如果 setup 时 Gateway 暂未运行，可以把正式 Core entrypoint 一起登记；`--skip-core-check` 只
+跳过当次网络检查，不改变 token 权限：
 
-### 配置 MCP Client
+```powershell
+npm run agent:setup -- `
+  --skip-core-check `
+  --core-entrypoint 'C:\Path\to\core-release\gateway\dist\user-browser-server.js'
+```
 
-Agent Host 只需要启动这个 stdio 进程。不同 Host 的配置文件位置不同，核心配置等价于：
+### 以后日常使用
+
+```powershell
+codex
+```
+
+Codex 会按需启动 `collector-agent mcp`。launcher 会自动读取本机凭据，检查 Core 的 release、
+capability、OpenAPI、binding 和 digest；如果 Gateway 不可达且已经配置了正式 entrypoint，它会
+自动拉起 Gateway。MCP 是 Agent Host 的 stdio 子进程，不需要作为另一个常驻服务手动维护。
+
+健康检查：
+
+```powershell
+npm run agent:status
+npm run agent:doctor
+```
+
+`status` 与真正的 MCP 启动使用同一份 compatibility preflight。只要 Core 身份不匹配，命令会
+返回 `compatibility_unmet`，不会让 Agent 看到一组过期 Tools。
+
+### 其他 MCP Host
+
+先生成无密钥配置：
+
+```powershell
+npm run agent:print-config
+```
+
+生成的配置形状如下，真实 token 不会出现在其中：
 
 ```json
 {
@@ -119,14 +99,60 @@ Agent Host 只需要启动这个 stdio 进程。不同 Host 的配置文件位�
 }
 ```
 
-最稳妥的方式是运行 `npm run agent:print-config` 复制生成的 JSON，或运行
-`npm run agent:install-codex` 自动写入 Codex 配置。这个配置中没有 secret；launcher 在子进程
-内加载本机 credential store。
+也可以直接使用：
 
-启动后，MCP 会先读取并校验 Core 的 release、capability catalog、OpenAPI schema 和 binding
-合同；任一 digest、feature 或 direct-ready 集合不一致时会 fail closed，不会继续暴露过期 Tool。
+```text
+collector-agent mcp
+```
 
-### 使用 GitHub Release Core 制品做 L2 验证
+它只负责本机 bootstrap 和 stdio 转发，不导入 Core 源码，不创建 Profile，不打开或关闭浏览器，
+也不会在 MCP 退出时关闭 Core Gateway。
+
+## 它在系统中的位置
+
+```text
+Agent / AI-native Application
+  ├─ owns goal, reasoning, project state and final output
+  ├─ loads pinned Skills
+  └─ uses an MCP Client
+          │ stdio
+          ▼
+collector-agent launcher
+  ├─ reads local credential store
+  ├─ probes/optionally starts released Core Gateway
+  └─ starts the thin MCP runtime
+          │ stdio
+          ▼
+SourceRelay AgentKit MCP
+  ├─ compatibility preflight
+  ├─ 18 typed Tools
+  ├─ Operation / Artifact Resources
+  ├─ bounded logs and Core auth boundary
+  └─ no workflow, model or browser lifecycle
+          │ versioned Core API
+          ▼
+SourceRelay Core
+  ├─ loopback Gateway
+  ├─ paired MV3 extension in the user's daily browser
+  └─ allowlisted Official Providers
+```
+
+这个边界是硬合同：Core 可以脱离 AgentKit 独立运行；AgentKit 不导入历史 `inteligence-apps`，
+不接受任意 URL、selector、script、tab、CDP、DevTools 或 Network response body，也不扩大 Core
+已经发布的浏览器权限。
+
+## 当前能力锚点
+
+- 18 个 typed MCP Tools；
+- 3 个静态 Resources；
+- 3 个 Resource templates；
+- 15 个 Browser Provider Tools，3 个 Zhihu Official Provider Tools；
+- 每次 Tool 调用最多提交一个 Core Operation，立即返回 Operation Resource URI；
+- Agent 自己负责目标、推理、预算、轮询和最终报告，MCP 不创建 Workflow 或 Planner；
+- AgentKit `0.0.0-mcp-foundation` 配套 Core `0.7.17`、service schema `3`、
+  `collector.mcp.tools/v1`。
+
+## 使用 GitHub Release Core 制品做 L2 验证
 
 L2 必须消费 SourceRelay GitHub Release 中的版本化制品，不能把 MCP 接到相邻 checkout 的源码
 构建目录。当前兼容锚点为 `core-v0.7.17`，发布包下载地址为：
@@ -154,6 +180,17 @@ L2 脚本会检查 Core Gateway entrypoint 确实位于该 bundle，并重新核
 `manifestParity: true`、`platformOperationsCreated: 0`、`officialOperationsCreated: 0` 和
 `livePlatformRequests: 0`。这一步验证的是“packaged MCP + released Core process”的 L2
 协议闭环，不代表真实平台 L3 已验收。
+
+验证 launcher 使用本机 credential store 接入真实 Core 的 L2：
+
+```powershell
+$env:COLLECTOR_L2_CORE_ENTRYPOINT = `
+  '<downloaded>\core-release-0.7.17\gateway\dist\user-browser-server.js'
+npm run test:l2:launcher
+```
+
+该测试会在临时 loopback 端口启动真实 Core，签发临时 scoped token，通过
+`collector-agent mcp` 完成 MCP initialize，然后清理临时进程和凭据；不会创建平台 Operation。
 
 仓库中的 `.github/workflows/released-core-l2.yml` 会在 CI 中重复同一条路径：下载固定的
 SourceRelay Core GitHub Release asset，先校验归档 SHA-256，再让 AgentKit 的 packaged MCP 消费
@@ -246,7 +283,7 @@ Skill 只教授 Agent 如何选择和调用能力，不授予权限、不保存�
 Set-Location D:\AIProject\collector-ai-integration
 npm ci
 
-# 仓库边界、Skill package、TypeScript build 与 39 项 L1 合同测试
+# 仓库边界、Skill package、TypeScript build 与 43 项 L1 合同测试
 npm run verify
 ```
 
@@ -255,6 +292,13 @@ L2 使用发布形态的 MCP 与真实本地 Core 进程，但不会创建平台
 ```powershell
 $env:COLLECTOR_L2_CORE_ENTRYPOINT = '<released Core user-browser-server.js>'
 npm run test:l2
+```
+
+launcher 的真实本地闭环：
+
+```powershell
+$env:COLLECTOR_L2_CORE_ENTRYPOINT = '<released Core user-browser-server.js>'
+npm run test:l2:launcher
 ```
 
 L3/L4 只在明确的真实 Core + packaged MCP + 真实平台 / Agent Host 条件下执行。当前证据状态：
@@ -270,7 +314,7 @@ L3/L4 只在明确的真实 Core + packaged MCP + 真实平台 / Agent Host 条�
 - Workflow Engine、Planner、Workspace、Task/Run/Step 或统一恢复器；
 - DeepResearch、DeerFlow、蜂群调度、报告生成、向量数据库或业务数据库；
 - 模型 Provider、prompt 管理、长期账号档案和跨平台分析；
-- Cookie/Profile/密码/浏览器生命周期管理；
+- Cookie/Profile/密码/浏览器生命周期管理；launcher 只可按显式 entrypoint 启动 Core，不控制浏览器；
 - Playwright、CDP、DevTools、任意 tab、任意 selector、任意脚本或任意 Network API；
 - 对 Core Artifact 的二次复制和无限制原始内容读取；
 - 未登记在 Core live catalog 中的隐藏能力。
@@ -280,9 +324,9 @@ L3/L4 只在明确的真实 Core + packaged MCP + 真实平台 / Agent Host 条�
 ```text
 contracts/                  manifest 与协议 schema
 manifests/                  机器可读兼容性清单
-packages/mcp-server/        thin stdio MCP runtime、Core client、Tools、Resources
+packages/mcp-server/        launcher、credential store、thin MCP runtime、Core client、Tools、Resources
 skills/                     Foundation、Platform、Intent Skills
-tests/                      repository gate、L1、real-Core stdio L2
+tests/                      repository gate、L1、real-Core stdio/launcher L2
 scripts/                    verification 与 package digest 入口
 docs/architecture/          目标架构与决策记录
 docs/validation/            L3/L4 真实证据与边界
