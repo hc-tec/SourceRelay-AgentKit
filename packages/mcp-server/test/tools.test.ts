@@ -228,6 +228,25 @@ test('Official Provider Tool omits browser identity and preserves a completed Op
   assert.equal(logs.join('').includes('公开数据'), false);
 });
 
+test('Official Provider Tool fails closed when the live Core readiness is credential_required', async () => {
+  const { core, service, logs } = setup();
+  core.runtimeStateOverrides.set('zhihu.search.public_content.v1', 'credential_required');
+  await assert.rejects(
+    service.submit('collector_zhihu_search_public_content', {
+      clientRequestId: CLIENT_REQUEST_ID,
+      query: '不会提交',
+      count: 1
+    }),
+    (error: unknown) => error instanceof CollectorMcpError &&
+      error.code === 'official_provider_credential_required' &&
+      error.coreErrorCode === 'zhihu_official_api_credential_required'
+  );
+  assert.equal(core.submissions.length, 0);
+  assert.equal(core.readCapabilitiesCalls, 1);
+  assert.equal(logs.join('').includes('official_provider_credential_required'), true);
+  assert.equal(logs.join('').includes('不会提交'), false);
+});
+
 test('enum-target Tool preserves only the admitted target and capability fields', async () => {
   const { core, service } = setup();
   const profileUrl = 'https://www.xiaohongshu.com/user/profile/public-author?xsec_token=short';

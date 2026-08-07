@@ -66,6 +66,14 @@ Tool 不暴露浏览器身份，也不接受 `bindingAlias`；其 execution targ
 非权威的 `recommendedAction` 提示，帮助 Agent 直接决定轮询、读取 Artifact、继续其他来源或
 停止平台动作；Core 的 exact state、terminal reason 和 error code 始终是事实来源。
 
+知乎 Official Provider 的 `runtimeState` 是 Gateway 运行时状态，不改变静态 catalog digest。
+`collector://capabilities` 每次读取都会刷新这个状态。状态为 `ready` 时，三个知乎 Tool 正常
+提交；状态为 `credential_required` 时，MCP 在 POST 前 fail-closed，返回
+`official_provider_credential_required`（Core code 为
+`zhihu_official_api_credential_required`），并要求在本机 Gateway 边界配置 Provider。MCP 没有
+配置凭证的 Tool，也不会把 Secret 放进 Tool 参数、日志、Artifact 或 Skill 状态；Agent 不应
+要求用户在对话中粘贴 Secret，也不应改用浏览器/Cookie 路线。
+
 开发启动（推荐使用 launcher）：
 
 ```powershell

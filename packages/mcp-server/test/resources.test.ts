@@ -41,6 +41,18 @@ test('projects release, capabilities and session-safe binding aliases', async ()
   assert.equal(bindingsText.includes(core.fixture.bindings.bindings[0]!.extensionId), false);
 });
 
+test('capability Resource refreshes live Official Provider readiness without changing catalog identity', async () => {
+  const core = new StubCoreReader();
+  core.runtimeStateOverrides.set('zhihu.search.public_content.v1', 'credential_required');
+  const resources = service(core);
+  const capabilities = JSON.parse((await resources.read('collector://capabilities')).text);
+  const search = capabilities.catalog.capabilities.find((entry: Record<string, unknown>) =>
+    entry.capability === 'zhihu.search.public_content.v1');
+  assert.equal(search.runtimeState, 'credential_required');
+  assert.equal(capabilities.catalog.catalogDigest, core.fixture.catalog.catalogDigest);
+  assert.equal(core.readCapabilitiesCalls, 1);
+});
+
 test('preserves exact Operation state while removing browser identity and Core retrieval path', async () => {
   const resources = service();
   const text = (await resources.read(`collector://operations/${OPERATION_ID}`)).text;
@@ -69,6 +81,29 @@ test('preserves exact Operation state while removing browser identity and Core r
   assert.equal(text.includes('browserBindingId'), false);
   assert.equal(text.includes('retrievalPath'), false);
   assert.equal(text.includes('must-not-leak'), false);
+});
+
+test('Operation Resource recommends Gateway configuration for missing Zhihu Official Provider credentials', async () => {
+  const core = new StubCoreReader();
+  const original = core.readOperation.bind(core);
+  core.readOperation = async (operationId: string) => {
+    const base = await original(operationId);
+    if (!base || typeof base !== 'object' || Array.isArray(base)) throw new Error('test_base_operation_invalid');
+    return {
+    ...(base as Record<string, unknown>),
+    capability: 'zhihu.search.public_content.v1',
+    platform: 'zhihu',
+    executionTarget: 'official_api',
+    state: 'stopped',
+    errorCode: 'zhihu_official_api_credential_required',
+    terminalReason: 'zhihu_official_api_credential_required',
+    artifact: null
+    };
+  };
+  const text = (await service(core).read(`collector://operations/${OPERATION_ID}`)).text;
+  const operation = JSON.parse(text);
+  assert.equal(operation.recommendedAction, 'configure_gateway_official_provider');
+  assert.equal(text.includes('accessSecret'), false);
 });
 
 test('reads Artifact metadata first and follows fixed-size UTF-8 chunk cursors', async () => {

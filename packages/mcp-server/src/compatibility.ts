@@ -26,6 +26,8 @@ export interface VerifiedCoreCompatibility {
   directContracts: VerifiedDirectCapabilityContract[];
 }
 
+export type LiveCapabilityRuntimeState = 'ready' | 'credential_required' | 'unknown';
+
 export type VerifiedExecutionTargetMode = 'fixed' | 'enum';
 export type VerifiedExecutionProvider = 'browser_extension' | 'official_api';
 export type VerifiedBudgetPolicy =
@@ -192,6 +194,59 @@ export function verifyCollectorCoreCompatibility(
     directCapabilityIds: [...contractIds],
     directContracts: verifiedDirectContracts
   };
+}
+
+/**
+ * Refresh only the operational readiness fields from a live Core catalog.
+ *
+ * The catalog digest deliberately excludes runtimeState, so a Gateway can be
+ * configured after MCP startup without changing the released compatibility
+ * identity. All stable fields still have to reproduce the verified digest;
+ * only the live capability projections are allowed to differ.
+ */
+export function projectLiveCapabilityCatalog(
+  verifiedCatalog: Record<string, unknown>,
+  liveCatalogValue: unknown
+): Record<string, unknown> {
+  const liveCatalog = requiredRecord(liveCatalogValue);
+  requireValue(liveCatalog.schemaVersion === verifiedCatalog.schemaVersion);
+  const expectedDigest = digestString(verifiedCatalog.catalogDigest);
+  requireValue(digestString(liveCatalog.catalogDigest) === expectedDigest);
+  const capabilities = requiredArray(liveCatalog.capabilities).map(requiredRecord);
+  const directContracts = requiredArray(liveCatalog.directContracts).map(requiredRecord);
+  requireValue(sha256Digest({
+    capabilities: stableCapabilityCatalogProjection(capabilities),
+    directContracts
+  }) === expectedDigest);
+
+  const verifiedCapabilities = requiredArray(verifiedCatalog.capabilities).map(requiredRecord);
+  const verifiedIds = verifiedCapabilities.map((capability) => requiredString(capability.capability));
+  const liveIds = capabilities.map((capability) => requiredString(capability.capability));
+  requireValue(sameSet(liveIds, verifiedIds));
+  requireValue(new Set(liveIds).size === liveIds.length);
+  for (const capability of capabilities) {
+    if (capability.runtimeState !== undefined &&
+      capability.runtimeState !== 'ready' && capability.runtimeState !== 'credential_required') {
+      throw new CollectorMcpError('compatibility_unmet');
+    }
+  }
+
+  const projected = structuredClone(verifiedCatalog);
+  projected.capabilities = structuredClone(capabilities);
+  return projected;
+}
+
+export function liveCapabilityRuntimeState(
+  verifiedCatalog: Record<string, unknown>,
+  liveCatalogValue: unknown,
+  capabilityId: string
+): LiveCapabilityRuntimeState {
+  const projected = projectLiveCapabilityCatalog(verifiedCatalog, liveCatalogValue);
+  const capabilities = requiredArray(projected.capabilities).map(requiredRecord);
+  const capability = capabilities.find((entry) => entry.capability === capabilityId);
+  if (capability === undefined) throw new CollectorMcpError('compatibility_unmet');
+  if (capability.runtimeState === undefined) return 'unknown';
+  return capability.runtimeState as LiveCapabilityRuntimeState;
 }
 
 /** Runtime readiness is operational state, not part of the released catalog identity. */

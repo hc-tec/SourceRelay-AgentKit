@@ -53,9 +53,12 @@ search Tool.
 - These Tools expose one bounded result page/list, not unlimited pagination.
 - They do not provide all answers, all comments, private account surfaces, favorites, messages, or
   arbitrary author archives.
-- `runtimeState=credential_required` is a Core configuration fact. Record the provider gap, do not
-  request a secret from the caller, do not fall back to browser collection, and continue independent
-  sources in the caller's plan.
+- `runtimeState=credential_required` is a Core configuration fact. Record the provider gap and tell
+  the caller to configure the Zhihu Official Provider at the local Core Gateway boundary (or via the
+  documented Gateway startup environment before a restart). Do not request a secret from the caller,
+  do not paste one into Tool arguments, do not fall back to browser collection, and continue
+  independent sources in the caller's plan. The MCP server refuses the Tool call before POST when
+  the live readiness is still `credential_required`.
 - Official Provider operations normally complete synchronously in Core, but the MCP contract still
   exposes an Operation Resource and requires the same idempotent reconciliation rules.
 - Keep `terminalReason`, `errorCode`, quota/rate-limit state, and Artifact hashes exact.

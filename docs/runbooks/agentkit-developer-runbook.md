@@ -209,6 +209,22 @@ L3/L4 是低频、只读、显式 case 的验证，不属于普通开发启动�
    不属于静态 catalog identity；不要因为换凭证而手工改 digest；
 4. 若 release 合同确实变化，先发布/更新 Core 与 manifest 的版本化合同，再重新运行门禁。
 
+### 知乎 Official Provider readiness
+
+先读取 `collector://capabilities`，查看三个 `executionProvider=zhihu_open_platform` 能力的
+`runtimeState`：
+
+- `ready`：可以调用对应的强类型知乎 Tool；
+- `credential_required`：Core Gateway 尚未配置知乎 Official Provider。记录该精确状态并继续
+  独立来源；如果用户确实需要知乎，指导其在 Gateway 控制台或 Gateway 启动环境边界配置，
+  然后重新读取能力目录。不要让用户把 Secret 粘贴进 Agent 对话，不要把它放进 MCP Tool、
+  Skill、日志或 Artifact，也不要回退到浏览器/Cookie。
+
+MCP 会在每次知乎 Tool 提交前再次读取能力目录。若 readiness 在会话期间变为
+`credential_required`，调用会在 Core `POST /v2/collect` 前以
+`official_provider_credential_required` fail-closed；若已创建 Operation，则按其 exact
+`errorCode` 与 `recommendedAction=configure_gateway_official_provider` 处理，不自动重试。
+
 ### token 或 scope 错误
 
 - `COLLECTOR_CORE_ORIGIN` 必须是 `http://127.0.0.1:<port>`，不要使用 LAN 地址、HTTPS、路径、

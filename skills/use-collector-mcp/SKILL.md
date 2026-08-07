@@ -20,8 +20,10 @@ working notes, and final outputs in the caller; never turn MCP into a workflow s
 4. Do not turn provider readiness or page preparation into a separate workflow. If a capability is
    absent, has no online binding, or reports `runtimeState=credential_required`, record that exact
    unavailable condition, skip that source, and continue independent sources in the caller's plan.
-   Do not ask the user for a platform credential or manually prepare a tab unless the user explicitly
-   requests a human-authentication action.
+   For an Official Provider, the correct human action is to configure the provider in the local Core
+   Gateway (or configure its documented Gateway startup environment before restarting the Gateway).
+   MCP has no credential-configuration Tool. Never ask the user to paste a platform credential into
+   the Agent conversation, and never manually prepare a browser tab for an Official Provider.
 
 Never request or expose a Core token, browser binding ID, extension ID, Profile, Cookie, tab ID, URL
 primitive, selector, script, CDP command, or Network body.

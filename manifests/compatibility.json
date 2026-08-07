@@ -158,7 +158,7 @@
       {
         "skillId": "use-collector-mcp",
         "skillVersion": "0.1.0",
-        "digest": "sha256:bdd7bb63be161e406f12e4047ca396cbc457d4d733919a9ba55df6accdf81ec9"
+        "digest": "sha256:3c049a2f4b75fd4d22f5794d9214bb11843562e5bc0b3831f1bc618f873e5732"
       },
       {
         "skillId": "collect-bilibili",
@@ -178,7 +178,7 @@
       {
         "skillId": "collect-zhihu",
         "skillVersion": "0.1.0",
-        "digest": "sha256:f89485dffcd80ca133016ef67d1e155e7a9b2ac7255123da5685ba9564432251"
+        "digest": "sha256:1c0fe1126734edfcd8700b7eea3769ed2a2ac2fce2b60c2f4344e7804551391c"
       }
     ]
   },

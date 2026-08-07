@@ -6,7 +6,7 @@ import {
   UUID_PATTERN
 } from './constants.js';
 import type { VerifiedCoreCompatibility, RawBrowserBinding } from './compatibility.js';
-import { verifyBindings } from './compatibility.js';
+import { projectLiveCapabilityCatalog, verifyBindings } from './compatibility.js';
 import type { CollectorCoreApi } from './core-client.js';
 import { CollectorMcpError, stableErrorCode } from './errors.js';
 import type { SafeLogger } from './logger.js';
@@ -116,10 +116,14 @@ export class CollectorResourceService {
           release: this.#compatibility.release
         };
       } else if (address.kind === 'capabilities') {
+        const liveCatalog = projectLiveCapabilityCatalog(
+          this.#compatibility.catalog,
+          await this.#core.readCapabilities()
+        );
         payload = {
           schemaVersion: 'collector.mcp.capabilities/v1',
           verifiedAt: this.#compatibility.verifiedAt,
-          catalog: this.#compatibility.catalog
+          catalog: liveCatalog
         };
       } else if (address.kind === 'bindings') {
         const bindings = verifyBindings(await this.#core.readBindings());
@@ -204,6 +208,7 @@ function operationProjection(value: unknown, expectedOperationId: string): Recor
 type RecommendedOperationAction =
   | 'poll_operation'
   | 'read_artifact'
+  | 'configure_gateway_official_provider'
   | 'continue_other_sources'
   | 'stop_platform_action'
   | 'reconcile_submission'
@@ -217,6 +222,10 @@ function recommendedOperationAction(
   if (state === 'queued' || state === 'claimed') return 'poll_operation';
   if (state === 'completed' || state === 'partial') return 'read_artifact';
   if (errorCode === 'submission_outcome_unknown') return 'reconcile_submission';
+  if (errorCode === 'zhihu_official_api_credential_required' ||
+    terminalReason === 'zhihu_official_api_credential_required') {
+    return 'configure_gateway_official_provider';
+  }
   const sourceCanContinue = new Set([
     'existing_public_explore_tab_required',
     'existing_public_explore_tab_ambiguous',

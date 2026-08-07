@@ -37,6 +37,10 @@ SearchDB, Filter, route, URL, or API parameters.
 1. Read `collector://release` and `collector://capabilities`. If the Official Provider capability is
    absent or its `runtimeState` is `credential_required`, record that source as unavailable and
    continue independent platform sources; do not stop the whole research task or request a secret.
+   Tell the caller that the local Core Gateway's Zhihu Official Provider is not configured and that
+   configuration must happen at the Gateway boundary. Do not ask for a Secret in chat. Once the
+   live capability reports `ready`, call the typed Tool normally; the MCP server rechecks readiness
+   immediately before submission and fails closed if it changed.
 2. Do not read or request `collector://bindings` as a prerequisite for these three Tools. Their
    input schema intentionally has no `bindingAlias`.
 3. Generate one UUID `clientRequestId` for one canonical request and call exactly one typed Tool.

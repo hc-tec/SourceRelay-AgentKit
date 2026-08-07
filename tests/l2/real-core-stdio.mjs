@@ -151,7 +151,7 @@ try {
         count: 1
       }
     }),
-    'submission_conflict'
+    'official_provider_credential_required'
   );
 
   const missingOperationId = '11111111-1111-4111-8111-111111111111';

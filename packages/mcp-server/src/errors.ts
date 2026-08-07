@@ -11,6 +11,7 @@ export type CollectorMcpErrorCode =
   | 'core_response_invalid'
   | 'core_response_too_large'
   | 'core_unavailable'
+  | 'official_provider_credential_required'
   | 'permission_denied'
   | 'request_rejected'
   | 'resource_not_found'

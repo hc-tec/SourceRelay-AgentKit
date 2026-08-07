@@ -7,7 +7,11 @@ import {
   McpError
 } from '@modelcontextprotocol/sdk/types.js';
 import { UUID_PATTERN } from './constants.js';
-import { verifyBindings, type VerifiedCoreCompatibility } from './compatibility.js';
+import {
+  liveCapabilityRuntimeState,
+  verifyBindings,
+  type VerifiedCoreCompatibility
+} from './compatibility.js';
 import type { CollectorCoreApi } from './core-client.js';
 import { CollectorMcpError, stableErrorCode, toProtocolError } from './errors.js';
 import type { SafeLogger } from './logger.js';
@@ -95,6 +99,20 @@ export class CollectorToolService {
       const argumentsRecord = record(argumentsValue);
       clientRequestId = requiredUuid(argumentsRecord.clientRequestId);
       const contract = compiled.definition.contract;
+      if (contract.executionProvider === 'official_api') {
+        const runtimeState = liveCapabilityRuntimeState(
+          this.#compatibility.catalog,
+          await this.#core.readCapabilities(),
+          contract.capabilityId
+        );
+        if (runtimeState === 'credential_required') {
+          throw new CollectorMcpError(
+            'official_provider_credential_required',
+            null,
+            'zhihu_official_api_credential_required'
+          );
+        }
+      }
       let browserBindingId: string | null = null;
       if (contract.executionProvider === 'browser_extension') {
         // Refresh the safe projection at submission time. The MCP session can

@@ -9,6 +9,8 @@ export const ARTIFACT_DIGEST = `sha256:${'a'.repeat(64)}`;
 export class StubCoreReader implements CollectorCoreApi {
   readonly fixture = coreContractFixture();
   readonly submissions: Array<Record<string, unknown>> = [];
+  readonly runtimeStateOverrides = new Map<string, 'ready' | 'credential_required'>();
+  readCapabilitiesCalls = 0;
   submissionError: unknown = null;
   submissionResponse: unknown = null;
 
@@ -17,7 +19,15 @@ export class StubCoreReader implements CollectorCoreApi {
   }
 
   async readCapabilities(): Promise<unknown> {
-    return structuredClone(this.fixture.catalog);
+    this.readCapabilitiesCalls += 1;
+    const catalog = structuredClone(this.fixture.catalog) as {
+      capabilities: Array<Record<string, unknown>>;
+    };
+    for (const capability of catalog.capabilities) {
+      const runtimeState = this.runtimeStateOverrides.get(String(capability.capability));
+      if (runtimeState !== undefined) capability.runtimeState = runtimeState;
+    }
+    return catalog;
   }
 
   async readOpenApi(): Promise<unknown> {
