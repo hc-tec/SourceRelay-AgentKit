@@ -82,3 +82,21 @@ readiness values, and the L3 run above proves the credentialed path through the 
 
 No raw Artifact content, screenshots, browser Profile, browser identity, service credential, or
 unbounded upstream response is committed with this document. No version was bumped.
+
+## Follow-up readiness gate (2026-08-07)
+
+The packaged AgentKit MCP now refreshes the live capability catalog when
+`collector://capabilities` is read and immediately before an Official Provider Tool submission. The
+stable catalog digest remains unchanged while `runtimeState` changes. With no provider credential,
+the released-Core L2 path returned `official_provider_credential_required` before Core `POST
+/v2/collect` and created zero Official Provider Operations. The MCP protocol data carries only the
+safe actions `configurationAction=configure_gateway_official_provider` and
+`credentialLocation=gateway_only`; it never carries the platform Secret.
+
+After the Gateway-only credential was configured for the current validation process, one bounded
+packaged-MCP canary for `collector_zhihu_search_public_content` completed through the live Gateway and
+the official provider. It used `count=1`, performed one Tool submission, reached
+`completed / official_api_response_ready`, read Artifact metadata before its single UTF-8 chunk, and
+verified the whole Artifact SHA-256. No browser binding or browser action was used. This follow-up
+proves readiness consumption and fail-closed behavior; it does not expand the bounded capability
+matrix or claim unlimited upstream quota.

@@ -52,10 +52,22 @@ export function toProtocolError(error: unknown): McpError {
     ? ErrorCode.InvalidParams
     : ErrorCode.InternalError;
   const coreErrorCode = error instanceof CollectorMcpError ? error.coreErrorCode : null;
+  const guidance = code === 'official_provider_credential_required'
+    ? {
+        configurationAction: 'configure_gateway_official_provider',
+        credentialLocation: 'gateway_only'
+      }
+    : null;
+  const data = coreErrorCode === null && guidance === null
+    ? undefined
+    : {
+        ...(coreErrorCode === null ? {} : { coreErrorCode }),
+        ...(guidance === null ? {} : guidance)
+      };
   return new McpError(
     protocolCode,
     code,
-    coreErrorCode === null ? undefined : { coreErrorCode }
+    data
   );
 }
 

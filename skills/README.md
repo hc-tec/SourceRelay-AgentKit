@@ -19,6 +19,9 @@ The `sha256-skill-package-v1` digest canonicalizes packaged UTF-8 text (`.md`, `
 Linux checkout; the manifest and compatibility catalog therefore pin one cross-platform digest.
 
 A Skill teaches method. It does not grant permission, execute a Tool by itself, own runtime state,
-receive a secret, or prove that a live capability is currently available. The narrow Bilibili native
-search L3 canary and the pinned Foundation + Bilibili L4 Agent canary are recorded under
+receive a secret, or prove that a live capability is currently available. `collect-zhihu` requires the
+caller to read the live `runtimeState` from `collector://capabilities`; `credential_required` means
+the local Core Gateway must be configured and is never a reason to request a Secret in chat or fall
+back to browser collection. The narrow Bilibili native search L3 canary, the Zhihu Official Provider
+L3 matrix, and the pinned Foundation + Bilibili L4 Agent canary are recorded under
 `../docs/validation/`; they do not promote every Skill or capability to the same live validation level.

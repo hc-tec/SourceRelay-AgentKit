@@ -242,7 +242,7 @@ class RepositoryFoundationTests(unittest.TestCase):
         self.assertEqual(manifest["support"]["operatingSystems"], ["windows"])
         self.assertEqual(manifest["support"]["browsers"], [])
         configurations = manifest["support"]["verifiedConfigurations"]
-        self.assertEqual(len(configurations), 3)
+        self.assertEqual(len(configurations), 4)
         self.assertEqual(configurations[0]["level"], "l2")
         self.assertEqual(configurations[0]["platformOperationsCreated"], 0)
         self.assertEqual(
@@ -289,6 +289,31 @@ class RepositoryFoundationTests(unittest.TestCase):
             },
         )
         self.assertEqual(
+            configurations[3],
+            {
+                "level": "l3",
+                "operatingSystem": "windows",
+                "nodeVersion": "24.13.0",
+                "transport": "stdio",
+                "coreRelease": "0.7.17",
+                "coreServiceSchema": 3,
+                "browserMode": "official_provider_gateway_only",
+                "platform": "zhihu",
+                "toolId": "collector_zhihu_search_public_content",
+                "capabilityId": "zhihu.search.public_content.v1",
+                "runtimeState": "ready",
+                "credentialLocation": "gateway_only",
+                "terminalCoreState": "completed",
+                "terminalReason": "official_api_response_ready",
+                "artifactRepresentation": "canonical_json_utf8",
+                "artifactByteLength": 3128,
+                "platformOperationsCreated": 1,
+                "automaticSubmissionRetries": 0,
+                "browserActions": 0,
+                "verifiedAt": "2026-08-07",
+            },
+        )
+        self.assertEqual(
             set(manifest["guardrails"]["forbiddenRuntimeFeatures"]),
             FORBIDDEN_RUNTIME_FEATURES,
         )
@@ -304,6 +329,7 @@ class RepositoryFoundationTests(unittest.TestCase):
                 "core_javascript_python_sdk_capability_matrix",
                 "packaged_mcp_real_core_stdio_l2",
                 "packaged_mcp_real_bilibili_l3",
+                "packaged_mcp_real_zhihu_readiness_l3",
                 "real_codex_pinned_skill_l4",
             },
         )

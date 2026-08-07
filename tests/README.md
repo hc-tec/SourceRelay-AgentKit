@@ -59,6 +59,13 @@ Official Provider 的隔离 L3 可以把正式发布 Core 启动在随机 loopba
 `http://127.0.0.1:<port>`；它仍拒绝非 loopback、HTTPS、路径、query 和 fragment。Browser
 Provider 的隔离验证还必须满足各自的真实浏览器/Profile 前置条件。
 
+Official Provider 的 Tool 不需要 `collector://bindings`。先从实时
+`collector://capabilities` 确认对应能力的 `runtimeState=ready`；若为
+`credential_required`，AgentKit MCP 会在 Core POST 前返回
+`official_provider_credential_required` 及 Gateway 配置动作，不请求平台 Secret，也不改走
+浏览器。L2 无凭证 Core 会用这一 fail-closed 分支验证该边界；L3 ready 路径才允许真实官方
+只读请求。
+
 系列详情不能猜 ID。先单独运行 `bilibili.collection-series-overview`，从其真实 Artifact 中选定
 公开的稳定 ID/type，再为下一独立 run 提供：
 

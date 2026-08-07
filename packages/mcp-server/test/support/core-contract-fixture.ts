@@ -33,7 +33,13 @@ export function coreContractFixture() {
     const targets = executionTargets(capability);
     const schema = requestSchema(capability, targets);
     schemas[schemaName] = schema;
-    capabilities.push({ capability, dispatchState: 'direct_ready' });
+    capabilities.push({
+      capability,
+      dispatchState: 'direct_ready',
+      ...(isOfficialCapability(capability)
+        ? { runtimeState: 'ready', credentialLocation: 'gateway_only', browserBindingRequired: false }
+        : {})
+    });
     directContracts.push({
       capability,
       executionProvider: isOfficialCapability(capability) ? 'official_api' : 'browser_extension',
@@ -56,9 +62,10 @@ export function coreContractFixture() {
     { capability: 'xiaohongshu.current_page.network_metadata', dispatchState: 'migration_required' },
     { capability: 'xiaohongshu.note.public_media', dispatchState: 'migration_required' }
   );
+  const stableCapabilities = capabilities.map(({ runtimeState: _runtimeState, ...stable }) => stable);
   const catalog = {
     schemaVersion: 3,
-    catalogDigest: sha256Digest({ capabilities, directContracts }),
+    catalogDigest: sha256Digest({ capabilities: stableCapabilities, directContracts }),
     capabilities,
     directContracts
   };

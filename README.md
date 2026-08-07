@@ -224,6 +224,12 @@ agentkit-v0.0.0-mcp-foundation
 允许 session-local `bindingAlias`；省略时 AgentKit 自动选择唯一 online 会话，只有多在线会话时才需要显式选择。Official Provider 不暴露浏览器身份，也不接受 binding，内部
 固定使用 Core 的 `official_api` execution target。
 
+知乎 Official Provider 的三项能力还带有实时 `runtimeState`。AgentKit 会在每次读取
+`collector://capabilities` 时刷新该状态，并在 Tool 提交前再次检查：`ready` 才会提交一次
+Core Operation；`credential_required` 则返回 `official_provider_credential_required`，通过
+`configurationAction=configure_gateway_official_provider` 指向本机 Gateway 配置，不索要聊天
+中的 Secret，也不回退到浏览器或 Cookie。
+
 典型 Browser Provider 调用形状（字段仍以实时 Tool schema 为准）：
 
 ```json
@@ -282,7 +288,7 @@ Skill 只教授 Agent 如何选择和调用能力，不授予权限、不保存�
 Set-Location D:\AIProject\collector-ai-integration
 npm ci
 
-# 仓库边界、Skill package、TypeScript build 与 43 项 L1 合同测试
+# 仓库边界、Skill package、TypeScript build 与 49 项 L1 合同测试
 npm run verify
 ```
 

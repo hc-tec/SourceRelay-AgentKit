@@ -74,4 +74,13 @@ test('protocol errors expose stable codes and never an upstream exception messag
     'submission_conflict', 409, 'sk-must-not-escape'
   ));
   assert.equal(modelCredential.data, undefined);
+
+  const providerCredential = toProtocolError(new CollectorMcpError(
+    'official_provider_credential_required', null, 'zhihu_official_api_credential_required'
+  ));
+  assert.deepEqual(providerCredential.data, {
+    coreErrorCode: 'zhihu_official_api_credential_required',
+    configurationAction: 'configure_gateway_official_provider',
+    credentialLocation: 'gateway_only'
+  });
 });

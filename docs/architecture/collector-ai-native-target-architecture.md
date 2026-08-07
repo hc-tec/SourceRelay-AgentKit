@@ -569,6 +569,9 @@ LICENSE、SECURITY、CONTRIBUTING、SBOM/依赖许可证、release hash、边界
 - 18 项 Core catalog、MCP Tools、双 SDK 与官方 Skills 的 parity 已完成；
 - 知乎 Official Provider 三项 MCP 真实 L3 矩阵已完成，见
   `docs/validation/developer-readiness-zhihu-l3-matrix.md`；不改变运行时能力边界；
+- 2026-08-07 readiness follow-up：`credential_required` 在 MCP Tool POST 前 fail-closed，
+  `ready` 路径已用当前 Gateway 完成一次有界只读 canary；配置动作仍只属于 Gateway，不进入
+  Agent、Skill 或 SDK。
 - 发布材料已收口：Core `0.7.17` 正式 archive hash、SBOM/checksum 验证与 AgentKit developer
   runbook 均已登记；AgentKit 已提供一次 setup/status/无密钥 MCP launcher/Codex 注册入口。
   完整 Windows installer、DPAPI/Credential Manager 原生适配和普通用户 GUI 向导仍属于后续

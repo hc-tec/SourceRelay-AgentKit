@@ -112,6 +112,12 @@ export class CollectorToolService {
             'zhihu_official_api_credential_required'
           );
         }
+        if (runtimeState !== 'ready') {
+          // An Official Provider is only safe to submit when the live catalog
+          // explicitly proves readiness. A missing/unknown readiness field is
+          // a compatibility failure, never permission to send a Core POST.
+          throw new CollectorMcpError('compatibility_unmet');
+        }
       }
       let browserBindingId: string | null = null;
       if (contract.executionProvider === 'browser_extension') {

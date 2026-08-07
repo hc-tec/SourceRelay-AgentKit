@@ -33,6 +33,9 @@ compose multiple capabilities.
 | `collector_xiaohongshu_note_public_detail` | `xiaohongshu.note.public_detail.v1` |
 | `collector_xiaohongshu_note_public_comments` | `xiaohongshu.note.public_comments.v1` |
 | `collector_xiaohongshu_note_public_comment_replies` | `xiaohongshu.note.public_comment_replies.v1` |
+| `collector_zhihu_search_public_content` | `zhihu.search.public_content.v1` |
+| `collector_zhihu_hot_list_public_content` | `zhihu.hot_list.public_content.v1` |
+| `collector_web_search_global_zhihu_provider` | `web.search.global.zhihu_provider.v1` |
 
 There is no generic `capability + JSON` Tool and no alias for the historical application prototype.
 
@@ -70,8 +73,10 @@ to use `McpServer`. This avoids maintaining 15 handwritten validation contracts.
 
 ## Submission and result
 
-The MCP performs one authenticated Core POST and never retries it automatically. A transport failure
-after dispatch may have begun is reported as `submission_outcome_unknown`; the caller must preserve
+When the live readiness and input preconditions are satisfied, the MCP performs at most one
+authenticated Core POST and never retries it automatically. Official Provider Tools first read the
+live capability readiness; `credential_required` returns a Gateway-configuration error before any
+POST. A transport failure after dispatch may have begun is reported as `submission_outcome_unknown`; the caller must preserve
 the exact Tool arguments and reuse the same `clientRequestId` to ask Core for an idempotent replay.
 
 The successful Tool result is deliberately small:
@@ -103,10 +108,10 @@ path.
 
 ## Completion evidence
 
-- `npm run verify`: 10 repository-boundary tests and 26 MCP L1 tests passed.
+- `npm run verify`: repository-boundary, Skill package, and 49 MCP L1 tests passed.
 - Core `npm run verify:core-capability-matrix`: 15-way registry/OpenAPI/extension/JavaScript SDK/
   Python SDK parity passed.
 - `npm run test:l2` with the released Core `user-browser-server.js`: packaged MCP, real Core process,
-  scoped Core token, 15 Tool schemas, Core/manifest parity, and all 15 schema digests passed.
+  scoped Core token, 18 Tool schemas, Core/manifest parity, and all 18 schema digests passed.
 - L2 created zero accepted platform Operations and made zero live-platform requests. This is process
   and protocol evidence only; it is not a platform capability claim.

@@ -59,13 +59,13 @@ const TOOL_MAPPINGS = Object.freeze([
     'Queue bounded public reply-thread collection from the already-open same-document note overlay.'),
   tool('collector_zhihu_search_public_content', 'zhihu.search.public_content.v1',
     'Search public Zhihu content',
-    'Submit one bounded public-content search through the registered Zhihu official provider.'),
+    'Submit one bounded public-content search through the registered Zhihu official provider. Requires live runtimeState=ready; credential_required is a Gateway configuration condition.'),
   tool('collector_zhihu_hot_list_public_content', 'zhihu.hot_list.public_content.v1',
     'Read the public Zhihu hot list',
-    'Submit one bounded hot-list read through the registered Zhihu official provider.'),
+    'Submit one bounded hot-list read through the registered Zhihu official provider. Requires live runtimeState=ready; credential_required is a Gateway configuration condition.'),
   tool('collector_web_search_global_zhihu_provider', 'web.search.global.zhihu_provider.v1',
     'Search the public web through the Zhihu provider',
-    'Submit one bounded global public-web search through the registered Zhihu official provider.')
+    'Submit one bounded global public-web search through the registered Zhihu official provider. Requires live runtimeState=ready; credential_required is a Gateway configuration condition.')
 ]);
 
 export interface CollectorToolDefinition {
