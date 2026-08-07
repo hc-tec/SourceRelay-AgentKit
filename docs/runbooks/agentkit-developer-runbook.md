@@ -220,6 +220,9 @@ L3/L4 是低频、只读、显式 case 的验证，不属于普通开发启动�
   然后重新读取能力目录。不要让用户把 Secret 粘贴进 Agent 对话，不要把它放进 MCP Tool、
   Skill、日志或 Artifact，也不要回退到浏览器/Cookie。
 
+如果 live catalog 缺少 Official Provider 的 `runtimeState` 或给出未知状态，MCP 以
+`compatibility_unmet` fail-closed，不发送 Core POST；只有明确的 `ready` 才是提交许可。
+
 MCP 会在每次知乎 Tool 提交前再次读取能力目录。若 readiness 在会话期间变为
 `credential_required`，调用会在 Core `POST /v2/collect` 前以
 `official_provider_credential_required` fail-closed；若已创建 Operation，则按其 exact

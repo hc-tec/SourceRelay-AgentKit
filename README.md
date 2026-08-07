@@ -229,6 +229,8 @@ agentkit-v0.0.0-mcp-foundation
 Core Operation；`credential_required` 则返回 `official_provider_credential_required`，通过
 `configurationAction=configure_gateway_official_provider` 指向本机 Gateway 配置，不索要聊天
 中的 Secret，也不回退到浏览器或 Cookie。
+如果 Official Provider 的 live catalog 缺少或给出未知 `runtimeState`，MCP 会以
+`compatibility_unmet` fail-closed，不发送 Core POST。
 
 典型 Browser Provider 调用形状（字段仍以实时 Tool schema 为准）：
 
