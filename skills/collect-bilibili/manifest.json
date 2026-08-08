@@ -1,11 +1,11 @@
 {
   "schemaVersion": "collector.ai-integration.skill/v1alpha1",
   "skillId": "collect-bilibili",
-  "skillVersion": "0.1.0",
+  "skillVersion": "0.1.1",
   "layer": "platform",
   "publisher": "collector-ai-integration",
   "source": "collector-ai-integration/skills/collect-bilibili",
-  "digest": "sha256:fe4ce68150e88719ea17f8d307a850a40c8ef208a8d08dde6da538c5f0052b1c",
+  "digest": "sha256:3aa89f9de4e0c558d77b1be51673e0080674278e93e828768f8f544c519bad2b",
   "license": "Apache-2.0",
   "official": true,
   "requirements": {

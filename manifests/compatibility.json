@@ -162,8 +162,8 @@
       },
       {
         "skillId": "collect-bilibili",
-        "skillVersion": "0.1.0",
-        "digest": "sha256:fe4ce68150e88719ea17f8d307a850a40c8ef208a8d08dde6da538c5f0052b1c"
+        "skillVersion": "0.1.1",
+        "digest": "sha256:3aa89f9de4e0c558d77b1be51673e0080674278e93e828768f8f544c519bad2b"
       },
       {
         "skillId": "collect-xiaohongshu",

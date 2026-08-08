@@ -27,6 +27,7 @@ RESOURCES = {
 EXPECTED_SKILLS = {
     "use-collector-mcp": {
         "layer": "foundation",
+        "version": "0.1.0",
         "tools": set(),
         "files": {
             "SKILL.md",
@@ -37,6 +38,7 @@ EXPECTED_SKILLS = {
     },
     "collect-bilibili": {
         "layer": "platform",
+        "version": "0.1.1",
         "tools": {
             "collector_bilibili_video_detail",
             "collector_bilibili_native_search",
@@ -58,6 +60,7 @@ EXPECTED_SKILLS = {
     },
     "collect-xiaohongshu": {
         "layer": "platform",
+        "version": "0.1.0",
         "tools": {
             "collector_xiaohongshu_public_notes_search",
             "collector_xiaohongshu_account_public_notes",
@@ -74,6 +77,7 @@ EXPECTED_SKILLS = {
     },
     "collect-zhihu": {
         "layer": "platform",
+        "version": "0.1.0",
         "tools": {
             "collector_zhihu_search_public_content",
             "collector_zhihu_hot_list_public_content",
@@ -88,6 +92,7 @@ EXPECTED_SKILLS = {
     },
     "research-search-then-detail": {
         "layer": "intent",
+        "version": "0.1.0",
         "tools": {
             "collector_bilibili_native_search",
             "collector_bilibili_native_search_batch",
@@ -150,7 +155,7 @@ class OfficialSkillTests(unittest.TestCase):
             self.assertEqual(set(manifest), schema_required, skill_id)
             self.assertEqual(manifest["schemaVersion"], "collector.ai-integration.skill/v1alpha1")
             self.assertEqual(manifest["skillId"], skill_id)
-            self.assertEqual(manifest["skillVersion"], "0.1.0")
+            self.assertEqual(manifest["skillVersion"], expected["version"])
             self.assertEqual(manifest["layer"], expected["layer"])
             self.assertEqual(manifest["publisher"], "collector-ai-integration")
             self.assertEqual(manifest["source"], f"collector-ai-integration/skills/{skill_id}")

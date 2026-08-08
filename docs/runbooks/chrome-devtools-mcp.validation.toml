@@ -1,0 +1,19 @@
+# Development/validation-only MCP entry for real extension reconnaissance.
+#
+# This is intentionally separate from the thin Collector MCP server. Do not
+# add these arguments to packages/mcp-server or expose the resulting tools as
+# Collector capability Tools. Use a dedicated Profile, never daily Chrome.
+
+[mcp_servers.chrome-devtools]
+type = "stdio"
+command = 'D:\apps\nodejs\npx.cmd'
+args = [
+  '-y',
+  'chrome-devtools-mcp@latest',
+  '--categoryExtensions',
+  '--no-usage-statistics',
+  '--no-performance-crux',
+  '--redactNetworkHeaders',
+  '--user-data-dir',
+  'C:\Users\AHS\AppData\Local\PersonalIntelligenceCollector\devtools-validation-profile'
+]

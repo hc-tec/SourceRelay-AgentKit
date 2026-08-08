@@ -60,6 +60,16 @@ not merge failed or partial sources into a synthetic completed state.
 
 ## Known direct-surface boundary
 
-The current Tool catalog has no transcript, subtitle, article, arbitrary account pagination, arbitrary
-sort, arbitrary comments action plan, raw response-body, or browser-control Tool. Re-read
+The current Core catalog may publish `bilibili.transcript` as a migration-bound capability while the
+MCP Tool catalog has no corresponding transcript Tool. Re-read `collector://capabilities` before every
+subtitle request. A migration-bound capability is not callable and must not be simulated with CDP,
+DevTools, arbitrary selectors, or raw response-body access.
+
+When a future direct-ready video-detail contract exposes a bounded `subtitle` projection, read it as
+Artifact evidence only after the Operation reaches a terminal state. Preserve `available`, `language`,
+`panelVisible`, `segmentCount`, `partial`, and the bounded `segments` fields; distinguish empty,
+partial, unavailable, risk-stopped, and failed outcomes.
+
+The current Tool catalog still has no standalone subtitle, article, arbitrary account pagination,
+arbitrary sort, arbitrary comments action plan, raw response-body, or browser-control Tool. Re-read
 `collector://capabilities` rather than relying on this reference if the catalog changes.

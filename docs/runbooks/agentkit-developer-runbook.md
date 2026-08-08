@@ -127,6 +127,11 @@ Agent Host 仍可在 CI/L2 中显式注入 `COLLECTOR_CORE_TOKEN`，它优先于
 release/API/schema/feature/digest 不满足时，进程应 fail closed 并返回 `compatibility_unmet`；
 不得让 Agent 猜字段、切换到旧 endpoint 或下载未经验证的兼容代码。
 
+维护者若需要验证真实 B 站字幕 hover 或 MV3 worker 更新，另见
+[Chrome DevTools MCP 验证配置](chrome-devtools-mcp-validation.md)。该配置是外部开发/验证 MCP，
+不应并入 `collector` Server、官方 Skill 或生产 Agent Tool catalog；验证必须使用专用 Profile，
+而 L3/L4 Collector 证据仍只能来自 released Core + Collector MCP。
+
 ## 5. 使用正式 Core Release 做 L2
 
 L2 必须使用 GitHub Release 的完整制品，而不是相邻 Core checkout 中任意一个 `dist` 目录。

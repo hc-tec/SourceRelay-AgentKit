@@ -42,6 +42,18 @@
 - Agent-visible data must not contain Core tokens, cookies, profiles, browser identities, secrets, or
   unbounded raw content.
 
+### Development-only Chrome DevTools MCP
+
+- `packages/mcp-server` and the official Collector Tools must never expose CDP, DevTools, arbitrary
+  selectors, coordinates, tabs, scripts, Network bodies, or browser lifecycle controls.
+- When a maintainer needs real Bilibili hover/extension reconnaissance, use the separate
+  `chrome-devtools-mcp` host configuration in `docs/runbooks/chrome-devtools-mcp.validation.toml`; it is
+  development/validation tooling, not part of the Collector MCP product surface.
+- That configuration must enable `--categoryExtensions`, disable usage statistics and CrUX, redact
+  network headers, and point at a dedicated project validation Profile. Never attach it to the user's
+  daily Chrome/Edge Profile. Extension install/reload and worker-marker checks belong to the validation
+  Profile only; L3/L4 Collector evidence still comes through the released Core capability Tool.
+
 ## Skills
 
 - Skills teach methods; they do not grant permissions, execute Tools, own runtime state, or claim that

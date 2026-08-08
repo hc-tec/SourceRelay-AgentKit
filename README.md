@@ -105,6 +105,11 @@ npm run agent:print-config
 collector-agent mcp
 ```
 
+维护者需要对真实 B 站 hover 菜单或扩展 worker 做开发验证时，使用独立的
+[Chrome DevTools MCP 验证 runbook](docs/runbooks/chrome-devtools-mcp-validation.md)。它不属于
+Collector MCP Tool catalog，不得连接或接管日常 Chrome/Edge；正式 L3/L4 仍通过 released Core
+和 `collector` MCP 证明。
+
 它只负责本机 bootstrap 和 stdio 转发，不导入 Core 源码，不创建 Profile，不打开或关闭浏览器，
 也不会在 MCP 退出时关闭 Core Gateway。
 

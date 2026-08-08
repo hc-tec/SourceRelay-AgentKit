@@ -1,6 +1,6 @@
 ---
 name: collect-bilibili
-description: Collect public Bilibili information through the registered typed Collector MCP Tools. Use for Bilibili keyword search, video detail, UP account profile,投稿 inventory, dynamics, collection or series overview/detail, danmaku, or public discussion collection. Use together with use-collector-mcp whenever an Agent must choose a Bilibili capability, construct its bounded input, sequence related reads, or interpret platform-specific prerequisites without arbitrary browser control.
+description: Collect public Bilibili information through the registered typed Collector MCP Tools, including bounded interpretation of subtitle fields when the live Core Artifact contract exposes them. Use for Bilibili keyword search, video detail, UP account profile,投稿 inventory, dynamics, collection or series overview/detail, danmaku, public discussion, or a request that needs the current subtitle capability boundary. Use together with use-collector-mcp whenever an Agent must choose a Bilibili capability, construct its bounded input, sequence related reads, or interpret platform-specific prerequisites without arbitrary browser control.
 ---
 
 # Collect Bilibili
@@ -22,6 +22,9 @@ binding selection, idempotency, Operation monitoring, and bounded Artifact reads
   overview evidence.
 - Use `collector_bilibili_discussion` for public video discussion.
 - Use `collector_bilibili_danmaku` only when danmaku is part of the user's requested evidence.
+- For subtitle requests, first read `collector://capabilities`. Use a standalone transcript Tool only
+  if the live catalog reports `bilibili.transcript` as `direct_ready`; do not invent a Tool from the
+  existence of Core research code or a historical reconnaissance report.
 
 Read [references/capabilities.md](references/capabilities.md) before constructing Tool arguments or
 chaining more than one capability.
@@ -60,7 +63,14 @@ items. Do not hide a loop, pagination policy, or account-wide archive inside the
 ## Preserve platform facts
 
 - Treat charge-only, unavailable, login, risk, partial, empty, and failed outcomes as distinct facts.
-- Do not infer subtitle or article capability: neither is present in the current direct Tool catalog.
+- Do not infer standalone subtitle capability from a video-detail result. The live capability catalog
+  remains the source of truth, and `trusted_interaction_migration_required` means the MCP surface must
+  stop without submitting a platform Operation.
+- If a direct-ready video-detail Artifact includes a bounded `subtitle` projection, preserve its
+  `available`, `language`, `panelVisible`, `segmentCount`, `partial`, segment timing, and content
+  fields exactly; do not claim that an empty projection proves the user is logged out.
+- The Bilibili subtitle hover implementation is owned by Core's paired extension. This Skill never
+  sends hover/click/CDP commands and never falls back to browser-control primitives.
 - Do not call every Tool merely because it exists.
 - Keep result provenance through Operation and Artifact identities and hashes.
 - Stop when the requested coverage is met, the explicit budget is exhausted, or Core reports a safety
@@ -68,4 +78,3 @@ items. Do not hide a loop, pagination policy, or account-wide archive inside the
 
 All Tools perform public reads through the user's paired browser. Do not like, follow, favorite,
 comment, message, publish, delete, bypass paid content, or evade platform controls.
-
