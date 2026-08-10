@@ -1,11 +1,11 @@
 {
   "schemaVersion": "collector.ai-integration.skill/v1alpha1",
   "skillId": "research-search-then-detail",
-  "skillVersion": "0.1.0",
+  "skillVersion": "0.1.1",
   "layer": "intent",
   "publisher": "collector-ai-integration",
   "source": "collector-ai-integration/skills/research-search-then-detail",
-  "digest": "sha256:fa34143d129c65ca440a655fa3c9c43619ed725f0ba198d2b1669c167af5687e",
+  "digest": "sha256:56e27ae41794567311a697ad90c94c119a560c31fcb46ed68217960c6dd42df1",
   "license": "Apache-2.0",
   "official": true,
   "requirements": {
@@ -14,7 +14,8 @@
       "collector_bilibili_native_search_batch",
       "collector_bilibili_video_detail",
       "collector_xiaohongshu_public_notes_search",
-      "collector_xiaohongshu_note_public_detail"
+      "collector_xiaohongshu_note_public_detail",
+      "collector_xiaohongshu_note_public_comments"
     ],
     "resources": [
       "collector://release",
@@ -29,7 +30,8 @@
       "bilibili.native_search_batch",
       "bilibili.video_detail",
       "xiaohongshu.search.public_notes.v1",
-      "xiaohongshu.note.public_detail.v1"
+      "xiaohongshu.note.public_detail.v1",
+      "xiaohongshu.note.public_comments.v1"
     ],
     "minimumOutputSchemas": {
       "collector://release": "collector.mcp.release/v1",

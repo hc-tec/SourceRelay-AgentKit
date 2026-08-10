@@ -28,6 +28,9 @@ comments:
 Require `maximumDetails > 0` before enabling comments. Require comments before enabling replies.
 Choose enough detail for the task; do not equate risk control with unusably low coverage.
 
+`maximumDetails` by itself is detail-only and does not collect comments. Comments must be enabled
+explicitly with `comments.maximumScrolls`; replies must be enabled explicitly beneath `comments`.
+
 ## Account target matrix
 
 | executionTarget | maximumScrolls | profileUrl | Meaning |
@@ -63,8 +66,11 @@ breadth-only public notes search
   -> optional public comment replies in the same overlay context
 ```
 
-Do not refresh between these Operations. If the overlay or source page is lost, stop and create a new
-explicit plan rather than repeatedly clicking or reopening.
+Do not refresh between these Operations. A standalone comments or replies call requires exactly one
+eligible same-document note overlay; zero or multiple matching overlays are terminal prerequisites
+(`existing_public_note_overlay_required` or `existing_public_note_overlay_ambiguous`). If the overlay
+or source page is lost, stop and create a new explicit plan rather than repeatedly clicking or
+reopening.
 
 ### Blogger public-note inventory
 

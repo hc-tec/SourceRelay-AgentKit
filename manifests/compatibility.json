@@ -167,13 +167,13 @@
       },
       {
         "skillId": "collect-xiaohongshu",
-        "skillVersion": "0.1.0",
-        "digest": "sha256:5c33346f92f065c7feb476ed25e0c788a62ea85fad65372b1d336448460c0ab6"
+        "skillVersion": "0.1.1",
+        "digest": "sha256:795704afd9e766d125e436900b7f08c0ebcc22a8cc3e3437ae9e1334cc2188be"
       },
       {
         "skillId": "research-search-then-detail",
-        "skillVersion": "0.1.0",
-        "digest": "sha256:fa34143d129c65ca440a655fa3c9c43619ed725f0ba198d2b1669c167af5687e"
+        "skillVersion": "0.1.1",
+        "digest": "sha256:56e27ae41794567311a697ad90c94c119a560c31fcb46ed68217960c6dd42df1"
       },
       {
         "skillId": "collect-zhihu",

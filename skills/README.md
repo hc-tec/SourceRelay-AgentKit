@@ -6,9 +6,9 @@ Checkpoint 6 extends the official Skill set to five versioned packages; all are 
 | --- | --- | --- | --- |
 | `use-collector-mcp` | Foundation | `0.1.0` | Compatibility, optional binding selection, idempotent submission, Operation and Artifact use |
 | `collect-bilibili` | Platform | `0.1.1` | Safe selection and sequencing of all 10 Bilibili Tools plus the live subtitle capability boundary |
-| `collect-xiaohongshu` | Platform | `0.1.0` | Page-state-safe selection and sequencing of all 5 Xiaohongshu Tools |
+| `collect-xiaohongshu` | Platform | `0.1.1` | Page-state-safe detail, explicit comments, and reply sequencing for all 5 Xiaohongshu Tools |
 | `collect-zhihu` | Platform | `0.1.0` | Bounded Official Provider search, hot-list, and global-search selection |
-| `research-search-then-detail` | Intent | `0.1.0` | Bounded breadth first, then selected detail |
+| `research-search-then-detail` | Intent | `0.1.1` | Bounded breadth first, then selected detail and requested Xiaohongshu comments |
 
 Each Skill contains only `SKILL.md`, `agents/openai.yaml`, its required manifest, and an optional
 single-level reference. Package digests and exact MCP requirements are pinned in each `manifest.json`

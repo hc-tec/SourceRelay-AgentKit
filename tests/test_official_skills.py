@@ -60,7 +60,7 @@ EXPECTED_SKILLS = {
     },
     "collect-xiaohongshu": {
         "layer": "platform",
-        "version": "0.1.0",
+        "version": "0.1.1",
         "tools": {
             "collector_xiaohongshu_public_notes_search",
             "collector_xiaohongshu_account_public_notes",
@@ -92,13 +92,14 @@ EXPECTED_SKILLS = {
     },
     "research-search-then-detail": {
         "layer": "intent",
-        "version": "0.1.0",
+        "version": "0.1.1",
         "tools": {
             "collector_bilibili_native_search",
             "collector_bilibili_native_search_batch",
             "collector_bilibili_video_detail",
             "collector_xiaohongshu_public_notes_search",
             "collector_xiaohongshu_note_public_detail",
+            "collector_xiaohongshu_note_public_comments",
         },
         "files": {"SKILL.md", "agents/openai.yaml", "manifest.json"},
     },

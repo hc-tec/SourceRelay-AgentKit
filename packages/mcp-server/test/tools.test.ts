@@ -35,6 +35,20 @@ test('Tool catalog has exact Core parity and mechanically flattened schemas', ()
   assert.equal(catalog.every((definition) =>
     /^sha256:[a-f0-9]{64}$/.test(definition.inputSchemaDigest)), true);
 
+  const xhsSearch = catalog.find((definition) =>
+    definition.toolId === 'collector_xiaohongshu_public_notes_search')!;
+  assert.match(xhsSearch.description, /maximumDetails > 0/);
+  assert.match(xhsSearch.description, /details alone never collect comments/);
+  assert.match(xhsSearch.description, /explicitly pass comments\.maximumScrolls/);
+  const xhsDetail = catalog.find((definition) =>
+    definition.toolId === 'collector_xiaohongshu_note_public_detail')!;
+  assert.match(xhsDetail.description, /detail-only/);
+  assert.match(xhsDetail.description, /does not collect comments/);
+  const xhsComments = catalog.find((definition) =>
+    definition.toolId === 'collector_xiaohongshu_note_public_comments')!;
+  assert.match(xhsComments.description, /exactly one/);
+  assert.match(xhsComments.description, /existing_public_note_overlay_ambiguous/);
+
   const fixed = catalog.find((definition) => definition.capabilityId === 'bilibili.video_detail')!;
   const fixedProperties = fixed.inputSchema.properties as Record<string, unknown>;
   assert.deepEqual(Object.keys(fixedProperties), [

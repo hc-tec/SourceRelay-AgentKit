@@ -1,6 +1,6 @@
 ---
 name: research-search-then-detail
-description: Perform a minimal public-information search-then-detail method with Collector MCP. Use when a user wants broad Bilibili or Xiaohongshu discovery first and deeper collection only for selected relevant results, including cross-platform topic research with explicit breadth/detail budgets. Combine with use-collector-mcp and the selected Platform Skill; do not use for monitoring, hidden workflows, arbitrary browsing, or automatic analysis services.
+description: Perform a minimal public-information search-then-detail method with Collector MCP. Use when a user wants broad Bilibili or Xiaohongshu discovery first and deeper collection only for selected relevant results, including bounded Xiaohongshu note comments when requested, and cross-platform topic research with explicit breadth/detail budgets. Combine with use-collector-mcp and the selected Platform Skill; do not use for monitoring, hidden workflows, arbitrary browsing, or automatic analysis services.
 ---
 
 # Research Search Then Detail
@@ -56,6 +56,13 @@ For each selected Xiaohongshu candidate, call `collector_xiaohongshu_note_public
 visible `resultRank` and the exact existing search-page target. Keep calls sequential on that page and
 stop if the page state is lost, replaced, challenged, or no longer admits the rank.
 
+When the user requests comments or discussion evidence for a selected Xiaohongshu note, treat that
+request as part of the declared detail budget. If the comment budget was known before search, prefer
+the search Tool's nested `comments` request. Otherwise call
+`collector_xiaohongshu_note_public_comments` immediately after detail while exactly one eligible
+same-document note overlay remains open; zero or multiple matching overlays are terminal
+prerequisites, not a reason to guess or reopen pages.
+
 Follow each detail Operation independently. Preserve `completed`, `partial`, `stopped`, and `failed`
 facts rather than collapsing them into one research status.
 
@@ -78,6 +85,8 @@ or persist a shared knowledge workspace.
 
 ## Stop deliberately
 
-Stop when the evidence threshold is met, the declared detail budget is exhausted, no remaining result
-can materially change the answer, or any safety terminal occurs. Report uncovered gaps instead of
-automatically broadening queries, adding platforms, reopening pages, or collecting comments.
+Stop when the evidence threshold is met, the declared detail/comment budget is exhausted, no remaining
+result can materially change the answer, or any safety terminal occurs. Report uncovered gaps instead
+of automatically broadening queries, adding platforms, or reopening pages. Do not add comments unless
+the caller requested discussion evidence; when requested, collect them only within the explicit bound
+above.

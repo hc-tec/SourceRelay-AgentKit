@@ -35,6 +35,9 @@ and continue the caller's other sources; do not repeat the operation.
 - Set `maximumDetails: 0` or omit it for breadth-only card collection.
 - Set `maximumDetails` from 1 through 20 when the user needs detail. Slow does not mean artificially
   small; choose enough ranked details for the stated evidence goal.
+- `maximumDetails` alone is detail-only: it never collects comments. When the user asks for note
+  details and comments, explicitly add `comments.maximumScrolls`; add
+  `comments.replies.maximumThreads` only when replies are also requested.
 - Add nested `comments.maximumScrolls` only when `maximumDetails` is positive.
 - Add nested `comments.replies.maximumThreads` only when comments are enabled.
 
@@ -63,9 +66,12 @@ uncertain account action with a different target or URL under the same request I
 
 ## Collect note discussion
 
-Use `collector_xiaohongshu_note_public_comments` only in an already-open same-document public note
-overlay. Use `collector_xiaohongshu_note_public_comment_replies` only after the relevant public reply
-threads are available in that same overlay context. Keep both budgets within the Tool enum 1–3.
+Use `collector_xiaohongshu_note_public_comments` only when exactly one eligible same-document public
+note overlay is already open. Zero eligible overlays returns `existing_public_note_overlay_required`;
+multiple eligible overlays returns `existing_public_note_overlay_ambiguous`. Use
+`collector_xiaohongshu_note_public_comment_replies` only after the relevant public reply threads are
+available in that same overlay context. Keep both budgets within the Tool enum 1–3. When the comment
+budget is known before search, prefer the combined search request so Core owns the overlay lifecycle.
 
 Read [references/capabilities.md](references/capabilities.md) when constructing inputs or chaining
 search, detail, comments, replies, or account collection. Do not use it as a manual page-setup
