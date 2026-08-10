@@ -18,7 +18,7 @@ The release compatibility identity was:
 
 ```text
 openApiSchemaDigest:       sha256:c1f9b713f7e5ae1bd7d5d4294f08d5bda52b4352f6b30665d4c1b9b168b56cea
-capabilityCatalogDigest:   sha256:dd9cb86280d7c049cef22b67bd6a1431738b8e659bc03ccb2fa5d016fc0675ef
+capabilityCatalogDigest:   sha256:3c05da851fff32fecf4da4b36ccfcec24a6630118ccd4b2e3552d17caa5b3ab4
 feature:                   capabilities.catalog_digest_excludes_runtime_state.v1
 ```
 
