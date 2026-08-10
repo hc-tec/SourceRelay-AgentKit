@@ -5,7 +5,7 @@ export const SUPPORTED_CORE_RELEASE = '0.7.17';
 export const SUPPORTED_CORE_SERVICE_SCHEMA = 3;
 export const SUPPORTED_CORE_OPENAPI_VERSION = '3.0.0-experimental';
 export const SUPPORTED_CORE_CATALOG_DIGEST =
-  'sha256:3c05da851fff32fecf4da4b36ccfcec24a6630118ccd4b2e3552d17caa5b3ab4';
+  'sha256:dd9cb86280d7c049cef22b67bd6a1431738b8e659bc03ccb2fa5d016fc0675ef';
 export const SUPPORTED_CORE_OPENAPI_DIGEST =
   'sha256:c1f9b713f7e5ae1bd7d5d4294f08d5bda52b4352f6b30665d4c1b9b168b56cea';
 

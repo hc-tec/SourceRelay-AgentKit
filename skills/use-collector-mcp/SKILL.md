@@ -35,6 +35,10 @@ primitive, selector, script, CDP command, or Network body.
    prerequisite when the Tool can resolve it internally.
 2. Generate one UUID `clientRequestId` for this exact canonical Tool call. Omit `bindingAlias` for
    the ordinary single-online-binding case; include it only when an explicit session choice is needed.
+   On Windows, carry non-ASCII arguments across an explicitly UTF-8-safe boundary (for example a
+   Unicode environment variable or decoded UTF-8 bytes), never a Windows PowerShell 5.1 native text
+   pipe. Confirm the intended UTF-8 bytes before the Tool call; a query changed to `?` is a different,
+   invalid platform action and must not be submitted.
 3. Preserve the complete Tool name and arguments until the outcome is known.
 4. Call the Tool once. Do not poll inside the Tool call or issue a second capability implicitly.
 5. Record the returned `operationId`, `operationResourceUri`, `capabilityId`, and

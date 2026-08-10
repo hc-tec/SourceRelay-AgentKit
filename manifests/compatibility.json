@@ -25,7 +25,7 @@
       "capabilities.catalog_digest_excludes_runtime_state.v1"
     ],
     "openApiSchemaDigest": "sha256:c1f9b713f7e5ae1bd7d5d4294f08d5bda52b4352f6b30665d4c1b9b168b56cea",
-    "capabilityCatalogDigest": "sha256:3c05da851fff32fecf4da4b36ccfcec24a6630118ccd4b2e3552d17caa5b3ab4",
+    "capabilityCatalogDigest": "sha256:dd9cb86280d7c049cef22b67bd6a1431738b8e659bc03ccb2fa5d016fc0675ef",
     "directCapabilityIds": [
       "bilibili.video_detail",
       "bilibili.native_search",
@@ -158,7 +158,7 @@
       {
         "skillId": "use-collector-mcp",
         "skillVersion": "0.1.0",
-        "digest": "sha256:3c049a2f4b75fd4d22f5794d9214bb11843562e5bc0b3831f1bc618f873e5732"
+        "digest": "sha256:00b26966c70c55d9234b92d3f59a192dbf7484499bd6a5ea869b68e0e95d3fe8"
       },
       {
         "skillId": "collect-bilibili",

@@ -38,6 +38,9 @@
   uncertainty. Never rewrite platform failure as `no_results`.
 - Tool submission is at-most-once and asynchronous. Return the Core Operation identity; do not hide a
   multi-step workflow inside one Tool.
+- On Windows, pass non-ASCII Tool arguments through an explicitly UTF-8-safe process boundary. Never
+  pipe Chinese query source directly from Windows PowerShell 5.1 into Node; verify the intended UTF-8
+  bytes before the one allowed live Tool submission so `?` replacement cannot become a platform action.
 - Artifact access is metadata-first and bounded. Never expose arbitrary local file paths.
 - Agent-visible data must not contain Core tokens, cookies, profiles, browser identities, secrets, or
   unbounded raw content.
