@@ -23,7 +23,7 @@
 | B 站站内搜索 | 12 组批量搜索 × 2 页（bili-b1..b12） | 12 个 `completed` / `search_batch_ready` | 288 张搜索卡片（另有 2 个单页探针 40 张，合计 328 张） |
 | B 站详情 | 46 个首批详情 + 字幕修复后重跑 + 字幕探针 | 103 个唯一 `completed` / `detail_ready` Artifact | 103 个详情投影；其中 27 个含完整字幕全文（71~2545 分段，819~28901 字符） |
 | B 站评论区 | 22 次讨论操作 | 16 个 `completed` / `discussion_ready`、4 个 `partial`、2 个 `failed`（后已重跑成功） | 225 条根评论（20 个视频中有 16 个成功） |
-| 小红书 | 5 次公开笔记搜索探针 | 5 个 `stopped` / `postcondition_unmet` | 只能证明平台前置条件不足，无笔记内容结论 |
+| 小红书 | 修复前 5 次探针被拦截；修复后 22 次搜索成功 | 22 个 `completed`（search_ready / search_depth_ready）；19 个详情 overlay | 182 条去重笔记卡片、19 个详情采集；评论采集受 overlay 唯一识别限制为 0 |
 
 分类统计（480 条知乎/全网条目，可多主题归属，共 1396 次归并）：发布/环境 273、质量/测试 261、需求/协作 170、知识库/文档 160、度量/DORA 154、采纳/使用率 121、AI 工作流 102、平台/内部工具 84、未分类 71。
 
@@ -114,7 +114,7 @@
 | bili-c19 | BV1i64y1E7XG | `a157c25f-8bcd-43b0-a0d4-0087e7abf89f` | `8bbf874b-0cda-4719-b416-e573aae97f5b` | `sha256:d821e0e328de7ac45179edfdc4b5da8127560aa3cf8eb391bbaac103e594bc9c` | completed/discussion_ready | 4 |
 | bili-c20 | BV1YY411W7Ss | `66e98899-9103-4828-ad40-57b1eb04ebf5` | `28fefd67-417a-4b21-8d6a-c54a3ea78946` | `sha256:e5b0217a531d19960f55cfefcf6c7e7acec28121dbbe09c1fde68b8b006d3e49` | completed/discussion_ready | 7 |
 
-## 5. 小红书探针记录（平台前置条件不足，未读取笔记内容）
+## 5. 小红书采集（修复前探针 + 2026-08-10 修复后成功）
 
 | 标签 | 查询意图 | Operation | Artifact | SHA-256 | 终态 | 错误码 |
 | --- | --- | --- | --- | --- | --- | --- |
@@ -123,6 +123,71 @@
 | xhs-p1 | 程序员提效 | `3b6a0250-e575-4174-bb12-d13fdd02c3d3` | `5be12f0e-a855-4949-9fdb-47d487c09ebe` | `sha256:9ac631c37447f137c0b4d3cc68d1d83721b8cab30e09eaf8d9da0024de984fa0` | stopped/postcondition_unmet | work_tab_user_taken_over |
 | xhs-r1 | 程序员提效 | `d0b96b4e-0bff-425b-a880-f3d13464b37f` | `87dcee22-f6ed-4e68-acdf-6ff6584a888a` | `sha256:2ec2995b431845a36268b7c51ef928c3a9ee69b74198a806fb29198c31912e31` | stopped/postcondition_unmet | xiaohongshu_explore_navigation_not_ready |
 | xhs-r2 | 程序员提效 | `dbf4f04e-81be-4813-ab58-b14bf2097da8` | `44e3e09e-10e2-47d6-b986-ef22e24a0e17` | `sha256:32cdb84bcf973b9668c70b8608e677f9a6904626d45c80206af48a58d7d5c8e2` | stopped/postcondition_unmet | xiaohongshu_search_execution_failed |
+### 5.1 2026-08-10 修复后成功采集（用户修复扩展 + MCP catalog 重新 pin 到 live 目录 dd9cb8）
+
+背景：2026-08-07 至 08-10 上午的探针全部被平台前置条件拦截（`explore_navigation_not_ready` / `work_tab_user_taken_over` / `search_execution_failed`）；用户修复扩展后，MCP 能力目录变为 `managedValidationState=gateway_extension_real_e2e_passed`（catalog digest `dd9cb8...`），随后采集成功。
+
+### 5.1 成功搜索 Operation（22 次，search_ready / search_depth_ready）
+
+| 标签 | 查询 | 终态 | 卡片数 | 投影数 | 详情数 | Artifact / SHA-256 |
+| --- | --- | --- | ---: | ---: | ---: | --- |
+| xhs-a1 | 研发效能 | search_ready | 22 | 19 | 0 | `sha256:a4f31f752793cb50303350f40a81d960dff5e3cab373963fe1da2f37d93564bb` |
+| xhs-a3 | AI 提效 团队 落地 | search_ready | 22 | 20 | 0 | `sha256:809cbd6efe2a348a0fb076658bb1957a0996b93d0d51bd17e74b0a8c35118e03` |
+| xhs-a4 | 程序员 效率工具 | search_ready | 22 | 19 | 0 | `sha256:0ec30dd3053c89291c464ac48be34d4ece77932f02f6b1d08882c7fabfae833e` |
+| xhs-a5 | 知识库 团队 建设 | search_ready | 22 | 20 | 0 | `sha256:6b48998111e221888a1794d0cbcb62e64783fb6b1e48c2eae6a2b1396c4b3d92` |
+| xhs-a6 | 需求评审 原型 | search_ready | 22 | 20 | 0 | `sha256:56308d017828d629875653e2dcc50e436c718ed3692bdcddf8e5d5e20c4f882e` |
+| xhs-a7 | 测试 自动化 | search_ready | 22 | 19 | 0 | `sha256:c538e36eba49cf75e5c056bdba567947a0479c888640f935a098041e718e6a66` |
+| xhs-a8 | 代码评审 AI | search_ready | 22 | 19 | 0 | `sha256:b7855d7e31ff1086934de43324cc5570ba156e344de1d5f459891c7e58cee96a` |
+| xhs-a2r | 内部工具 没人用 | search_ready | 20 | 18 | 0 | `sha256:9db5ec1973c0a8490bfb7f95f0290be7469a0e83b8e962d7d3d5af884a085bc1` |
+| xhs-d0s | 研发效能 | search_ready | 22 | 19 | 0 | `sha256:45d7ca64d71d65bf828894e3b4a2b387930570d45b497ae17227efb8705d3e30` |
+| xhs-t1 | 知识库 团队 建设 | search_depth_ready | 22 | 20 | 3 | `sha256:cb40103280961755ae9edc7fb4cc0699eb68c06a3072bf36e9fd30d7f04ea5e7` |
+| xhs-d1 | 研发效能 | search_depth_ready | 22 | 18 | 3 | `sha256:3c75abe3d7e64ce6d1b2d9026ed364553b3ad257b5eaed9ee308917c46fb5c75` |
+| xhs-d3 | AI 提效 团队 落地 | search_depth_ready | 22 | 20 | 3 | `sha256:155c92b8147b482e0e2b01e1c54f62bb3da003dfe35871370741f4eb9609e583` |
+| xhs-d4 | 需求评审 原型 | search_depth_ready | 22 | 19 | 3 | `sha256:624ab90e4431e95de900cb66c300036c195624a682fddd08e689fb287b1d2014` |
+| xhs-d5 | 测试 自动化 | search_depth_ready | 22 | 19 | 3 | `sha256:702e79ce069c12982d14161d02fed50ddb03e54b6ccb9d27a57e75c45f5c125a` |
+| xhs-d6 | 代码评审 AI | search_depth_ready | 22 | 19 | 3 | `sha256:f2144339e7f2812f7089dfde4174df23733da0242c30002782b3358f6bea2615` |
+| xhs-t2s | 研发效能 | search_ready | 22 | 19 | 0 | `sha256:5643a0c7778e19091c34c8b3137a22ad92a01c7768348f8d6a8809d29ce2a6ea` |
+| xhs-t3s | AI 提效 团队 落地 | search_ready | 22 | 20 | 0 | `sha256:0d4376ac3f8d417a4221d50d1bced0d83ae4bf0a7d17c49a885472eccd7259b3` |
+| xhs-t4s | AI 提效 团队 落地 | search_ready | 22 | 20 | 0 | `sha256:8806a055e5801ad6c91424fbe93d8c9693f05601a7394f8ea798cb61e4ac641c` |
+| xhs-t5s | AI 提效 团队 落地 | search_ready | 22 | 20 | 0 | `sha256:b665a1d98d2a77eeb805e9a1dcbbd5c23b27ffb39cf1abef65fc4265a53c3a25` |
+| xhs-t6s | 测试 自动化 | search_ready | 22 | 19 | 0 | `sha256:c3cdf4e1d01e9a16a010e8582e09df0cd571529db02ab654f99882155ba86317` |
+| xhs-t7s | 知识库 团队 建设 | search_ready | 22 | 20 | 0 | `sha256:7173b998185c3d1b48cab217a4cbbc7f7b6a65589c0a91b33e06fe3c64ee46ab` |
+| xhs-t8s | 代码评审 AI | search_ready | 22 | 19 | 0 | `sha256:f0f994a3b0759ecc0e296c0a95d546aaca82d19dfd9ca348a339ec6429210f8e` |
+
+### 5.2 汇总统计与平台限制
+
+- 去重笔记卡片（按 noteId）：**182 条**（22 次搜索 + 1 次独立探针 `程序员提效` 20 条）；
+- 详情 overlay 采集：**19 个**（`search_depth_ready` 的 maximumDetails=3 自动采集 18 个 + 定向 rank 详情 1 个）；
+- 评论采集：**0 条**——评论能力要求“已打开的同一文档笔记 overlay”，但搜索+详情链结束后 overlay 无法唯一识别（`existing_public_note_overlay_ambiguous`），且详情投影 `commentEntryVisible=false`；定向 rank 详情因多次搜索后工作标签过多而报 `existing_public_search_tab_ambiguous`。以上均按 Core 真实终态登记。
+
+### 5.3 失败/受限 Operation（含 2026-08-07 至 08-10 上午的探针）
+
+| 标签 | 查询 | 终态 | 错误码 |
+| --- | --- | --- | --- |
+| xhs-s1 | 程序员提效 | postcondition_unmet | xiaohongshu_explore_navigation_not_ready |
+| xhs-s2 | 研发效能 | postcondition_unmet | work_tab_user_taken_over |
+| xhs-p1 | 程序员提效 | postcondition_unmet | work_tab_user_taken_over |
+| xhs-r1 | 程序员提效 | postcondition_unmet | xiaohongshu_explore_navigation_not_ready |
+| xhs-r2 | 程序员提效 | postcondition_unmet | xiaohongshu_search_execution_failed |
+| xhs-a2 | 内部工具 没人用 | extension_worker_interrupted | xiaohongshu_extension_worker_interrupted |
+| xhs-d2 | 内部工具 没人用 | source_unavailable | xiaohongshu_source_unavailable |
+| xhs-d2r | 内部工具 没人用 | source_unavailable | xiaohongshu_source_unavailable |
+
+### 5.4 代表性笔记（高互动，标题/作者/赞数来自投影）
+
+- [AI 提效 团队 落地] 字节对 AI Coding 的反思，很有见地。（小盖，赞 1629）
+- [AI 提效 团队 落地] 帮中型公司落地agent，分享下踩的坑（还没想好，赞 1396）
+- [代码评审 AI] AI时代，你怎么做Code Review？（大厂AI搜推踩坑侠，赞 976）
+- [测试 自动化] 小红书GUIAgent把自动化测试当AIcoding来做（小红书技术REDtech，赞 1142）
+- [知识库 团队 建设] 别建AI知识库（Aaron（搞 AI 版），赞 2207）
+- [知识库 团队 建设] 为什么我们公司的AI知识库注定烂尾？（AI知识基建薯，赞 332）
+- [需求评审 原型] 产品经理自学指南【24】需求逻辑怎么写？（一乐Yile，赞 2078）
+- [内部工具 没人用] 字节跳动内部对企业 Agent 发展的判断（空格的键盘，赞 1157）
+- [研发效能] 生成率8%→60%！智能用例生成的四阶进化（快手技术，赞 372）
+- [程序员 效率工具] 日志诊断 Skill：用 AI + MCP 一键解决BUG（得物技术，赞 190）
+- [代码评审 AI] 58% 到 98%：让 AGENTS.md 教会 AI 审代码（大橘，赞 0）
+- [AI 提效 团队 落地] AI提效全是假象？快手1万人研发实测后...（快手技术，赞 276）
+
 ## 6. B 站详情 Operation 登记（去重后 103 个唯一 completed Artifact）
 
 说明：`bili-d01..d47` 为第一批 46 个详情；`bili-x01..x47` 为字幕能力修复后的重跑；`sub-probe/sd/fix` 为字幕探针。下面只登记两类：6.1 拿到完整字幕全文的 27 个；6.2 首批 46 个详情的标签/BV/标题映射。其余探针与重跑详情可在 `raw/` 与 `summary/readable-bili-detail.md` 中复核。
@@ -223,6 +288,9 @@
 | B 站详情字幕 `transcript_timeout` | 2 | 字幕转录超时，partial=true（x12/x44） |
 | B 站详情无字幕 `player_unavailable` | 3 | 播放器不可用（x45/x46/x47） |
 | B 站评论区 `bilibili_video_discussion_dom_not_ready` | 4 | 评论区 DOM 未就绪，partial，未重跑或重跑未完成 |
+| 小红书 `existing_public_note_overlay_ambiguous` | 1 | 搜索+详情后评论 overlay 无法唯一识别，评论采集为 0 |
+| 小红书 `existing_public_search_tab_ambiguous` | 7 | 多次搜索后工作标签过多，定向 rank 详情无法识别目标搜索页 |
+| 小红书 `xiaohongshu_source_unavailable` | 2 | 查询“内部工具 没人用”重试两次源不可用（同查询早前成功一次） |
 | `submission_conflict` | 若干 | 同一 binding 并发提交导致 409，串行化后重跑成功 |
 
 ## 8. 原始数据位置

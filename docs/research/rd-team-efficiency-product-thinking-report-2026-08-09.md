@@ -65,7 +65,7 @@
 - **A 级**：Collector Artifact 中的公开详情字段、字幕全文、评论文本，保留 Operation/Artifact/SHA-256（证据文件第 6 章）；
 - **B 级**：站内搜索卡片标题、可见互动/发布时间，适合证明“议题正在被公开讨论”；
 - **C 级**：基于多个 A/B 级样本的机制归纳，需在公司内部访谈/数据中再验证；
-- **未验证**：小红书因平台前置条件未采集到内容，不进入结论。
+- **未验证**：小红书评论（overlay 唯一识别受限）；B 站部分字幕（menu_unavailable / transcript_timeout / player_unavailable）。小红书笔记搜索与详情已进入 A/B 级证据。
 
 ### 1.4 数据规模（全部为真实平台采集，非模拟）
 
@@ -79,7 +79,7 @@
 | B 站视频详情 | 103 个唯一 completed Artifact | 含 46 个首批详情 |
 | **B 站字幕全文** | **27 个视频**（71~2545 分段，819~28901 字符） | captured |
 | B 站根评论 | 225 条（16 个视频成功） | 另有 4 个 partial |
-| 小红书 | 5 次探针全部被平台前置条件拦截 | 如实登记，不伪装 |
+| 小红书 | 修复前 5 次探针被拦截；修复后 22 次搜索成功 | 182 条去重笔记、19 个详情 overlay、评论受限记录 |
 ---
 
 ## 2. 核心叙事：提效的成败在“产品思维”，不在“工具数量”
@@ -373,7 +373,7 @@
 
 ## 6. 平台与证据边界（如实记录，不伪装）
 
-- **小红书**：5 次公开笔记搜索探针均被平台前置条件拦截（`xiaohongshu_explore_navigation_not_ready`、`work_tab_user_taken_over`、`xiaohongshu_search_execution_failed` 等，含 `queryEchoed=false` 运行期限制）。因此**本报告没有小红书内容结论**，不把“平台受限”写成“小红书没有相关内容”。
+- **小红书**：2026-08-07 至 08-10 上午的 5 次探针被平台前置条件拦截（`explore_navigation_not_ready`、`work_tab_user_taken_over`、`search_execution_failed` 等，含 `queryEchoed=false`）。用户修复扩展后，2026-08-10 起搜索成功（`queryEchoed=true`），已采集 22 次搜索、182 条去重笔记、19 个详情。**评论采集仍受限**：搜索+详情链结束后 overlay 无法唯一识别（`existing_public_note_overlay_ambiguous`），定向 rank 详情因多搜索标签报 `existing_public_search_tab_ambiguous`；如实记录，不伪装。
 - **B 站字幕**：27 个视频拿到完整字幕全文；另有 3 个 `menu_unavailable`、2 个 `transcript_timeout`、3 个 `player_unavailable`，按 Core 真实终态登记。
 - **B 站评论区**：16 个视频成功（225 条根评论），4 个 `discussion_partial`（DOM 未就绪），2 个曾因工作标签被占用失败后重跑成功。
 - **验证码/风控**：采集过程中触发过 1 次 B 站 `verification_required`，按项目规则不解锁、不绕过，等待用户 Console 人工解锁后继续。
@@ -389,10 +389,61 @@
 
 ---
 
+---
+
+## 8. 小红书证据补充（2026-08-10 修复后采集）
+
+> 用户修复扩展后，小红书公开笔记搜索链路恢复（MCP catalog 重新 pin 到 live 目录 dd9cb8）。本节全部内容来自真实 Artifact（证据文件 5.1 节登记 22 次搜索的 Operation/SHA-256）。
+
+### 8.1 采集规模
+
+- 成功搜索 **22 次**（8 组主题 + 深度采集重跑 + 定向重跑），每页 20~22 张卡片，按 noteId 去重后 **182 条笔记卡片**；
+- 详情 overlay 采集 **19 个**（其中 18 个来自 maximumDetails=3 的自动深度采集，1 个来自定向 rank 详情）；
+- 评论采集 **0 条**：评论能力要求“已打开的同一文档笔记 overlay”，采集链结束后无法唯一识别，按 Core 真实终态登记（证据文件第 7 节）。
+
+### 8.2 高互动样本（标题来自投影，赞数为可见互动）
+
+| 查询 | 笔记 | 作者 | 赞 |
+| --- | --- | --- | ---: |
+| 知识库 团队 建设 | 别建AI知识库 | Aaron（搞 AI 版） | 2207 |
+| 需求评审 原型 | 产品经理自学指南【24】需求逻辑怎么写？ | 一乐Yile | 2078 |
+| AI 提效 团队 落地 | 字节对 AI Coding 的反思，很有见地。 | 小盖 | 1629 |
+| AI 提效 团队 落地 | 帮中型公司落地agent，分享下踩的坑 | 还没想好 | 1396 |
+| 测试 自动化 | 小红书GUIAgent把自动化测试当AIcoding来做 | 小红书技术REDtech | 1142 |
+| 内部工具 没人用 | 字节跳动内部对企业 Agent 发展的判断 | 空格的键盘 | 1157 |
+| 代码评审 AI | AI时代，你怎么做Code Review？ | 大厂AI搜推踩坑侠 | 976 |
+| 研发效能 | 生成率8%→60%！智能用例生成的四阶进化 | 快手技术 | 372 |
+| AI 提效 团队 落地 | AI提效全是假象？快手1万人研发实测后... | 快手技术 | 276 |
+| 程序员 效率工具 | 日志诊断 Skill：用 AI + MCP 一键解决BUG | 得物技术 | 190 |
+
+### 8.3 与主报告互证的三个新信号
+
+**信号一：提效可能“反更忙”——问题出在没消除等待与返工**
+- 《不是，AI来提效以后，大厂人怎么更忙了？》（大厂人关爱中心，240 赞）；
+- 《AI提效全是假象？快手1万人研发实测后...》（快手技术，276 赞）、《某脉：深信服AI提效反增加班？》；
+- 《AI让研发提速10倍，我却成了团队的瓶颈？》《AI越提效，程序员越像永动机😂》。
+→ 与 B 站 bili-x08（生成快≠交付快）同构：**提效必须落到“消除等待/返工/上下文切换”，否则只会把低价值动作做得更快**。
+
+**信号二：知识库没人用的原因，小红书给出了与 B 站一致的答案**
+- 《部门知识库没人用，问题可能不在同事》（张英杰，11 赞）、《为什么我们公司的AI知识库注定烂尾？》（AI知识基建薯，332 赞）、《别建AI知识库》（2207 赞）、《很多团队缺的不是AI，是共享上下文》（Fourier，112 赞）。
+→ 与 bili-x11（知识跟问题没结合）、知乎 b4（贡献门槛要低）互证：**知识库失败在产品与治理，不在存储技术**。
+
+**信号三：AI 时代瓶颈从“写代码”转移到“审代码”**
+- 详情 overlay 抓到《AI 时代的代码审查》（卢卡同学）：转述谷歌 Addy Osmani《Agentic Code Review》——**“AI Agent 时代，软件工程的瓶颈从写代码转移到了审查代码”**（详情 Artifact xhs-d6，SHA f2144339...）；
+- 《AI时代，你怎么做Code Review？》（976 赞）、《58% 到 98%：让 AGENTS.md 教会 AI 审代码》、《阿里开源 OpenCodeReview》。
+→ 与 bili-x08 的 stacked PR、zhihu b5 的 AI Code Review 实践完全同构：**新员工做“评审辅助小工具/Skill”是当前最高 ROI 的切入点之一**。
+
+### 8.4 对小工具路线的额外佐证（小红书上的个人/团队 Skill 案例）
+
+《我实际开发中的五个skills推荐》（0xApple，1164 赞）、《最近让我开发效率暴涨的几个AISkills》（乐趣可可，614 赞）、《Codex真正高级用法：让它自己监督自己干活》（来杯凉白开，983 赞）、《日志诊断 Skill：用 AI + MCP 一键解决BUG》（得物技术，190 赞）、《UI自动化测试+Harness 实践分享》（何隐心，386 赞）。
+→ 佐证第 4.2/5.2 章结论：**“Skill/小工具”是新员工能独立完成、且市场已大量验证的提效形态**。
+
+
 ## 附录：证据快速索引
 
 - **证据登记（完整 Operation/Artifact/SHA-256）**：[rd-team-efficiency-product-thinking-evidence-2026-08-09.md](rd-team-efficiency-product-thinking-evidence-2026-08-09.md)
 - **知乎/全网分类汇总（480 条）**：`runtime/research-pain-points-2026-08-07/summary/classified-zhihu-web.md`
+- **小红书采集汇总（182 条去重笔记 / 19 详情 / 22 搜索）**：`runtime/research-pain-points-2026-08-07/summary/readable-xhs-all.md`
 - **B 站搜索卡片（328 张）**：`runtime/research-pain-points-2026-08-07/summary/readable-bili-search.md`
 - **B 站详情投影（103 个）**：`runtime/research-pain-points-2026-08-07/summary/readable-bili-detail.md`
 - **操作台账（244 行）**：`runtime/research-pain-points-2026-08-07/summary/operations.jsonl`
