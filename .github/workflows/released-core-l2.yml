@@ -19,7 +19,7 @@ jobs:
     env:
       CORE_RELEASE_VERSION: '0.7.17'
       CORE_RELEASE_TAG: core-v0.7.17
-      CORE_RELEASE_ARCHIVE_SHA256: 14768991285c09d06e62a5409a629bf66f37f8d28d6351d06a7e3f993985b45a
+      CORE_RELEASE_ARCHIVE_SHA256: c17ad57ad9d8ae16322ff54b8b40ff8b83b23bf500e639be3ef7bfbfa194a909
 
     steps:
       - name: Check out AgentKit
