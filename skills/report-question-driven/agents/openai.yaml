@@ -1,0 +1,4 @@
+interface:
+  display_name: "问题驱动式报告生成"
+  short_description: "问题驱动报告：先抛问题，让读者带着问题挖答案，不做内容陈列式罗列"
+  default_prompt: "Use $report-question-driven to structure research reports as question-driven journeys: open with the reader's questions, let them dig for answers, and close the loop."

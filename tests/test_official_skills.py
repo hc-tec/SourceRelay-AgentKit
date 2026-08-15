@@ -103,6 +103,12 @@ EXPECTED_SKILLS = {
         },
         "files": {"SKILL.md", "agents/openai.yaml", "manifest.json"},
     },
+    "report-question-driven": {
+        "layer": "intent",
+        "version": "0.1.0",
+        "tools": set(),
+        "files": {"SKILL.md", "agents/openai.yaml", "manifest.json"},
+    },
 }
 
 

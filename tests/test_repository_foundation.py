@@ -238,7 +238,7 @@ class RepositoryFoundationTests(unittest.TestCase):
         ))
         self.assertEqual(set(mcp["resources"]), MCP_FOUNDATION_RESOURCES)
 
-        self.assertEqual(len(manifest["skills"]["official"]), 5)
+        self.assertEqual(len(manifest["skills"]["official"]), 6)
         self.assertEqual(manifest["support"]["operatingSystems"], ["windows"])
         self.assertEqual(manifest["support"]["browsers"], [])
         configurations = manifest["support"]["verifiedConfigurations"]

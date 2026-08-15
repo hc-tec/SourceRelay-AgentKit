@@ -9,7 +9,15 @@
     "license": "Apache-2.0"
   },
   "checkpoint": {
-    "completed": [0, 1, 2, 3, 4, 5, 6],
+    "completed": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+    ],
     "current": null,
     "next": null
   },
@@ -179,11 +187,18 @@
         "skillId": "collect-zhihu",
         "skillVersion": "0.1.0",
         "digest": "sha256:1c0fe1126734edfcd8700b7eea3769ed2a2ac2fce2b60c2f4344e7804551391c"
+      },
+      {
+        "skillId": "report-question-driven",
+        "skillVersion": "0.1.0",
+        "digest": "sha256:8604a3b11b86616aba3b31fda0b3b9809c0556f2b0d50486503a0792e48e8f3f"
       }
     ]
   },
   "support": {
-    "operatingSystems": ["windows"],
+    "operatingSystems": [
+      "windows"
+    ],
     "browsers": [],
     "verifiedConfigurations": [
       {
@@ -225,7 +240,10 @@
         "platform": "bilibili",
         "toolId": "collector_bilibili_native_search",
         "capabilityId": "bilibili.native_search",
-        "pinnedSkillIds": ["use-collector-mcp", "collect-bilibili"],
+        "pinnedSkillIds": [
+          "use-collector-mcp",
+          "collect-bilibili"
+        ],
         "targetToolCallCount": 1,
         "idempotentReplay": true,
         "newPlatformOperationsCreated": 0,

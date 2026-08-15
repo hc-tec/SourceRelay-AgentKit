@@ -1,0 +1,51 @@
+{
+  "schemaVersion": "collector.ai-integration.skill/v1alpha1",
+  "skillId": "report-question-driven",
+  "skillVersion": "0.1.0",
+  "layer": "intent",
+  "publisher": "collector-ai-integration",
+  "source": "collector-ai-integration/skills/report-question-driven",
+  "digest": "sha256:8604a3b11b86616aba3b31fda0b3b9809c0556f2b0d50486503a0792e48e8f3f",
+  "license": "Apache-2.0",
+  "official": true,
+  "requirements": {
+    "tools": [],
+    "resources": [
+      "collector://release",
+      "collector://capabilities",
+      "collector://bindings",
+      "collector://operations/{operationId}",
+      "collector://artifacts/{artifactId}",
+      "collector://artifacts/{artifactId}/chunks/{cursor}"
+    ],
+    "capabilities": [],
+    "minimumOutputSchemas": {
+      "collector://release": "collector.mcp.release/v1",
+      "collector://capabilities": "collector.mcp.capabilities/v1",
+      "collector://bindings": "collector.mcp.bindings/v1",
+      "collector://operations/{operationId}": "collector.mcp.operation/v1",
+      "collector://artifacts/{artifactId}": "collector.mcp.artifact-metadata/v1",
+      "collector://artifacts/{artifactId}/chunks/{cursor}": "collector.mcp.artifact-chunk/v1"
+    }
+  },
+  "compatibility": {
+    "mcpToolCatalogRange": "=collector.mcp.tools/v1",
+    "testedConfigurations": [
+      {
+        "level": "l1",
+        "mcpProtocolVersion": "2025-11-25",
+        "toolCatalogVersion": "collector.mcp.tools/v1",
+        "coreRelease": "0.7.17",
+        "coreServiceSchema": 3
+      }
+    ]
+  },
+  "externalEffects": {
+    "platformReads": true,
+    "platformWrites": false,
+    "localWrites": [],
+    "networkDestinations": [
+      "evidence sources via Collector Core (upstream collection)"
+    ]
+  }
+}
