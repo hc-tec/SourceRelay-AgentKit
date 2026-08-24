@@ -107,7 +107,7 @@ EXPECTED_SKILLS = {
         "layer": "intent",
         "version": "0.1.0",
         "tools": set(),
-        "files": {"SKILL.md", "agents/openai.yaml", "manifest.json"},
+        "files": {"SKILL.md", "agents/openai.yaml", "manifest.json", "references/example-report.md"},
     },
 }
 
