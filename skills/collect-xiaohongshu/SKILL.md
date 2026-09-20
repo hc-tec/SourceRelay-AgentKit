@@ -33,8 +33,10 @@ removed from the reuse pool. If Core returns a context-unavailable terminal, pre
 and continue the caller's other sources; do not repeat the operation.
 
 - Set `maximumDetails: 0` or omit it for breadth-only card collection.
-- Set `maximumDetails` from 1 through 20 when the user needs detail. Slow does not mean artificially
-  small; choose enough ranked details for the stated evidence goal.
+- Set `maximumDetails` from 1 through 300 when the user needs detail. Slow does not mean artificially
+  small; choose enough ranked details for the stated evidence goal. The `depth` tiers resolve to
+  `standard` = 100 details and `deep` = 100 details with deeper comment budgets; the feed is scrolled
+  automatically so a requested depth beyond the first result page still collects.
 - `maximumDetails` alone is detail-only: it never collects comments. When the user asks for note
   details and comments, explicitly add `comments.maximumScrolls`; add
   `comments.replies.maximumThreads` only when replies are also requested.
